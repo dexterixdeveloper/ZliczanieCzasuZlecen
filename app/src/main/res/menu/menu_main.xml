@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="pl.vot.dexterix.zliczanieczasuzlecen.pl.vot.dexterix.zliczanieczasuzlecen.MainActivity">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+
+
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_firmy"
+        android:orderInCategory="100"
+
+
+        android:title="@string/firmy"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_zadania_archiwalne"
+        android:orderInCategory="100"
+        android:title="@string/zlecenia_archiwalne"
+
+
+        app:showAsAction="never" />
+</menu>

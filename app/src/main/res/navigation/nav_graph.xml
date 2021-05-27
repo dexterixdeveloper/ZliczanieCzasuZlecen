@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FragmentStart">
+
+
+    <fragment
+        android:id="@+id/FragmentZadanie"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentZadanie"
+    android:label="Obsługa zadania"
+        tools:layout="@layout/fragment_zadanie">
+
+        <action
+            android:id="@+id/action_FragmentZadanie_to_FragmentFirma"
+            app:destination="@id/FragmentFirma" />
+        <action
+            android:id="@+id/action_FragmentZadanie_to_FragmentZadaniaDoZrobienia"
+            app:destination="@id/FragmentZadaniaDoZrobienia" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/FragmentFirma"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentFirma"
+        android:label="Dodaj Firmę"
+        tools:layout="@layout/fragment_firma">
+
+        <action
+            android:id="@+id/action_FragmentFirma_to_FragmentFirmy"
+            app:destination="@id/FragmentFirmy" />
+    </fragment>
+    <fragment
+        android:id="@+id/FragmentFirmy"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentFirmy"
+        android:label="Wykaz Firm"
+        tools:layout="@layout/fragment_firmy">
+
+        <action
+            android:id="@+id/action_FragmentFirmy_to_FragmentFirma"
+            app:destination="@id/FragmentFirma" />
+    </fragment>
+    <fragment
+        android:id="@+id/FragmentZadaniaDoZrobienia"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentZadaniaDoZrobienia"
+        android:label="Zadnia do zrobienia"
+        tools:layout="@layout/fragment_zadania_do_zrobienia">
+
+        <action
+            android:id="@+id/action_FragmentZadania_to_FragmentZadanie"
+            app:destination="@id/FragmentZadanie" />
+    </fragment>
+    <fragment
+        android:id="@+id/FragmentZadaniaArchiwalne"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentZadaniaArchiwalne"
+        android:label="Zadania zrobione/archiwalne"
+        tools:layout="@layout/fragment_zadania_archiwalne">
+
+        <action
+            android:id="@+id/action_FragmentZadania_to_FragmentZadanie"
+            app:destination="@id/FragmentZadanie" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/FragmentStart"
+        android:name="pl.vot.dexterix.zliczanieczasuzlecen.FragmentStart"
+        android:label="Wybierz co robimy"
+        tools:layout="@layout/fragment_start">
+
+        <action
+            android:id="@+id/action_FragmentStart_toFragmentZadanie"
+            app:destination="@id/FragmentZadaniaDoZrobienia" />
+        <action
+            android:id="@+id/action_FragmentStart_to_FragmentFirmy"
+            app:destination="@id/FragmentFirmy" />
+        <action
+            android:id="@+id/action_FragmentStart_to_FragmentZadaniaArchiwalne"
+            app:destination="@id/FragmentZadaniaArchiwalne" />
+    </fragment>
+</navigation>

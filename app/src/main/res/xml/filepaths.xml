@@ -1,0 +1,17 @@
+<paths>
+    <files-path name="Backups" path="backup/"  />
+    <root-path name="root" path="." />
+    <external-path
+        name="external"
+        path="backup/" />
+    <external-files-path
+        name="external_files"
+        path="backup/" />
+    <cache-path
+        name="cache"
+        path="backup/" />
+    <external-cache-path
+        name="external_cache"
+        path="backup/" />
+
+</paths>
