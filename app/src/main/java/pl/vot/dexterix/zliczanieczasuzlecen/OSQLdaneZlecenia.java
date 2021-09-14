@@ -67,6 +67,14 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    public List<daneZlecenia> dajWszystkieDoRaportu(String status, Long czasRozpoczecia, Long czasZakonczenia){
+        String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
+                "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny = 1 " +
+                "AND czas_rozpoczecia >= " + czasRozpoczecia + " AND czas_rozpoczecia <= " + czasZakonczenia;
+        return dajDane(zapytanie);
+    }
+
     public List<daneZlecenia> dajWszystkieDoRecyclerViewNZ(String status){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
