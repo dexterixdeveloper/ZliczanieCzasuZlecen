@@ -6,12 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -26,15 +20,12 @@
                 >
 
             </androidx.recyclerview.widget.RecyclerView>
+
+
+
         </LinearLayout>
 
-        <Button
-            android:id="@+id/buttonDodajZadanie"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
 
-            android:layout_weight="1"
-            android:text="Dodaj Zadanie" />
-    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

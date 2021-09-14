@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 
 public class FragmentFirmy extends FragmentPodstawowy {
@@ -28,18 +30,15 @@ public class FragmentFirmy extends FragmentPodstawowy {
         public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             //Fragment z1 = getVisibleFragment();
-        /*extends AppCompatActivity {
+            clickOnFloatingButton();
+            wypelnijRecyclerView();
 
-    List<daneZlecenia> zlecenia;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // ...
-        super.onCreate(savedInstanceState);*/
+        }
+    private void wypelnijRecyclerView(){
             //setContentView(R.layout.fragment_zadania_recycler);
 
             // Lookup the recyclerview in activity layout
-            RecyclerView rvContacts = (RecyclerView) view.findViewById(R.id.recyclerViewFirmy);
+            RecyclerView rvContacts = (RecyclerView) getActivity().findViewById(R.id.recyclerViewFirmy);
 
             //FragmentRecycler adapter = ...;
 
@@ -51,10 +50,10 @@ public class FragmentFirmy extends FragmentPodstawowy {
             List<daneKalendarza> daneKalendarzy;
             daneKalendarzy = daneOSQLKalendarzy.dajWszystkie();
 
-            for (int i = 0; i < danaKlasy.size(); i++){
-                for (int j = 0; j < daneKalendarzy.size(); j++){
+            for (int i = 0; i < danaKlasy.size(); i++) {
+                for (int j = 0; j < daneKalendarzy.size(); j++) {
                     Long z = (danaKlasy.get(i).getKalendarz_id());
-                    if (z.equals(daneKalendarzy.get(j).getCalendar_id())){
+                    if (z.equals(daneKalendarzy.get(j).getCalendar_id())) {
                         danaKlasy.get(i).setKalendarz_nazwa(daneKalendarzy.get(j).getCalendarDisplayName());
                     }
                 }
@@ -64,15 +63,15 @@ public class FragmentFirmy extends FragmentPodstawowy {
             List<daneFirma> danaKlasyBezKalendarzy;
             //musimy wyświtlić firmy nawet bez kalendarzy
             danaKlasyBezKalendarzy = daneOSQL.dajWszystkieDoRecyclerViewBezKalendarzy();
-            if (danaKlasy.size() < danaKlasyBezKalendarzy.size()){
+            if (danaKlasy.size() < danaKlasyBezKalendarzy.size()) {
                 //ale poradzimy sobie z tym
                 //przeca liczy się od 0, wiec musi byc -1
-                for (int i =danaKlasyBezKalendarzy.size() - 1; i > 0; i--){
+                for (int i = danaKlasyBezKalendarzy.size() - 1; i > 0; i--) {
                     Log.d("i= ", String.valueOf(i));
                     Log.d("size of dananklawsy: ", String.valueOf(danaKlasy.size()));
-                    for (int j = 0; j < danaKlasy.size(); j++){
+                    for (int j = 0; j < danaKlasy.size(); j++) {
                         Log.d("j= ", String.valueOf(j));
-                        if (danaKlasyBezKalendarzy.get(i).getId().equals(danaKlasy.get(j).getId()) ){
+                        if (danaKlasyBezKalendarzy.get(i).getId().equals(danaKlasy.get(j).getId())) {
                             //danaKlasyBezKalendarzy.get(i).setUwagi("u1u");//oznaczamy do usunięcia
                             danaKlasyBezKalendarzy.remove(i);
                         }
@@ -101,11 +100,15 @@ public class FragmentFirmy extends FragmentPodstawowy {
             // Set layout manager to position the items
             rvContacts.setLayoutManager(new LinearLayoutManager(getActivity()));
             // That's all!
+        }
 
-            view.findViewById(R.id.buttonDodajFirme).setOnClickListener(new View.OnClickListener() {
+    private void clickOnFloatingButton() {
+        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
+        fab.setVisibility(View.VISIBLE);
+           fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    fab.setVisibility(View.INVISIBLE);
                     zmianaFragmentu(new FragmentFirma(), "FragmentFirma");
                 }
             });

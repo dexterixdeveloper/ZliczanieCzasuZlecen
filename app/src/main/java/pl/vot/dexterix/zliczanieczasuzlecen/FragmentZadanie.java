@@ -2,6 +2,7 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.fragment.NavHostFragment;
@@ -111,8 +113,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
                 //odczytujemy kalendarz
 
-                zapiszDane("zak");
-                cofnijDoPoprzedniegoFragmentu();
+                //zapiszDane("zak");
+                //cofnijDoPoprzedniegoFragmentu();
+                zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
             }
         });
     }
@@ -124,8 +127,10 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 aktualnaData.podajDate();
                 danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
                 //danaKlasy.setCzy_widoczny(1);
-                zapiszDane("zaw");
-                cofnijDoPoprzedniegoFragmentu();
+                //zapiszDane("zak");
+                //zapiszDane("zaw");
+                //cofnijDoPoprzedniegoFragmentu();
+                zapiszDaneICofnijDoPoprzedniegofragmentu("zaw");
 
             }
         });
@@ -143,8 +148,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 //aktualnaData.podajDate();
                 //danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
                 //danaKlasy.setCzy_widoczny(1);
-                zapiszDane("wtle");
-                cofnijDoPoprzedniegoFragmentu();
+                zapiszDaneICofnijDoPoprzedniegofragmentu("wtle");
+                //zapiszDane("wtle");
+                //cofnijDoPoprzedniegoFragmentu();
             }
         });
     }
@@ -185,21 +191,13 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+                danaKlasy.setFirma_id(-1);
             }
         });
     }//public void dodajDoSpinnerEksploatacjaDodajCzynnosc(Integer rSpinner) {
 
     private long addEventToCalendar(long calID, long startMillis, long endMillis, String tytul){
-        //long calID = 3;
-        //long startMillis = 0;
-        //long endMillis = 0;
-        //Calendar beginTime = Calendar.getInstance();
-        //beginTime.set(2012, 9, 14, 7, 30);
-        //startMillis = beginTime.getTimeInMillis();
-        //Calendar endTime = Calendar.getInstance();
-        //endTime.set(2012, 9, 14, 8, 45);
-        //endMillis = endTime.getTimeInMillis();
-
+        //Dodawanie zadań do kalendarza
 
         ContentResolver cr = getActivity().getContentResolver();
         ContentValues values = new ContentValues();
@@ -220,46 +218,71 @@ public class FragmentZadanie extends FragmentPodstawowy {
         return eventID;
     }
 
-    private void zapiszDane(String sStatus){
-        danaKlasy.setStatus(sStatus);
-        OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
-        if (przeniesioneID > 0) {
-            if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
-                Log.d("Status,", danaKlasyPrzeniesiona.getStatus());
-                Log.d("Wtle", "jka?");
-                //zamykamy poprzendie zlecenie
-                danaKlasyPrzeniesiona.setStatus("zak");
-
-            }else{
-                danaKlasyPrzeniesiona.setStatus("zakwtle");
+    private void zapiszDaneICofnijDoPoprzedniegofragmentu(String sStatus){
+        Context context = getActivity();
+        if (danaKlasy.getFirma_id() > 0) {
+            zapiszDane(sStatus);
+            cofnijDoPoprzedniegoFragmentu();
+        } else{
+                Toast.makeText(context, "Nie wybrałes firmy", Toast.LENGTH_SHORT).show();
             }
-            danaKlasyPrzeniesiona.setCzy_widoczny(0);
-            osql.updateDane(danaKlasyPrzeniesiona);
-        }
-        danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
-        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
-        danaKlasy.setCzy_widoczny(1);
-        if (danaKlasy.getCzas_rozpoczecia().equals(0L)) {
-            danaKlasy.setCzas_rozpoczecia(danaKlasy.getCzas_zakonczenia());
-            danaKlasy.setStatus("dw");
-        }
-        if (danaKlasy.getStatus().equals("zak")) {
-            //SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-            //OSQLdaneFirma oFirma = new OSQLdaneFirma(getActivity());
-            //oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id();
-            //OSQLdaneKalendarzy oKalendarz = new OSQLdaneKalendarzy(getActivity());
-            //oKalendarz.dajOkreslonyRekord(oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id()).getCalendar_id();
+    }
 
-            //Long zapisanyKalendarz = oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id();//= oKalendarz.dajOkreslonyRekord(oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id()).getCalendar_id();
-            //addEventToCalendar(zapisanyKalendarz, danaKlasy.getCzas_rozpoczecia(), danaKlasy.getCzas_zakonczenia(), danaKlasy.toStringDoKalendarza());
-            //TODO: dodać kolumny do tablicy zleceń z id wydarzenia z kalendarza, co to za kalendarz, id name ownername, czy może przebudować ustawienia?
-            //danaKlasy.setKalendarz_id_long(zapisanyKalendarz);
-            danaKlasy.setKalendarz_zadanie_id(addEventToCalendar(danaKlasy.getKalendarz_id_long(), danaKlasy.getCzas_rozpoczecia(), danaKlasy.getCzas_zakonczenia(), danaKlasy.toStringDoKalendarza()));
-            Log.d("FragmentZadanie id zadania: ", String.valueOf(danaKlasy.getKalendarz_zadanie_id()));
-        }
-        Log.d("dana klasy: ", danaKlasy.toString());
+    private void zapiszDane(String sStatus){
 
-        osql.dodajDane(danaKlasy);
-        //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
-    }//private void zapiszDane(){
+
+            danaKlasy.setStatus(sStatus);
+            OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
+            if (przeniesioneID > 0) {
+                if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
+                    Log.d("Status,", danaKlasyPrzeniesiona.getStatus());
+                    Log.d("Wtle", "jka?");
+                    //zamykamy poprzendie zlecenie
+                    danaKlasyPrzeniesiona.setStatus("zak");
+
+                }else{
+                    danaKlasyPrzeniesiona.setStatus("zakwtle");
+                }
+                danaKlasyPrzeniesiona.setCzy_widoczny(0);
+                osql.updateDane(danaKlasyPrzeniesiona);
+            }
+            danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
+            danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+            danaKlasy.setCzy_widoczny(1);
+            if (danaKlasy.getCzas_rozpoczecia().equals(0L)) {
+                danaKlasy.setCzas_rozpoczecia(danaKlasy.getCzas_zakonczenia());
+                danaKlasy.setStatus("dw");
+            }
+            if (sStatus.equals("zaw")){
+                if(danaKlasy.getCzas_zakonczenia()>danaKlasy.getCzas_rozpoczecia()){
+                    danaKlasy.setStatus("zak");
+                    zapiszDanaZakonczone();
+                    osql.dodajDane(danaKlasy);
+                    danaKlasy.setStatus("zaw");
+                }
+            }
+            if (danaKlasy.getStatus().equals("zak")) {
+                zapiszDanaZakonczone();
+            }
+            Log.d("dana klasy: ", danaKlasy.toString());
+
+            osql.dodajDane(danaKlasy);
+            //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
+        }//private void zapiszDane(){
+
+    private void zapiszDanaZakonczone(){
+        //SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        //OSQLdaneFirma oFirma = new OSQLdaneFirma(getActivity());
+        //oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id();
+        //OSQLdaneKalendarzy oKalendarz = new OSQLdaneKalendarzy(getActivity());
+        //oKalendarz.dajOkreslonyRekord(oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id()).getCalendar_id();
+
+        //Long zapisanyKalendarz = oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id();//= oKalendarz.dajOkreslonyRekord(oFirma.dajOkreslonyRekord(danaKlasy.getFirma_id()).getKalendarz_id()).getCalendar_id();
+        //addEventToCalendar(zapisanyKalendarz, danaKlasy.getCzas_rozpoczecia(), danaKlasy.getCzas_zakonczenia(), danaKlasy.toStringDoKalendarza());
+        //TODO: dodać kolumny do tablicy zleceń z id wydarzenia z kalendarza, co to za kalendarz, id name ownername, czy może przebudować ustawienia?
+        //danaKlasy.setKalendarz_id_long(zapisanyKalendarz);
+        danaKlasy.setKalendarz_zadanie_id(addEventToCalendar(danaKlasy.getKalendarz_id_long(), danaKlasy.getCzas_rozpoczecia(), danaKlasy.getCzas_zakonczenia(), danaKlasy.toStringDoKalendarza()));
+        Log.d("FragmentZadanie id zadania: ", String.valueOf(danaKlasy.getKalendarz_zadanie_id()));
+    }
+
 }

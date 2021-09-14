@@ -45,8 +45,10 @@ public class BackupExportFromSQL {
         //File backupDir = FileUtils.createDirIfNotExist(FileUtils.getAppDir(sciezkaB) + "/backup");
         //ActivitySettings.this.getApplicationInfo().dataDir
         //File backupDir = FileUtils.createDirIfNotExist(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
-        File backupDir = FileUtils.createDirIfNotExist(  context.getApplicationInfo().dataDir + "/backup");
-        Log.d("Path: ", context.getApplicationInfo().dataDir + "/backup");
+        File backupDir = FileUtils.createDirIfNotExist(  context.getExternalFilesDir(null) + "/backup");
+        //File backupDir = FileUtils.createDirIfNotExist(  context.getApplicationInfo().dataDir + "/backup");
+        Log.d("Path: ", context.getExternalFilesDir(null) + "/backup");
+        //Log.d("Path: ", context.getApplicationInfo().dataDir + "/backup");
         //Log.d("Path: ", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
         String fileName = createBackupFileName();
 

@@ -7,14 +7,16 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
 public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
     List<daneZlecenia> zlecenia;
+
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -26,19 +28,17 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Fragment z1 = getVisibleFragment();
-        /*extends AppCompatActivity {
 
-    List<daneZlecenia> zlecenia;
+        clickOnFloatingButton();
+        wypelnijRecyclerView();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // ...
-        super.onCreate(savedInstanceState);*/
+    }
+
+    private void wypelnijRecyclerView(){
         //setContentView(R.layout.fragment_zadania_recycler);
 
         // Lookup the recyclerview in activity layout
-        RecyclerView rvContacts = (RecyclerView) view.findViewById(R.id.recyclerViewZlecenia);
+        RecyclerView rvContacts = (RecyclerView) getActivity().findViewById(R.id.recyclerViewZlecenia);
 
         //FragmentRecycler adapter = ...;
 
@@ -64,13 +64,20 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         // Set layout manager to position the items
         rvContacts.setLayoutManager(new LinearLayoutManager(getActivity()));
         // That's all!
-
-        view.findViewById(R.id.buttonDodajZadanie).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                zmianaFragmentu(new FragmentZadanie(), "FragmentZadanie");
-            }
-        });
-
     }
+
+    private void clickOnFloatingButton() {
+        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
+        fab.setVisibility(View.VISIBLE);
+
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        fab.setVisibility(View.INVISIBLE);
+                        zmianaFragmentu(new FragmentZadanie(), "FragmentZadanie");
+                    }
+                });
+    }
+
+
 }

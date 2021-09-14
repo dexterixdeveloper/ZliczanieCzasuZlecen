@@ -50,6 +50,7 @@ public class FragmentFirma extends FragmentPodstawowy {
         textInputEditTextMiasto = (TextInputEditText) view.findViewById(R.id.textInputEditTextMiasto);
         textInputEditTextUwagi = (TextInputEditText) view.findViewById(R.id.textInputEditTextUwagi);
         textInputEditTextNrTelefonu = (TextInputEditText) view.findViewById(R.id.textInputEditTextNrTelefonu);
+        textInputEditTextNrTelefonu.setText("0");
         //sprawdzamy czy mamy zapisane kalendarze w bazie
         OSQLdaneKalendarzy osqlk = new OSQLdaneKalendarzy(getActivity());
         List<daneKalendarza> kalendarze_w_bazie = osqlk.dajWszystkie();

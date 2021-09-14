@@ -9,12 +9,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -30,8 +33,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         createNotificationChannel();
-
-
+        clickOnFloatingButton();
+        //sprobujmy zrobic backup na starcie
+        ObslugaSQL osql = new ObslugaSQL(this);
+        Log.d("Katalog: ", "yy");
+        osql.zrobKopieBazy("bla", this);
+        //koniec prob
         String tagBackStack = "FragmentStart";
         zmianaFragmentu(new FragmentZadaniaDoZrobienia(), tagBackStack, 0);
 
@@ -67,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_zadania_archiwalne) {
             String tagBackStack = "FragmentZadaniaArchiwalne";
             zmianaFragmentu(new FragmentZadaniaArchiwalne(), tagBackStack, 1);
+
+            return true;
+        }
+
+        if (id == R.id.action_raporty) {
+            String tagBackStack = "FragmentRaporty";
+            zmianaFragmentu(new FragmentRaporty(), tagBackStack, 1);
 
             return true;
         }
@@ -168,6 +182,13 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         alertDialog.show();
+
+
+    }
+
+    private void clickOnFloatingButton() {
+        FloatingActionButton fab = findViewById(R.id.floatingActionButtonDodaj);
+        fab.setVisibility(View.INVISIBLE);
 
 
     }

@@ -12,10 +12,15 @@
 
     <TextView
         android:id="@+id/textView"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
         android:layout_width="match_parent"
+
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_gravity="center"
-
+        android:autoSizeTextType="uniform"
         android:text="JakisTamSpinner"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textAlignment="textStart"
+        android:textAllCaps="false"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textIsSelectable="false" />
 </LinearLayout>

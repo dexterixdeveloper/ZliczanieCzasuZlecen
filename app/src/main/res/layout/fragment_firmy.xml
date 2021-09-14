@@ -20,13 +20,7 @@
 
         </androidx.recyclerview.widget.RecyclerView>
 
-        <Button
-            android:id="@+id/buttonDodajFirme"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
 
-            android:text="Dodaj Firmę" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

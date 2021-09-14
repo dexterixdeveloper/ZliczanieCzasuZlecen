@@ -19,4 +19,8 @@
     <string name="zlecenia_archiwalne">Zlecenia Archiwalne</string>
     <string name="firmy">Firmy</string>
     <string name="zadania">Zadania</string>
+    <string name="raporty">Raporty</string>
+    <string name="wykonaj_raport">Wykonaj Raport</string>
+    <string name="podaj_dat_od_kiedy">Podaj datę od kiedy</string>
+    <string name="podaj_dat_od_kiedy">Podaj datę od kiedy</string>
 </resources>

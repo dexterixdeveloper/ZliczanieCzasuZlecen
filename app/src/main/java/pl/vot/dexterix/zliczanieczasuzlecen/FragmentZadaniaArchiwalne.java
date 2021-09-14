@@ -4,17 +4,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import pl.vot.dexterix.zliczanieczasuzlecen.R;
-
 import java.util.List;
 
-public class FragmentZadaniaArchiwalne extends Fragment {
+public class FragmentZadaniaArchiwalne extends FragmentPodstawowy {
 
     List<daneZlecenia> zlecenia;
     @Override
@@ -49,17 +47,19 @@ public class FragmentZadaniaArchiwalne extends Fragment {
         zlecenia = daneZleceniaSQL.dajWszystkieDoRecyclerView("zak");
         // Create adapter passing in the sample user data
         FragmentRecyclerZadania adapter = new FragmentRecyclerZadania(zlecenia);
-        /*adapter.setOnItemClickListener(new FragmentRecycler.OnItemClickListener() {
+
+        adapter.setOnItemClickListener(new FragmentRecyclerZadania.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 int name = zlecenia.get(position).getId();
                 Bundle bundleDane = new Bundle();
                 bundleDane.putInt("id", name);
-                NavHostFragment.findNavController(FragmentZadaniaArchiwalne.this)
-                        .navigate(R.id.action_FragmentZadania_to_FragmentZadanie, bundleDane);
+                FragmentZadanieArchiwalne fragmentDoZamiany = FragmentZadanieArchiwalne.newInstance(name);
+                zmianaFragmentu(fragmentDoZamiany, "FragmentZadanie");
                 Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();
             }
-        });*/
+        });
+
         // Attach the adapter to the recyclerview to populate items
         rvContacts.setAdapter(adapter);
         // Set layout manager to position the items
