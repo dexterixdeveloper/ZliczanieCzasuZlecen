@@ -62,4 +62,16 @@ public class daneData {
 
 
     }//private void konwertujDateZeStringa(){
+
+    public long getDateFromString(String przekazanaData){
+        try {
+            Date dataCzas = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.ENGLISH).parse(przekazanaData);
+            Long dataMilisekundy1 = dataCzas.getTime();
+            this.setDataMilisekundy(dataMilisekundy1);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return dataMilisekundy;
+    }//private void konwertujDateZeStringa(){
 }

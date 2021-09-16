@@ -1,5 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,13 +8,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FragmentRaporty extends FragmentPodstawowy {
@@ -92,16 +100,79 @@ public class FragmentRaporty extends FragmentPodstawowy {
         });
     }//public void dodajDoSpinnerEksploatacjaDodajCzynnosc(Integer rSpinner) {
 
-    private void obsluzGuzikWykonajRaport(View view){
+    private void obsluzGuzikWykonajRaport(View view)  {
         view.findViewById(R.id.buttonWykonajRaport).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Log.d("FragmentRaporty: ", "klik");
                 OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
-                zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", textInputEditTextDataPoczatkowa.getText(), textInputEditTextDataKoncowa.getText());
+                zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())));
+                Log.d("FragmentRaporty: ", zlecenia.get(1).toStringForRaport());
+
+                //zapisujemy dane
+
+                File raportDir = FileUtils.createDirIfNotExist(getActivity().getExternalFilesDir(null) + "/raport");
+                //File backupDir = FileUtils.createDirIfNotExist(  context.getApplicationInfo().dataDir + "/backup");
+                Log.d("Path: ", getActivity().getExternalFilesDir(null) + "/raport");
+                //Log.d("Path: ", context.getApplicationInfo().dataDir + "/backup");
+                //Log.d("Path: ", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
+                String fileName = createFileName();
+
+                File raportFile = new File(raportDir, fileName);
+
+                //File backupFile = new File(sciezkaB.getPath());
+
+                //File backupFile = new File(sciezkaB);
+                //backupFile = sciezkaB;
+                try {
+                    boolean success = raportFile.createNewFile();
+                } catch (IOException e) {
+                    Log.d("FragmentRaporty: ", "cos sie zjeblo");
+                    e.printStackTrace();
+                }
+
+
+                Log.d("FragmentRaporty: ", "Started to fill the raport file in " + raportFile.getAbsolutePath());
+                Toast.makeText(getActivity(), "Started to fill the raport file in " + raportFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                long starTime = System.currentTimeMillis();
+                //raportFile.
+                //writeCsv(backupFile, db, tables);
+                writeToFile(zlecenia.get(0).toStringForRaportNaglowek(), getActivity(), fileName, raportDir.getAbsolutePath());
+                for (int i = 0; i < zlecenia.size(); i++){
+                    writeToFile(zlecenia.get(i).toStringForRaport(), getActivity(), fileName, raportDir.getAbsolutePath());
+                    Log.d("FragmentRaporty: zapis do pliku: ", zlecenia.get(i).toStringForRaport());
+                }
+                Log.d("FragmentRaporty: ", raportFile.getName());
+
+                long endTime = System.currentTimeMillis();
+                Log.d("FragmentRaporty: ", "Creating raport took " + (endTime - starTime) + "ms.");
+                Toast.makeText(getActivity(), "Creating raport took " + (endTime - starTime) + "ms.", Toast.LENGTH_SHORT).show();
+
                 cofnijDoPoprzedniegoFragmentu();
                 //zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
             }
         });
+    }
+
+    private void writeToFile(String data, Context context, String fileName, String dir) {
+        try {
+            FileOutputStream plik = new FileOutputStream(dir + "/" + fileName);//openFileOutput(filename, Context.MODE_PRIVATE);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
+            myOutWriter.append(data);
+            myOutWriter.close();
+            plik.close();
+
+
+        }
+        catch (IOException e) {
+            Log.d("FragmentRaporty: ", "cos sie sparolilo");
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    public static String createFileName(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HHmm");
+        return "raport_zlecen_" + sdf.format(new Date()) + "_ZliczanieCzasuZlecen.csv";
     }
 
 }

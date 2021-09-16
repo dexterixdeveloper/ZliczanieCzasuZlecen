@@ -151,7 +151,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         if (kursor != null) {
             kursor.moveToFirst();
             while (!kursor.isAfterLast()) {
-                Log.d(tag1,String.valueOf(kursor.getCount()));
+                //Log.d(tag1,String.valueOf(kursor.getCount()));
                 daneZlecenia dana_funkcji = cursorDane(kursor);
                 //daneAuta daneAuta = new daneAuta();
                 //Log.d("ileAut: ", String.valueOf(ii));

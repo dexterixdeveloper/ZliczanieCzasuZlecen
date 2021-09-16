@@ -22,5 +22,9 @@
     <string name="raporty">Raporty</string>
     <string name="wykonaj_raport">Wykonaj Raport</string>
     <string name="podaj_dat_od_kiedy">Podaj datę od kiedy</string>
-    <string name="podaj_dat_od_kiedy">Podaj datę od kiedy</string>
+    <string name="podaj_dat_do_kiedy">Podaj datę do kiedy</string>
+    <string name="wy_lij_raport">Wyślij Raport</string>
+    <string name="wy_lij_backup">Wyślij Backup</string>
+    <string name="przywr_z_backupu">Przywróć z Backupu</string>
+    <string name="wykonaj_backup">Wykonaj Backup</string>
 </resources>

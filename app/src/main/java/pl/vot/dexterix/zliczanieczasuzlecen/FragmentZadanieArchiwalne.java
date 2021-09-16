@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +31,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
     private TextInputEditText textInputEditTextCzasZakonczenia;
     private int przeniesioneID = 0;
     daneData aktualnaData = new daneData();
+
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
@@ -195,7 +195,10 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
             danaKlasyPrzeniesiona.setCzy_widoczny(0);
             osql.updateDane(danaKlasyPrzeniesiona);
         }
-        danaKlasy.setCzas_rozpoczecia(Long.valueOf(textInputEditTextOpis.getText()));
+        //aktualnaData.konwertujDateZeStringa(String.valueOf(textInputEditTextCzasRozpoczecia.getText()));
+        danaKlasy.setCzas_rozpoczecia(aktualnaData.getDateFromString(String.valueOf(textInputEditTextCzasRozpoczecia.getText())));
+        //aktualnaData.konwertujDateZeStringa(String.valueOf(textInputEditTextCzasZakonczenia.getText()));
+        danaKlasy.setCzas_zakonczenia(aktualnaData.getDateFromString(String.valueOf(textInputEditTextCzasZakonczenia.getText())));
         danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
         danaKlasy.setCzy_widoczny(1);

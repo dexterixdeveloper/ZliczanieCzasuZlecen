@@ -18,14 +18,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Wykonaj Backup" />
+            android:text="@string/wykonaj_backup" />
 
         <Button
             android:id="@+id/buttonRestore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Przywróć z Backupu" />
+            android:text="@string/przywr_z_backupu" />
 
         <Button
             android:id="@+id/button3"
@@ -39,8 +39,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Wyślij Backup" />
+            android:text="@string/wy_lij_backup" />
 
+        <Button
+            android:id="@+id/buttonSendReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/wy_lij_raport" />
 
     </LinearLayout>
 

@@ -192,4 +192,15 @@ public class daneZlecenia extends daneKlasaPodstawowa{
 
     }
 
+    public String toStringForRaport() {
+        return  czas_rozpoczecia_string + ';' +
+                czas_zakonczenia_string + ';' +
+                firma_nazwa + ';' +
+                opis + ';' +
+                status + ';' +
+                uwagi + ';' ;
+    }
+    public String toStringForRaportNaglowek() {
+        return "LP.;Czas Rozpoczecia;Czas Zakonczenia;Firma;Opis;Status;Uwagi";
+    }
 }
