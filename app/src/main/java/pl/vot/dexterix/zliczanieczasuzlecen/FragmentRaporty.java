@@ -1,6 +1,5 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,10 +81,10 @@ public class FragmentRaporty extends FragmentPodstawowy {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
-                if (!(poszukiwanie==getString(dodaj)) && !(poszukiwanie==getString(wybierz))){
+                if (!(poszukiwanie.equals(getString(dodaj))) && !(poszukiwanie.equals(getString(wybierz)))){
                     danaKlasy = (Integer.valueOf(danaSpinnera.get(i)[0]));
 
-                }else if (poszukiwanie==getString(dodaj)){
+                }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentRaporty.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
                     /*Intent intent = new Intent(ActivityZadanie.this, ActivityPrzegladyOkresoweDodajStacjaKontroliSieci.class);
@@ -137,10 +136,23 @@ public class FragmentRaporty extends FragmentPodstawowy {
                 long starTime = System.currentTimeMillis();
                 //raportFile.
                 //writeCsv(backupFile, db, tables);
-                writeToFile(zlecenia.get(0).toStringForRaportNaglowek(), getActivity(), fileName, raportDir.getAbsolutePath());
-                for (int i = 0; i < zlecenia.size(); i++){
-                    writeToFile(zlecenia.get(i).toStringForRaport(), getActivity(), fileName, raportDir.getAbsolutePath());
-                    Log.d("FragmentRaporty: zapis do pliku: ", zlecenia.get(i).toStringForRaport());
+                try {
+                    FileOutputStream plik = new FileOutputStream(raportDir.getAbsolutePath() + "/" + fileName);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
+
+                    //data= zlecenia.get(0).toStringForRaportNaglowek(), plik);
+                    myOutWriter.append(zlecenia.get(0).toStringForRaportNaglowek());
+                    for (int i = 0; i < zlecenia.size(); i++){
+                        myOutWriter.append(zlecenia.get(i).toStringForRaport());
+                        Log.d("FragmentRaporty: zapis do pliku: ", zlecenia.get(i).toStringForRaport());
+                    }
+                    myOutWriter.close();
+                    plik.close();
+                } catch (IOException e) {
+
+                    Log.d("FragmentRaporty: ", "cos sie sparolilo");
+                    Log.e("Exception", "File write failed: " + e.toString());
+                    e.printStackTrace();
                 }
                 Log.d("FragmentRaporty: ", raportFile.getName());
 
@@ -154,13 +166,13 @@ public class FragmentRaporty extends FragmentPodstawowy {
         });
     }
 
-    private void writeToFile(String data, Context context, String fileName, String dir) {
+    private void writeToFile(String data, FileOutputStream plik) {
         try {
-            FileOutputStream plik = new FileOutputStream(dir + "/" + fileName);//openFileOutput(filename, Context.MODE_PRIVATE);
+            //FileOutputStream plik = new FileOutputStream(dir + "/" + fileName);//openFileOutput(filename, Context.MODE_PRIVATE);
             OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
             myOutWriter.append(data);
             myOutWriter.close();
-            plik.close();
+            //plik.close();
 
 
         }
