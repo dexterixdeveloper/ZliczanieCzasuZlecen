@@ -62,15 +62,15 @@ public class FragmentPodstawowy extends Fragment {
         fm.popBackStack();
     }
 
-    protected void pokazPowiadomienie(){
+    protected void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1 ){
         //takie tam powiadominie sobie wrzucamy
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), CHANNEL_ID)
                 //.setSmallIcon(R.drawable.notification_icon)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Yupi! Dodajesz nowe zadnie.")
-                .setContentText("Much longer text that cannot fit one line...")
+                .setContentTitle(tytul)
+                .setContentText(opis)
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
+                        .bigText(opis2))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         //powiadomienie
 

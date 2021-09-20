@@ -52,7 +52,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
         obsluzGuzikWykonajRaport(getView());
 
         //Powiadomienie
-        pokazPowiadomienie();
+        //pokazPowiadomienie();
 
         Spinner spinner = (Spinner) view.findViewById(R.id.spinnerWybierzFirme);
         dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, 0);
