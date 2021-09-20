@@ -66,7 +66,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
 
         obsluzGuzikZakoncz(getView());
 
-        //Powiadomienie
+        //Powiadomienietakietamdocommita
         //pokazPowiadomienie();
 
         Spinner spinner = (Spinner) view.findViewById(R.id.spinnerWybierzFirme);
