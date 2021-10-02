@@ -342,14 +342,17 @@ private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"calendar_id", "acco
         }//if (nazwa_tabeli.equals("ElektronicznaKsiazkaAutaByDexTypPaliwa")){
     }//public void wstawDanePobraneZCSV(String nazwa_tabeli, ContentValues wartosci){*/
 
-    protected void dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
+    protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         Log.d("DebugCSQL:", nazwa_tabeli);
-        
+        long idRekordu =-1;
         SQLiteDatabase db = getWritableDatabase();
 
         try {
+
             //db.insert(nazwa_tabeli, null, wartosci);
-            db.insertOrThrow(nazwa_tabeli, null, wartosci);
+            idRekordu = db.insertOrThrow(nazwa_tabeli, null, wartosci);
+            //Log.d("Wstawianie ", String.valueOf(idRekordu));
+
         } catch(SQLException excepion){
             Log.d("Wywalilo", nazwa_tabeli);
             Log.d("wyjatek", excepion.toString());
@@ -359,10 +362,11 @@ private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"calendar_id", "acco
         }
         Log.d("DebugCSQL:", "koniec wstawiania danych do tabeli: " + nazwa_tabeli);
         db.close();
+        return idRekordu;
     }//private void dodajDane(){
 
     protected void updateDaneOSQL(String nazwa_tabeli, ContentValues wartosci, Integer _id_){
-        Log.d("DebugCSQL:", nazwa_tabeli);
+        Log.d("DebugCSQL updateDaneSQL:", nazwa_tabeli);
 
         SQLiteDatabase db = getWritableDatabase();
 

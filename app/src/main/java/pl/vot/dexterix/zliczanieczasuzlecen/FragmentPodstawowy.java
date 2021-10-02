@@ -2,8 +2,6 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -60,16 +58,20 @@ public class FragmentPodstawowy extends Fragment {
         //fragment Manager przenosi nas do poprzedniego fragmentu
         FragmentManager fm = getActivity().getSupportFragmentManager();
         fm.popBackStack();
+
     }
 
-    protected void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1 ){
+    /*protected void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1 ){
         //takie tam powiadominie sobie wrzucamy
+        //TODO: wyjaśnić sprawę z powiedomieniami dlaczego 2 albo 3 linie wyświetlają się losowo 2 albo 3
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), CHANNEL_ID)
                 //.setSmallIcon(R.drawable.notification_icon)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(tytul)
                 .setContentText(opis)
+                //.setContentText(opis2)
                 .setStyle(new NotificationCompat.BigTextStyle()
+                        //.bigText("345"))
                         .bigText(opis2))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         //powiadomienie
@@ -78,8 +80,8 @@ public class FragmentPodstawowy extends Fragment {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
 
         // notificationId is a unique int for each notification that you must define
-        int notificationId = 1;
+        int notificationId = notificationId1;
         notificationManager.notify(notificationId, builder.build());
         //to pokazaliśmy
-    }
+    }*/
 }

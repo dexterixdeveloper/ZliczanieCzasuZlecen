@@ -3,7 +3,11 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +17,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "PowiadomienieZliczanieCzasuZlecen";
     public final FragmentManager fm = getSupportFragmentManager();
+    private String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +46,43 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Katalog: ", "yy");
         osql.zrobKopieBazy("bla", this);
         //koniec prob
-        String tagBackStack = "FragmentStart";
-        zmianaFragmentu(new FragmentZadaniaDoZrobienia(), tagBackStack, 0);
 
+        //częćś do uruchomienia fragmentu z powiadomienia
+        String menuFragment = getIntent().getStringExtra("menuFragment");
+
+        //FragmentManager fragmentManager = getSupportFragmentManager();
+        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // If menuFragment is defined, then this activity was launched with a fragment selection
+        if (menuFragment != null) {
+            Log.d(TAG, "null");
+            // Here we can decide what do to -- perhaps load other parameters from the intent extras such as IDs, etc
+            if (menuFragment.equals("FragmentZadanie")) {
+                Log.d(TAG, "czyzby sie udalo?");
+                //FragmentZadanie favoritesFragment = new FragmentZadanie();
+                int name = getIntent().getIntExtra("id", 0);
+                Bundle bundleDane = new Bundle();
+                bundleDane.putInt("id", name);
+                FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
+                //tutaj jakoś musimy wssadzić poczatkowy fragment
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.add(new FragmentZadaniaDoZrobienia(),"FragmentStart");
+
+                ft.addToBackStack("FragmentStart");
+                ft.commit();
+                //do tąd
+                String tagBackStack = "FragmentZadanie";
+                zmianaFragmentu(fragmentDoZamiany, tagBackStack, 0);
+                //fragmentTransaction.replace(android.R.id.content, favoritesFragment);
+            }
+        } else {
+            // Activity was not launched with a menuFragment selected -- continue as if this activity was opened from a launcher (for example)
+            String tagBackStack = "FragmentStart";
+            Log.d(TAG, "chyba się nie udało");
+            zmianaFragmentu(new FragmentZadaniaDoZrobienia(), tagBackStack, 0);
+            //StandardFragment standardFragment = new StandardFragment();
+            //fragmentTransaction.replace(android.R.id.content, standardFragment);
+        }
     }
 
     @Override
@@ -109,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         if(fragments != null){
             for(Fragment fragment : fragments){
                 //fragment.
-                Log.d("fragment1", String.valueOf(fragment.toString()));
+                Log.d("fragment1", fragment.toString());
                 if(fragment != null && fragment.isVisible()) {
                     Log.d("fragment", String.valueOf(fragment.getTag()));
                     return fragment.getTag();
@@ -240,6 +281,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1, Context context){
+        //Kombinujemy jak z powiadomienia odpalić formatkę
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        resultIntent.putExtra("menuFragment", "FragmentZadanie");
+        resultIntent.putExtra("id", notificationId1);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        //stackBuilder.add
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Kombinujemy jak z powiadomienia odpalić formatkę - tu na razie tyle
 
+        //takie tam powiadominie sobie wrzucamy
+        //TODO: wyjaśnić sprawę z powiedomieniami dlaczego 2 albo 3 linie wyświetlają się losowo 2 albo 3
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        builder.setContentIntent(resultPendingIntent);
+                //.setSmallIcon(R.drawable.notification_icon)
+                builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(tytul)
+                .setContentText(opis)
+                //.setContentText(opis2)
+                //.setLargeIcon(R.mipmap.ic_launcher)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        //.bigText("345"))
+                        .bigText(opis2))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        //powiadomienie
+
+
+
+
+        //to pokazujemy powiadmomienie
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        // notificationId is a unique int for each notification that you must define
+        int notificationId = notificationId1;
+        notificationManager.notify(notificationId, builder.build());
+        //to pokazaliśmy
+    }
 
 }

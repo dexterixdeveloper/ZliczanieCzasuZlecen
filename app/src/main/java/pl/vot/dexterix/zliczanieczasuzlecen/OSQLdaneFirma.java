@@ -98,20 +98,20 @@ public class OSQLdaneFirma extends ObslugaSQL{
     private ContentValues contentValues(daneFirma dane_funkcji){
         ContentValues wartosci = new ContentValues();
         wartosci.put("nazwa", dane_funkcji.getNazwa());
-        Log.d("OSQLdaneFirma: Nazwa: ", dane_funkcji.getNazwa());
+        //Log.d("OSQLdaneFirma: Nazwa: ", dane_funkcji.getNazwa());
         //wartosci.put("numer", dane_funkcji.getNumer());
         wartosci.put("nr_telefonu", dane_funkcji.getNr_telefonu());
-        Log.d("OSQLdaneFirma: Numer Telefonu", String.valueOf(dane_funkcji.getNr_telefonu()));
+        //Log.d("OSQLdaneFirma: Numer Telefonu", String.valueOf(dane_funkcji.getNr_telefonu()));
         wartosci.put("ulica_nr", dane_funkcji.getUlicaNr());
-        Log.d("OSQLdaneFirma: UlicaNr: ", dane_funkcji.getUlicaNr());
+        //Log.d("OSQLdaneFirma: UlicaNr: ", dane_funkcji.getUlicaNr());
         wartosci.put("miasto", dane_funkcji.getMiasto());
-        Log.d("OSQLdaneFirma: Miasto: ", dane_funkcji.getMiasto());
+        //Log.d("OSQLdaneFirma: Miasto: ", dane_funkcji.getMiasto());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id_str());
-        Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(dane_funkcji.getKalendarz_id()));
+        //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(dane_funkcji.getKalendarz_id()));
                 //wartosci.put("siec_id", dane_funkcji.getSiec_id());
         //wartosci.put("typ", dane_funkcji.getTyp());
         wartosci.put("uwagi", dane_funkcji.getUwagi());
-        Log.d("OSQLdaneFirma: Uwagi: ", dane_funkcji.getUwagi());
+        //Log.d("OSQLdaneFirma: Uwagi: ", dane_funkcji.getUwagi());
         return wartosci;
     }
 
@@ -135,7 +135,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
     public void dodajDane(daneFirma dane_funkcji) {
         ContentValues wartosci = contentValues(dane_funkcji);
 
-        Log.d("SQL: dDMT", wartosci.toString());
+        //Log.d("SQL: dDMT", wartosci.toString());
 
         dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
@@ -152,7 +152,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
 
         //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
         Cursor kursor = db.rawQuery(zapytanie, null);
-        Log.d("Dane Frimra dlugosc kursora: ", String.valueOf(kursor.getCount()));
+        //Log.d("Dane Frimra dlugosc kursora: ", String.valueOf(kursor.getCount()));
         //daneAuta daneAuta = new daneAuta();
         //Log.d("zawartoscKursora",String.valueOf(kursor));
         //int ii =0;
@@ -229,7 +229,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
         }
         if (kursor.getColumnIndex("kalendarz_id") > -1) {
             dane_funkcji.setKalendarz_id(kursor.getLong(kursor.getColumnIndex("kalendarz_id")));
-            Log.d("OSQLdnaeFirma kalendarz_id :", kursor.getString(kursor.getColumnIndex("kalendarz_id")));
+            //Log.d("OSQLdnaeFirma kalendarz_id :", kursor.getString(kursor.getColumnIndex("kalendarz_id")));
         }
         if (kursor.getColumnIndex("calendarDisplayName") > -1) {
             dane_funkcji.setKalendarz_nazwa(kursor.getString(kursor.getColumnIndex("calendarDisplayName")));
@@ -266,7 +266,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
         ArrayList<String[]> lista = new ArrayList<>();
         for (daneFirma dana : daneWszystkich) {
             String[] wiersz = {String.valueOf(dana.getId()), dana.getNazwa(), String.valueOf(dana.getKalendarz_id())};
-            Log.d("wiersz: ", String.valueOf(wiersz));
+            //Log.d("wiersz: ", String.valueOf(wiersz));
             lista.add(wiersz);
         }//for (daneAuta auta : daneWszystkichAut) {
         return lista;

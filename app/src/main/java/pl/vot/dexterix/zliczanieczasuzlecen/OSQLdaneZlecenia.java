@@ -41,7 +41,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
 
     }
 
-    public void dodajDane(daneZlecenia dane){
+    public long dodajDane(daneZlecenia dane){
 
         ContentValues wartosci = new ContentValues();
         wartosci.put("firma_id", dane.getFirma_id());
@@ -56,8 +56,9 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         wartosci.put("kalendarz_id", dane.getKalendarz_id());
         wartosci.put("kalendarz_zadanie_id", dane.getKalendarz_zadanie_id());
 
-        dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-
+        long idRekordu = -1;
+        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
     }
 
     public List<daneZlecenia> dajWszystkieDoRecyclerView(String status){
@@ -100,16 +101,16 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
 
     public daneZlecenia dajDane1(String zapytanie){
         //Pobiera dane okreslonego wiersza
-        Log.d("DebugCSQL:", "dajWszystkieAuta");
+        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
         daneZlecenia dane_funkcji = new daneZlecenia();
 
         SQLiteDatabase db = getReadableDatabase();
 
         //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
         Cursor kursor = db.rawQuery(zapytanie, null);
-        Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
+        //Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
         //daneAuta daneAuta = new daneAuta();
-        Log.d("zawartoscKursora",String.valueOf(kursor));
+        //Log.d("zawartoscKursora",String.valueOf(kursor));
         //int ii =0;
         if (kursor != null) {
             kursor.moveToFirst();
@@ -137,16 +138,16 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
     }//public List<daneAuta> dajWszystkieAuta(){
 
     public List<daneZlecenia> dajDane(String zapytanie){
-        Log.d("DebugCSQL:", "dajWszystkieAuta");
+        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
         List<daneZlecenia> dane_funkcji = new LinkedList<>();
 
         SQLiteDatabase db = getReadableDatabase();
 
         //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
         Cursor kursor = db.rawQuery(zapytanie, null);
-        Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
+        //Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
         //daneAuta daneAuta = new daneAuta();
-        Log.d("zawartoscKursora",String.valueOf(kursor));
+        //Log.d("zawartoscKursora",String.valueOf(kursor));
         //int ii =0;
         if (kursor != null) {
             kursor.moveToFirst();
@@ -158,7 +159,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
                 //ii++;
                 //daneAuta.setId(kursor.getInt(kursor.getColumnIndex("a._id")));
 
-                Log.d("getColumnIndexOrThrow",String.valueOf(kursor.getColumnIndexOrThrow("_id")));
+                //Log.d("getColumnIndexOrThrow",String.valueOf(kursor.getColumnIndexOrThrow("_id")));
 
                 dane_funkcji.add(dana_funkcji);
                 kursor.moveToNext();

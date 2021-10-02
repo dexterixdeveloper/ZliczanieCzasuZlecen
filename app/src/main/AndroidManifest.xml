@@ -13,8 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ZliczanieCzasuZlecen">
 
+        <service
+            android:name=".NotificationService"
+            android:exported="false"
 
+            />
 
+        <receiver android:name=".AlarmReceiver"/>
         <activity
             android:name="pl.vot.dexterix.zliczanieczasuzlecen.MainActivity"
             android:label="@string/app_name"

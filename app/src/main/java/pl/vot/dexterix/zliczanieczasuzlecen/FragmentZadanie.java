@@ -1,10 +1,14 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +33,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
     private TextInputEditText textInputEditTextUwagi;
     private int przeniesioneID = 0;
     daneData aktualnaData = new daneData();
+
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
@@ -130,6 +135,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 //zapiszDane("zak");
                 //zapiszDane("zaw");
                 //cofnijDoPoprzedniegoFragmentu();
+
                 zapiszDaneICofnijDoPoprzedniegofragmentu("zaw");
 
             }
@@ -148,12 +154,44 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 //aktualnaData.podajDate();
                 //danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
                 //danaKlasy.setCzy_widoczny(1);
+                //pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), 2);
+                //uruchomAlramZadania();
+                //Intent zadanieServiceWtle = new Intent(getContext(), NotificationService.class);
+                //startForegroundService(getContext(), zadanieServiceWtle ) ;
+                //startForegroundService( new Intent( getContext(), NotificationService.class )) ;
                 zapiszDaneICofnijDoPoprzedniegofragmentu("wtle");
                 //zapiszDane("wtle");
                 //cofnijDoPoprzedniegoFragmentu();
             }
         });
     }
+
+    private void uruchomAlramZadania(String tytul, String opis, String opis2, int notificationId1){
+        AlarmManager alarmMgr;
+        PendingIntent alarmIntent;
+
+        alarmMgr = (AlarmManager)getContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getContext(), AlarmReceiver.class);
+        intent.putExtra("tytul", tytul);
+        intent.putExtra("opis", opis);
+        intent.putExtra("opis2", opis2);
+        intent.putExtra("notificationID1", notificationId1);
+
+        alarmIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+
+        alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() +
+                        60 * 1000, 60 * 1000, alarmIntent);
+
+// setRepeating() lets you specify a precise custom interval--in this case,
+// 20 minutes.
+        //alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+         //       1000 * 60 * 20, alarmIntent);
+
+
+
+    }
+
     public void dodajDoSpinnerWybierzFirme(Spinner spinner, final Integer dodaj, final Integer wybierz, Integer wybor) {
         OSQLdaneFirma dA = new OSQLdaneFirma(getActivity());
         Log.d("Spinner", "2)");
@@ -266,7 +304,15 @@ public class FragmentZadanie extends FragmentPodstawowy {
             }
             Log.d("dana klasy: ", danaKlasy.toString());
 
-            osql.dodajDane(danaKlasy);
+            long idRekordu = -1;
+            idRekordu = osql.dodajDane(danaKlasy);
+
+            if (danaKlasy.getStatus().equals("wtle")){
+                MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext());
+                Log.d("FragmentZadanie: Opis: ", danaKlasy.getOpis());
+                uruchomAlramZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu));
+            }
+
             //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
         }//private void zapiszDane(){
 

@@ -65,7 +65,7 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         rvContacts.setLayoutManager(new LinearLayoutManager(getActivity()));
         // That's all!
         //pokazujemy powiadomienie
-        pokazPowiadomienie("Zadań zawieszonych: " + zlecenia.size(), "", "", 0);
+        //pokazPowiadomienie("Zadań zawieszonych: " + zlecenia.size(), "", "", 0, getContext());
     }
 
     private void clickOnFloatingButton() {

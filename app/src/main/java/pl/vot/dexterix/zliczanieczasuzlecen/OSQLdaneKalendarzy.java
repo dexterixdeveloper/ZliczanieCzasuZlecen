@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -42,7 +41,7 @@ public class OSQLdaneKalendarzy {
         Cursor cur = null;
         ContentResolver cr = context.getContentResolver();
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
-        Log.d(tag1, uri.toString());
+        //Log.d(tag1, uri.toString());
         String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
                 + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?) AND ("
                 + CalendarContract.Calendars.OWNER_ACCOUNT + " = ?))";
