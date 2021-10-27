@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 public class FragmentZadanie extends FragmentPodstawowy {
 
+    private int czestotliwoscAlarmu = 10;
     private daneZlecenia danaKlasy = new daneZlecenia();
     private daneZlecenia danaKlasyPrzeniesiona = new daneZlecenia();
     private TextInputEditText textInputEditTextOpis;
@@ -172,22 +173,44 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
         alarmMgr = (AlarmManager)getContext().getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(getContext(), AlarmReceiver.class);
+        intent.putExtra("FragmentDoZmiany", "FragmentZadanie");
         intent.putExtra("tytul", tytul);
         intent.putExtra("opis", opis);
         intent.putExtra("opis2", opis2);
         intent.putExtra("notificationID1", notificationId1);
 
-        alarmIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+        alarmIntent = PendingIntent.getBroadcast(getContext(), notificationId1, intent, 0);
 
         alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() +
-                        60 * 1000, 60 * 1000, alarmIntent);
+                        czestotliwoscAlarmu * 60 * 1000, czestotliwoscAlarmu * 60 * 1000, alarmIntent);
 
 // setRepeating() lets you specify a precise custom interval--in this case,
 // 20 minutes.
         //alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
          //       1000 * 60 * 20, alarmIntent);
 
+    }
+
+    private void cancelAlarmZadania (String tytul, String opis, String opis2, int notificationId1){
+        AlarmManager alarmMgr;
+        PendingIntent alarmIntent;
+
+        alarmMgr = (AlarmManager)getContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getContext(), AlarmReceiver.class);
+        intent.putExtra("FragmentDoZmiany", "FragmentZadanie");
+        intent.putExtra("tytul", tytul);
+        intent.putExtra("opis", opis);
+        intent.putExtra("opis2", opis2);
+        intent.putExtra("notificationID1", notificationId1);
+
+        alarmIntent = PendingIntent.getBroadcast(getContext(), notificationId1, intent, 0);
+
+        alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() +
+                        czestotliwoscAlarmu * 60 * 1000, czestotliwoscAlarmu * 60 * 1000, alarmIntent);
+
+            alarmMgr.cancel(alarmIntent);
 
 
     }
@@ -301,6 +324,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             }
             if (danaKlasy.getStatus().equals("zak")) {
                 zapiszDanaZakonczone();
+                cancelAlarmZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), danaKlasy.getId());
             }
             Log.d("dana klasy: ", danaKlasy.toString());
 
@@ -308,7 +332,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             idRekordu = osql.dodajDane(danaKlasy);
 
             if (danaKlasy.getStatus().equals("wtle")){
-                MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext());
+                //MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext(), "FragmantZadanie");
                 Log.d("FragmentZadanie: Opis: ", danaKlasy.getOpis());
                 uruchomAlramZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu));
             }

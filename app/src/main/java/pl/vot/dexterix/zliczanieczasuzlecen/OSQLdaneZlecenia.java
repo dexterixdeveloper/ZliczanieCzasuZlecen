@@ -68,11 +68,14 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
-    public List<daneZlecenia> dajWszystkieDoRaportu(String status, Long czasRozpoczecia, Long czasZakonczenia){
+    public List<daneZlecenia> dajWszystkieDoRaportu(String status, Long czasRozpoczecia, Long czasZakonczenia, int firma_id){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
-                "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
+                "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.firma_id AS firma_id " +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny = 1 " +
                 "AND czas_rozpoczecia >= " + czasRozpoczecia + " AND czas_rozpoczecia <= " + czasZakonczenia;
+        if (firma_id > -1){
+            zapytanie = zapytanie.concat(" AND p._id = " + firma_id);
+        }
         return dajDane(zapytanie);
     }
 

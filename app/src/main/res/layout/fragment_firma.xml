@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_firma"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/fragment_firma"
+    android:visibility="visible"
     tools:context="pl.vot.dexterix.zliczanieczasuzlecen.FragmentFirma">
 
     <LinearLayout
@@ -26,60 +27,63 @@
                 android:hint="Podaj nazwę firmy" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditTextUlicaNr"
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Podaj ulicę i numer" />
+                android:layout_weight="1">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditTextUlicaNr"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Podaj ulicę i numer" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditTextMiasto"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Podaj miasto" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditTextMiasto"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Podaj miasto" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditTextNrTelefonu"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Podaj numer telefonu" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditTextNrTelefonu"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Podaj numer telefonu" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditTextUwagi"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Uwagi" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1">
 
-        <Spinner
-            android:id="@+id/spinnerWybierzKalendarz"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditTextUwagi"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Uwagi" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Spinner
+                android:id="@+id/spinnerWybierzKalendarz"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
 
         <Button
             android:id="@+id/buttonDodaj"

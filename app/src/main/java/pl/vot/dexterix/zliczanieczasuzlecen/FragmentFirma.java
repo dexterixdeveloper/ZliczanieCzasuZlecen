@@ -11,6 +11,7 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class FragmentFirma extends FragmentPodstawowy {
     private TextInputEditText textInputEditTextUwagi;
     private TextInputEditText textInputEditTextNrTelefonu;
 
+    private TabLayout allTabs;
 
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -54,7 +56,6 @@ public class FragmentFirma extends FragmentPodstawowy {
         //sprawdzamy czy mamy zapisane kalendarze w bazie
         OSQLdaneKalendarzy osqlk = new OSQLdaneKalendarzy(getActivity());
         List<daneKalendarza> kalendarze_w_bazie = osqlk.dajWszystkie();
-
 
         dodajDoSpinnerWybierzKalendarz(R.string.wybierz, 0L);
 
@@ -96,7 +97,6 @@ public class FragmentFirma extends FragmentPodstawowy {
 
         }
 
-
     }
 
     //to daje nam możliwość przekazania danych do tego fragmentu
@@ -108,33 +108,6 @@ public class FragmentFirma extends FragmentPodstawowy {
         fragmentDemo.setArguments(args);
         return fragmentDemo;
     }
-
-    //listener na jkiś tam guzik przykładowy
-    /*public void addListenerOnButtonGuzik(Integer guzik){
-        Log.d("DodajAuto", "addListenerOnButtonDodajRodzajPaliwa");
-        Button buttonGuzik = (Button) view.findViewById(guzik);
-        buttonGuzik.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //1 to nazwa tej formatki, 2 to wywołanej
-                if (!String.valueOf(textInputEditTextNazwa.getText()).isEmpty()) {
-                    //danaKlasy.toString();
-                    zapiszDane();
-                    finish();
-                }//if (!String.valueOf(textInputEditTextEksploatacjaJednostka.getText()).isEmpty()) {
-                else {
-                    Toast.makeText(pl.vot.dexterix.elektronicznaksiazkaautabydex.ActivityFirmaDodaj.this,
-                            "Musisz przynajmnie podać nazwę",
-                            Toast.LENGTH_SHORT).show();
-                    textInputEditTextNazwa.setError("Wymagana nazwa!");
-
-                }
-
-            }//public void onClick(View v) {
-        });//buttonDodajRodzajPaliwa.setOnClickListener(
-    }//public void addListenerOnButtonGuzik(){*/
-
-
 
     public void dodajDoSpinnerWybierzKalendarz(final Integer wybierz, long wybor) {
         Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinnerWybierzKalendarz);

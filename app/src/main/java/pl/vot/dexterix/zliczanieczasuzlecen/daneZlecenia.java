@@ -199,9 +199,9 @@ public class daneZlecenia extends daneKlasaPodstawowa{
                 firma_nazwa + ';' +
                 opis + ';' +
                 status + ';' +
-                uwagi + '\n' ;
+                uwagi;
     }
     public String toStringForRaportNaglowek() {
-        return "LP.;Czas Rozpoczecia;Czas Zakonczenia;Firma;Opis;Status;Uwagi\n";
+        return "LP.;Czas Rozpoczecia;Czas Zakonczenia;Firma;Opis;Status;Uwagi;Stawka;Zarobek\n";
     }
 }

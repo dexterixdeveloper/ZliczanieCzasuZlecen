@@ -18,14 +18,14 @@ import java.util.List;
 public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
     //DATABASE_VERSION = 1;
     protected static final String DICTIONARY_TABLE_NAME_1 = "BZCZBD_Firmy";
     protected static final String DICTIONARY_TABLE_NAME_2 = "BZCZBD_Zlecenia";
     protected static final String DICTIONARY_TABLE_NAME_3 = "BZCZBD_Settings";
-    protected static final String DICTIONARY_TABLE_NAME_4 = "BZCZBD_Kalendarze";
+    protected static final String DICTIONARY_TABLE_NAME_4 = "BZCZBD_Stawki";
 
     /*protected static final String DICTIONARY_TABLE_NAME_3 = "ElektronicznaKsiazkaAutaByDexTypPaliwa";
     private static final String DICTIONARY_TABLE_NAME_4 = "ElektronicznaKsiazkaAutaByDexTankowania";
@@ -71,10 +71,10 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     private static final String[][] DICTIONARY_TABLE_ROWS_3_FOREIGN = {{},
             {}};
 
-private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"calendar_id", "accountName", "calendarDisplayName", "ownerAccount"},
-            {"TEXT", "TEXT", "TEXT", "TEXT"}};
-    private static final String[][] DICTIONARY_TABLE_ROWS_4_FOREIGN = {{},
-            {}};
+    private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"firma_id", "stawka", "poczatek", "koniec"},
+            {"integer", "real", "TEXT", "TEXT"}};
+    private static final String[][] DICTIONARY_TABLE_ROWS_4_FOREIGN = {{"firma_id"},
+            {"BZCZBD_Firmy(_id)"}};
 
 
     private static final String[][] DICTIONARY_TABLES ={{},{}};
@@ -94,6 +94,8 @@ private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"calendar_id", "acco
         Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_1);
         db.execSQL(tworzStringBazy(DICTIONARY_TABLE_3_ROWS, DICTIONARY_TABLE_ROWS_3_FOREIGN, DICTIONARY_TABLE_NAME_3));
         Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_3);
+        db.execSQL(tworzStringBazy(DICTIONARY_TABLE_4_ROWS, DICTIONARY_TABLE_ROWS_4_FOREIGN, DICTIONARY_TABLE_NAME_4));
+        Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_4);
         Log.d("DebugCSQL:", "po tworzenie baz");
         //Database 11
         //ustawieniePoczatkowychWartosci(db);
@@ -187,6 +189,10 @@ private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"calendar_id", "acco
             db.execSQL("DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_1 + "_old");
             Log.d("DebugCSQL:", "DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_1 + "_old");
         }//if (oldVersion < 4){
+        if (oldVersion < 7) {
+            db.execSQL(tworzStringBazy(DICTIONARY_TABLE_4_ROWS, DICTIONARY_TABLE_ROWS_4_FOREIGN, DICTIONARY_TABLE_NAME_4));
+            Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_4);
+        }
         /*if (oldVersion < 5){
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_czas text");
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_przebieg integer");

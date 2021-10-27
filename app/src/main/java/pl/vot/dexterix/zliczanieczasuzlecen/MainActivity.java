@@ -8,6 +8,9 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +28,11 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+
+import static android.icu.util.Calendar.DAY_OF_YEAR;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //
+        daneData czastest = new daneData();
+        czastest.podajDate();
+        czastest.setGodzina(czastest.getDataMilisekundy(), "18:06", false);
+        //
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         createNotificationChannel();
@@ -44,34 +56,44 @@ public class MainActivity extends AppCompatActivity {
         //sprobujmy zrobic backup na starcie
         ObslugaSQL osql = new ObslugaSQL(this);
         Log.d("Katalog: ", "yy");
-        osql.zrobKopieBazy("bla", this);
+        //TODO: Właczyć backup
+        //osql.zrobKopieBazy("bla", this);
         //koniec prob
 
         //częćś do uruchomienia fragmentu z powiadomienia
-        String menuFragment = getIntent().getStringExtra("menuFragment");
+        String fragmentDoZmiany = getIntent().getStringExtra("FragmentDoZmiany");
 
         //FragmentManager fragmentManager = getSupportFragmentManager();
         //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //taki tam zabawy z data
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        Log.d("Aktualna data: " , String.valueOf(calendar.get(Calendar.DAY_OF_YEAR)));
+        Log.d("Aktualna data: " , String.valueOf(calendar.get(Calendar.YEAR)));
+
+            calendar.set(DAY_OF_YEAR, 369);
+        Log.d("Aktualna data: po zmianie " , String.valueOf(calendar.get(Calendar.DAY_OF_YEAR)));
+        Log.d("Aktualna data: po zmianie" , String.valueOf(calendar.get(Calendar.YEAR)));
+        //taki tam zabawy z data
 
         // If menuFragment is defined, then this activity was launched with a fragment selection
-        if (menuFragment != null) {
+        if (fragmentDoZmiany != null) {
             Log.d(TAG, "null");
+            Log.d("MAin", fragmentDoZmiany);
             // Here we can decide what do to -- perhaps load other parameters from the intent extras such as IDs, etc
-            if (menuFragment.equals("FragmentZadanie")) {
+            if (fragmentDoZmiany.equals("FragmentZadanie")) {
                 Log.d(TAG, "czyzby sie udalo?");
                 //FragmentZadanie favoritesFragment = new FragmentZadanie();
                 int name = getIntent().getIntExtra("id", 0);
                 Bundle bundleDane = new Bundle();
                 bundleDane.putInt("id", name);
-                FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
+                bundleDane.putString("FragmentDoZmiany", fragmentDoZmiany);
+                Log.d("Main", fragmentDoZmiany);
+                //FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
+                //fragmentDoZamiany.
                 //tutaj jakoś musimy wssadzić poczatkowy fragment
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.add(new FragmentZadaniaDoZrobienia(),"FragmentStart");
-
-                ft.addToBackStack("FragmentStart");
-                ft.commit();
+                FragmentZadaniaDoZrobienia fragmentDoZamiany = FragmentZadaniaDoZrobienia.newInstance(name, fragmentDoZmiany);
                 //do tąd
-                String tagBackStack = "FragmentZadanie";
+                String tagBackStack = "FragmentStart";
                 zmianaFragmentu(fragmentDoZamiany, tagBackStack, 0);
                 //fragmentTransaction.replace(android.R.id.content, favoritesFragment);
             }
@@ -115,14 +137,18 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_zadania_archiwalne) {
             String tagBackStack = "FragmentZadaniaArchiwalne";
             zmianaFragmentu(new FragmentZadaniaArchiwalne(), tagBackStack, 1);
-
             return true;
         }
 
         if (id == R.id.action_raporty) {
             String tagBackStack = "FragmentRaporty";
             zmianaFragmentu(new FragmentRaporty(), tagBackStack, 1);
+            return true;
+        }
 
+        if (id == R.id.action_stawki) {
+            String tagBackStack = "FragmentStawki";
+            zmianaFragmentu(new FragmentStawki(), tagBackStack, 1);
             return true;
         }
 
@@ -133,8 +159,16 @@ public class MainActivity extends AppCompatActivity {
         // Begin the transaction
         Log.d("Back2", "2");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-// Replace the contents of the container with the new fragment
+        //sprawdzamy czy cos juz jest w backstack
+        /*FragmentManager fm = getSupportFragmentManager();
+        if ((fm.getBackStackEntryCount() < 1) && !(tagBackStack.equals("FragmentStart"))){
+            ft.replace(R.id.fragment_container_main, new FragmentZadaniaDoZrobienia(), "FragmentStart");
+        }*/
+
+        // Replace the contents of the container with the new fragment
         ft.replace(R.id.fragment_container_main, fragmencik);
+
+        //Log.d(TAG + " zmianaFragmentu ",fragmencik.getTag());
         if (iCzyBackStack > 0) {
             ft.addToBackStack(tagBackStack);
         }
@@ -281,15 +315,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1, Context context){
+    public static void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1, Context context, String fragmentDoZmiany){
         //Kombinujemy jak z powiadomienia odpalić formatkę
         // Create an Intent for the activity you want to start
         Intent resultIntent = new Intent(context, MainActivity.class);
-        resultIntent.putExtra("menuFragment", "FragmentZadanie");
+        resultIntent.putExtra("FragmentDoZmiany", fragmentDoZmiany);
         resultIntent.putExtra("id", notificationId1);
         // Create the TaskStackBuilder and add the intent, which inflates the back stack
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
+        
         //stackBuilder.add
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =
@@ -299,11 +335,14 @@ public class MainActivity extends AppCompatActivity {
         //takie tam powiadominie sobie wrzucamy
         //TODO: wyjaśnić sprawę z powiedomieniami dlaczego 2 albo 3 linie wyświetlają się losowo 2 albo 3
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         builder.setContentIntent(resultPendingIntent);
                 //.setSmallIcon(R.drawable.notification_icon)
                 builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(tytul)
                 .setContentText(opis)
+                        .setLights(Color.BLUE, 500, 500)
+                .setSound(alarmSound)
                 //.setContentText(opis2)
                 //.setLargeIcon(R.mipmap.ic_launcher)
                 .setStyle(new NotificationCompat.BigTextStyle()
@@ -311,9 +350,6 @@ public class MainActivity extends AppCompatActivity {
                         .bigText(opis2))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         //powiadomienie
-
-
-
 
         //to pokazujemy powiadmomienie
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);

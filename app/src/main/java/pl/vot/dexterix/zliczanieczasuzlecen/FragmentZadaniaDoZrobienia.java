@@ -1,6 +1,7 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +23,47 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
+        Bundle bundleArgumenty = getArguments();
+        if (bundleArgumenty != null) {
+            if (!(bundleArgumenty.isEmpty())) {
+                Log.d("BundleArgumenty", "nienull");
+                String fragmanetDoZmiany = bundleArgumenty.getString("FragmentDoZmiany");
+                int przeniesioneID = bundleArgumenty.getInt("id");
+                Log.d("Bundle ARg przzed clera size: ", String.valueOf(bundleArgumenty.size()));
+                if (bundleArgumenty.isEmpty()) {
+                    Log.d("Is ", "empty");
+                } else {
+                    Log.d("Is ", "full");
+                }
+                bundleArgumenty.clear();
+                Log.d("Bundle ARg po clera size: ", String.valueOf(bundleArgumenty.size()));
+                if (bundleArgumenty.isEmpty()) {
+                    Log.d("Is ", "empty");
+                } else {
+                    Log.d("Is ", "full");
+                }
+                if (fragmanetDoZmiany.equals("FragmentZadanie")) {
+                    Bundle bundleDane = new Bundle();
+                    bundleDane.putInt("id", przeniesioneID);
+                    FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(przeniesioneID);
+                    zmianaFragmentu(fragmentDoZamiany, "FragmentZadanie");
+                }
+            }
+        }
+
+        //robimy sobie mały test
+        /*int name = 18;
+
+        Bundle bundleDane = new Bundle();
+        bundleDane.putInt("id", name);
+        FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
+        zmianaFragmentu(fragmentDoZamiany, "FragmentZadanie");
+        Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();*/
+        //robimy sobie mały test-END
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_zadania_do_zrobienia, container, false);
+
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -32,6 +72,18 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         clickOnFloatingButton();
         wypelnijRecyclerView();
 
+
+    }
+
+    //to daje nam możliwość przekazania danych do tego fragmentu
+    public static FragmentZadaniaDoZrobienia newInstance(int someInt, String fragmentDoZmiany) {
+        FragmentZadaniaDoZrobienia fragmentDemo = new FragmentZadaniaDoZrobienia();
+        Bundle args = new Bundle();
+        args.putInt("id", someInt);
+        args.putString("FragmentDoZmiany", fragmentDoZmiany);
+
+        fragmentDemo.setArguments(args);
+        return fragmentDemo;
     }
 
     private void wypelnijRecyclerView(){
@@ -80,6 +132,4 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                     }
                 });
     }
-
-
 }

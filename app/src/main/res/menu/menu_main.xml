@@ -22,4 +22,9 @@
         android:orderInCategory="100"
         android:title="@string/raporty"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_stawki"
+        android:orderInCategory="100"
+        android:title="@string/stawki"
+        app:showAsAction="never" />
 </menu>
