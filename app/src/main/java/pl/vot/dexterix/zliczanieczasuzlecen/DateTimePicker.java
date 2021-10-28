@@ -55,6 +55,7 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
                 DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
 
                 TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
+                timePicker.setIs24HourView(true);
 
                 _year = datePicker.getYear();
                 _month = datePicker.getMonth();

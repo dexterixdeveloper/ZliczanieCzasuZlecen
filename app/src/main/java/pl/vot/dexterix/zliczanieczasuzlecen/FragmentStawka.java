@@ -124,28 +124,41 @@ public class FragmentStawka extends FragmentPodstawowy {
 
     private void zapiszDaneICofnijDoPoprzedniegofragmentu(){
         Context context = getActivity();
-        String uzupelnijDane = "Uzupełnij dane: \n";
+        StringBuilder uzupelnijDane = new StringBuilder();
+        uzupelnijDane.append("Uzupełnij dane: \n");
+        //String uzupelnijDane = "Uzupełnij dane: \n";
         int daneDoUzupelnienia = 0;
+        if (String.valueOf(textInputEditTextStawka.getText()).isEmpty()){
+            danaKlasy.setStawka(Float.valueOf(0));
+        }else{
+            danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
+        }
+        //danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
+        danaKlasy.setPoczatek(String.valueOf(textInputEditTextPoczatek.getText()));
+        danaKlasy.setKoniec(String.valueOf(textInputEditTextKoniec.getText()));
+        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+
         if (danaKlasy.getFirma_id() <= 0) {
             daneDoUzupelnienia++;
             Log.d("danedouzu: ", String.valueOf(daneDoUzupelnienia));
-            uzupelnijDane.concat("-Firma\n");
+            uzupelnijDane.append("-Firma\n");
         }
-        /*if (danaKlasy.getStawka() <= 0){
+        if (danaKlasy.getStawka() <= 0){
             daneDoUzupelnienia++;
-            uzupelnijDane.concat("-Stawka\n");
+            uzupelnijDane.append("-Stawka\n");
         }
         if (danaKlasy.getPoczatek().equals("")){
             daneDoUzupelnienia++;
-            uzupelnijDane.concat("-Początek\n");
+            uzupelnijDane.append("-Początek\n");
         }
         if (danaKlasy.getKoniec().equals("")){
             daneDoUzupelnienia++;
-            uzupelnijDane.concat("-Koniec\n");
-        }*/
+            uzupelnijDane.append("-Koniec\n");
+        }
 
         if (daneDoUzupelnienia > 0) {
             Toast.makeText(context, uzupelnijDane, Toast.LENGTH_SHORT).show();
+            Log.d("do uzupelnienia", String.valueOf(uzupelnijDane));
         } else{
             zapiszDane();
             cofnijDoPoprzedniegoFragmentu();
@@ -154,10 +167,11 @@ public class FragmentStawka extends FragmentPodstawowy {
 
     private void zapiszDane(){
 
-        danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
+        /*danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
         danaKlasy.setPoczatek(String.valueOf(textInputEditTextPoczatek.getText()));
         danaKlasy.setKoniec(String.valueOf(textInputEditTextKoniec.getText()));
-        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));*/
+
         Log.d("dana klasy: ", danaKlasy.toString());
         OSQLdaneStawka osql = new OSQLdaneStawka(getActivity());
 

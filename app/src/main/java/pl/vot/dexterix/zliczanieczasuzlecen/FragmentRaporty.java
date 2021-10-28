@@ -139,6 +139,36 @@ public class FragmentRaporty extends FragmentPodstawowy {
                 List<daneStawka> stawki;
                 OSQLdaneStawka daneStawkiSQL = new OSQLdaneStawka(getActivity());
                 stawki = daneStawkiSQL.dajWszystkie();
+
+                //sprawdzamy jak to jest z godzinami
+                Log.d("ile stawek", String.valueOf(stawki.size()));
+                for (int j = 0; j < stawki.size(); j++) {
+                    Log.d("ile stawek for poczatek" + j, String.valueOf(stawki.size()));
+                    daneData stawkaPoczatek = new daneData();
+                    daneData stawkaKoniec = new daneData();
+                    stawkaKoniec.podajDate();
+                    //zebysmie mieli pewność że ta sama data
+                    stawkaPoczatek.setDataMilisekundy(stawkaKoniec.getDataMilisekundy());
+                    stawkaPoczatek.setGodzina(stawkaPoczatek.getDataMilisekundy(), stawki.get(j).getPoczatek(), false);
+                    Log.d("stawka poczatek", stawkaPoczatek.getDataString());
+                    stawkaKoniec.setGodzina(stawkaKoniec.getDataMilisekundy(), stawki.get(j).getKoniec(), false);
+                    Log.d("stawka koniec", stawkaKoniec.getDataString());
+                    if ((stawkaPoczatek.getDataMilisekundy() > stawkaKoniec.getDataMilisekundy()) && !stawki.get(j).getKoniec().equals("00:00")) {
+                        //pobieramy dana problematycznej stawki
+                        daneStawka stawka = new daneStawka();
+                        stawka.setKoniec("00:00");
+                        stawka.setPoczatek(stawki.get(j).getPoczatek());
+                        stawka.setStawka(stawki.get(j).getStawka());
+                        stawka.setFirma_id(stawki.get(j).getFirma_id());
+                        //zmieniamy problematyczna stawkę
+                        stawki.get(j).setPoczatek("00:00");
+                        //dodajemy kolejną stawkę do listy
+                        stawki.add(stawka);
+                    }
+                    Log.d("ile stawek for koniec" + j, String.valueOf(stawki.size()));
+                }
+                //sprawdzamy jak to jest z godzinami -END
+
                 daneData czas = new daneData();
                 try {
                     FileOutputStream plik = new FileOutputStream(raportDir.getAbsolutePath() + "/" + fileName);
@@ -157,7 +187,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
                         zlecenie.setCzas_rozpoczecia_string(zlecenia.get(i).getCzas_rozpoczecia_string());
                         zlecenie.setCzas_zakonczenia_string(zlecenia.get(i).getCzas_zakonczenia_string());
 
-                        Log.d(String.valueOf(i), String.valueOf(zlecenia.get(i).getFirma_id()));
+                        //Log.d(String.valueOf(i), String.valueOf(zlecenia.get(i).getFirma_id()));
 
                         //zmienna potrzebna do określenia czy już całość zadania poszła do raportu
                         boolean czyCaloscDoRaportu = false;
@@ -177,46 +207,46 @@ public class FragmentRaporty extends FragmentPodstawowy {
                                     daneData czasStawekPoczatek = new daneData();
                                     daneData czasStawekKoniec = new daneData();
                                     czasStawekPoczatek.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getPoczatek(), false);
-                                    Log.d("czasStawekPocz", String.valueOf(czasStawekPoczatek.getDataString()));
+                                    //Log.d("czasStawekPocz", String.valueOf(czasStawekPoczatek.getDataString()));
                                     czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false);
-                                    Log.d("czasStawekKon", String.valueOf(czasStawekKoniec.getDataString()));
+                                    //Log.d("czasStawekKon", String.valueOf(czasStawekKoniec.getDataString()));
                                     if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.getDataMilisekundy()){
                                         czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), true);
-                                        Log.d("czasStawekPocz", String.valueOf(czasStawekKoniec.getDataString()));
+                                        Log.d("czasStawekPoczif", String.valueOf(czasStawekKoniec.getDataString()));
                                     }
                                     //TODO: wykombinować jakoś żeby  dało się pominąć rozdzilenaie stawek do północy
                                     //jeżeli początek zlecenia jest równy większy od początku stawki
-                                    Log.d("zlecenie czas rozpoczecia: ", String.valueOf(zlecenie.getCzas_rozpoczecia_string()));
-                                    Log.d("Stawka Poczatek: ", String.valueOf(czasStawekPoczatek.getDataString()));
-                                    Log.d("Stawka Koniec: ", String.valueOf(czasStawekKoniec.getDataString()));
+                                    //Log.d("zlecenie czas rozpoczecia: ", String.valueOf(zlecenie.getCzas_rozpoczecia_string()));
+                                    //Log.d("Stawka Poczatek: ", String.valueOf(czasStawekPoczatek.getDataString()));
+                                    //Log.d("Stawka Koniec: ", String.valueOf(czasStawekKoniec.getDataString()));
                                     //jeżeli początek stawki > od końca, czyli gdy np poczatek 16:00 a koniec 00:00
                                     //if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false))
                                     if ((zlecenie.getCzas_rozpoczecia() >= czasStawekPoczatek.getDataMilisekundy()) && (zlecenie.getCzas_rozpoczecia() <= czasStawekKoniec.getDataMilisekundy())) {
                                         //jeżeli koniec zlecenia mniejszy równy końcu stawki
-                                        Log.d("Przed if", "przed if");
+                                        //Log.d("Przed if", "przed if");
                                         if (zlecenie.getCzas_zakonczenia() <= czasStawekKoniec.getDataMilisekundy()) {
                                             //dajemy do raportu
                                             //jeżeli mieści się pomiędzy czasem rozpoczecia a zakończenia
                                             myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                            Log.d("FragmentRaporty: zapis do pliku:if ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                            Log.d("W if", "w if");
+                                            //Log.d("FragmentRaporty: zapis do pliku:if ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //Log.d("W if", "w if");
                                             czyCaloscDoRaportu = true;
                                         } else {
                                             //gdy koniec zadania jednak > koniec stawki
-                                            Log.d("W else", "w else");
+                                            //Log.d("W else", "w else");
                                             //zapisujemy
                                             long czasZakonczeniaTmp = zlecenie.getCzas_zakonczenia();
                                             zlecenie.setCzas_zakonczenia(czasStawekKoniec.getDataMilisekundy());
                                             zlecenie.setCzas_zakonczenia_string(czasStawekKoniec.getDataString());
                                             myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                            Log.d("FragmentRaporty: zapis do pliku: ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //Log.d("FragmentRaporty: zapis do pliku: ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
                                             zlecenie.setCzas_zakonczenia(czasZakonczeniaTmp);
                                             daneData czasTmp = new daneData();
                                             czasTmp.setDataMilisekundy(czasZakonczeniaTmp);
                                             zlecenie.setCzas_zakonczenia_string(czasTmp.getDataString());
-                                            Log.d("Czas zakonczenniaTMP", String.valueOf(czasZakonczeniaTmp));
+                                            //Log.d("Czas zakonczenniaTMP", String.valueOf(czasZakonczeniaTmp));
                                             zlecenie.setCzas_rozpoczecia(czasStawekKoniec.getDataMilisekundy());
-                                            Log.d("czasStawekKoniec", String.valueOf(czasStawekKoniec.getDataMilisekundy()));
+                                            //Log.d("czasStawekKoniec", String.valueOf(czasStawekKoniec.getDataMilisekundy()));
                                             zlecenie.setCzas_rozpoczecia_string(czasStawekKoniec.getDataString());
                                             /*if(czasStawekKoniec.getDataMilisekundy() > zlecenie.getCzas_zakonczenia()){
                                                 zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), true));
