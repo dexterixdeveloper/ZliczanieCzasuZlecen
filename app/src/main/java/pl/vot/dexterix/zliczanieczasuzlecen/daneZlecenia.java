@@ -1,9 +1,11 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import java.io.Serializable;
+
 /**
  * Created by dexterix on 2015-04-16.
  */
-public class daneZlecenia extends daneKlasaPodstawowa{
+public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
 
     private Long czas_zawieszenia;
     private String czas_zawieszenia_string;
@@ -19,7 +21,15 @@ public class daneZlecenia extends daneKlasaPodstawowa{
     private Integer kalendarz_id;
     private long kalendarz_id_long;
     private Long kalendarz_zadanie_id;
+    private boolean isChecked = false;
 
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
 
     public String getCzas_zawieszenia_string() {
         return czas_zawieszenia_string;

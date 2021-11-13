@@ -46,9 +46,9 @@ public class FragmentZadaniaArchiwalne extends FragmentPodstawowy {
         OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
         zlecenia = daneZleceniaSQL.dajWszystkieDoRecyclerView("zak");
         // Create adapter passing in the sample user data
-        FragmentRecyclerZadania adapter = new FragmentRecyclerZadania(zlecenia);
+        FragmentRecyclerZlecenia adapter = new FragmentRecyclerZlecenia(getContext(), zlecenia);
 
-        adapter.setOnItemClickListener(new FragmentRecyclerZadania.OnItemClickListener() {
+        adapter.setOnItemClickListener(new FragmentRecyclerZlecenia.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 int name = zlecenia.get(position).getId();

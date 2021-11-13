@@ -12,6 +12,13 @@
             android:layout_weight="10"
             android:orientation="vertical">
 
+            <Button
+                android:id="@+id/buttonAnulujZlecenia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="@string/anuluj_zlecenia" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewZlecenia"
                 android:layout_width="match_parent"

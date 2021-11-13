@@ -30,6 +30,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
     private int czestotliwoscAlarmu = 10;
     private daneZlecenia danaKlasy = new daneZlecenia();
     private daneZlecenia danaKlasyPrzeniesiona = new daneZlecenia();
+    private daneZlecenia danaKlasyDlaAlarmu = new daneZlecenia();
     private TextInputEditText textInputEditTextOpis;
     private TextInputEditText textInputEditTextUwagi;
     private int przeniesioneID = 0;
@@ -75,9 +76,15 @@ public class FragmentZadanie extends FragmentPodstawowy {
             OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
             danaKlasyPrzeniesiona = osql.dajOkreslonyRekord(przeniesioneID);
             danaKlasy= osql.dajOkreslonyRekord(przeniesioneID);
+            //ustawiamy pola tekstowe
+            textInputEditTextOpis.setText(danaKlasy.getOpis());
+            textInputEditTextUwagi.setText(danaKlasy.getUwagi());
             //ustawiamy parametry klasy
-            textInputEditTextUwagi.setText(String.valueOf(danaKlasyPrzeniesiona.getUwagi()));
-            textInputEditTextOpis.setText(String.valueOf(danaKlasyPrzeniesiona.getOpis()));
+            danaKlasyDlaAlarmu.setFirma_nazwa(danaKlasy.getFirma_nazwa());
+            danaKlasyDlaAlarmu.setOpis(danaKlasy.getOpis());
+            danaKlasyDlaAlarmu.setCzas_rozpoczecia_string(danaKlasy.getCzas_rozpoczecia_string());
+            danaKlasyDlaAlarmu.setId(danaKlasy.getId());
+
             Log.d("danePojedyncze", danaKlasyPrzeniesiona.toStringDoRecyclerView());
             Log.d(">0", danaKlasyPrzeniesiona.getCzas_rozpoczecia().toString());
             dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, danaKlasyPrzeniesiona.getFirma_id());
@@ -237,12 +244,12 @@ public class FragmentZadanie extends FragmentPodstawowy {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
-                if (!(poszukiwanie==getString(dodaj)) && !(poszukiwanie==getString(wybierz))){
+                if (!(poszukiwanie.equals(getString(dodaj))) && !(poszukiwanie.equals(getString(wybierz)))){
                     danaKlasy.setFirma_id(Integer.valueOf(danaSpinnera.get(i)[0]));
                     //OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
                     danaKlasy.setFirma_nazwa(danaSpinnera.get(i)[1]);
                     danaKlasy.setKalendarz_id_long(Long.valueOf(danaSpinnera.get(i)[2]));
-                }else if (poszukiwanie==getString(dodaj)){
+                }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentZadanie.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
                     /*Intent intent = new Intent(ActivityZadanie.this, ActivityPrzegladyOkresoweDodajStacjaKontroliSieci.class);
@@ -324,7 +331,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             }
             if (danaKlasy.getStatus().equals("zak")) {
                 zapiszDanaZakonczone();
-                cancelAlarmZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), danaKlasy.getId());
+                cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
             }
             Log.d("dana klasy: ", danaKlasy.toString());
 

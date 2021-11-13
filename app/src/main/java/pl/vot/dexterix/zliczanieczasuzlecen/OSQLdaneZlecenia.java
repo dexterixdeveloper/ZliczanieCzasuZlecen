@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OSQLdaneZlecenia extends ObslugaSQL {
@@ -81,8 +81,8 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
 
     public List<daneZlecenia> dajWszystkieDoRecyclerViewNZ(String status){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
-                "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status != 'zak' AND a.status != 'zakwtle' AND a.czy_widoczny = 1";
+                "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.firma_id AS firma_id " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status != 'zak' AND a.status != 'zakwtle' AND a.status != 'anuluj' AND a.czy_widoczny = 1";
         return dajDane(zapytanie);
     }
 
@@ -142,7 +142,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
 
     public List<daneZlecenia> dajDane(String zapytanie){
         Log.d("DebugCSQL:", "dajWszystkieZlecenia");
-        List<daneZlecenia> dane_funkcji = new LinkedList<>();
+        List<daneZlecenia> dane_funkcji = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
 
