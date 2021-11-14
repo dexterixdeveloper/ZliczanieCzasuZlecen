@@ -22,6 +22,7 @@ public class FragmentStawki extends FragmentPodstawowy {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
+        changeTitle("Stawki");
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_stawki, container, false);
     }

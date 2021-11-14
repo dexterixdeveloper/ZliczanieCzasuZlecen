@@ -36,6 +36,7 @@ public class FragmentSettings extends FragmentPodstawowy{
             Bundle savedInstanceState
     ) {
         // Inflate the layout for this fragment
+        changeTitle("Ustawienia");
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 

@@ -28,11 +28,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
-
-import static android.icu.util.Calendar.DAY_OF_YEAR;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,15 +40,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //
-        daneData czastest = new daneData();
-        czastest.podajDate();
-        czastest.setGodzina(czastest.getDataMilisekundy(), "18:06", false);
-        //
+
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
         createNotificationChannel();
         clickOnFloatingButton();
+        //toolbar.setTitle("456");
         //sprobujmy zrobic backup na starcie
         ObslugaSQL osql = new ObslugaSQL(this);
         Log.d("Katalog: ", "yy");
@@ -65,15 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
         //FragmentManager fragmentManager = getSupportFragmentManager();
         //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        //taki tam zabawy z data
-        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        Log.d("Aktualna data: " , String.valueOf(calendar.get(Calendar.DAY_OF_YEAR)));
-        Log.d("Aktualna data: " , String.valueOf(calendar.get(Calendar.YEAR)));
-
-            calendar.set(DAY_OF_YEAR, 369);
-        Log.d("Aktualna data: po zmianie " , String.valueOf(calendar.get(Calendar.DAY_OF_YEAR)));
-        Log.d("Aktualna data: po zmianie" , String.valueOf(calendar.get(Calendar.YEAR)));
-        //taki tam zabawy z data
 
         // If menuFragment is defined, then this activity was launched with a fragment selection
         if (fragmentDoZmiany != null) {
@@ -267,36 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    /*public Fragment getVisibleFragment(){
-        FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
-        List<Fragment> fragments = fragmentManager.getFragments();
-        if(fragments != null){
-            for(Fragment fragment : fragments){
-                Log.d("fragment1", fragment.toString());
-                if(fragment != null && fragment.isVisible())
-                    Log.d("fragment", fragment.toString());
-                    return fragment;
-            }
-        }
-        return null;
-    }*/
 
-    //Nadpisujemy akcję przy naciśniećiu przycisku powrotu/trójkąta
-    /*@Override
-    public void onBackPressed(){
-        // do something here and don't write super.onBackPressed()
-        Log.d("naciśnięty guzik", "back");
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        //fragmentManager.get.findFragmentById(R.id.fragment_zadanie);
-        FragmentZadanie fragment =
-                (FragmentZadanie ) fragmentManager.findFragmentById(R.id.fragment_zadanie);
-
-        //Fragment f = this.FragmentManager().findFragmentById(R.id.fragment_zadanie);
-        //if (f instanceof FragmentZadanie) {
-
-            Log.d("Guzik klasa", "FragmentZadanie");
-        //}
-    }*/
 
     //otwieramy kanał dla powiadomień : Andek 8+
     private void createNotificationChannel() {

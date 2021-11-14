@@ -21,6 +21,7 @@ public class FragmentZadaniaArchiwalne extends FragmentPodstawowy {
             Bundle savedInstanceState
     ) {
         // Inflate the layout for this fragment
+        changeTitle("Archiwalne");
         return inflater.inflate(R.layout.fragment_zadania_archiwalne, container, false);
     }
 

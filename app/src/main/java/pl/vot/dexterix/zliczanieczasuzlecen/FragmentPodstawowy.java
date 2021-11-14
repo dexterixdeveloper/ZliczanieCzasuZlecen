@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -29,6 +30,13 @@ public class FragmentPodstawowy extends Fragment {
 // or ft.add(R.id.your_placeholder, new FooFragment());
 // Complete the changes added above
         ft.commit();
+
+    }
+
+    protected void changeTitle(String name){
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.app_name_short) + ": " + name);
+        //toolbar.setTitle(getString(R.string.app_name_skrot) + ": " + name);
     }
 
     protected void zmianaFragmentu(Fragment fragmencik, String tagBackStack){

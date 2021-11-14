@@ -23,6 +23,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
                 LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState
         ) {
+            changeTitle("Firmy");
             // Inflate the layout for this fragment
             return inflater.inflate(R.layout.fragment_firmy, container, false);
         }

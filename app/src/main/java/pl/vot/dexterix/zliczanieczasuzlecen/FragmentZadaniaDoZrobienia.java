@@ -53,6 +53,7 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
             }
         }
 
+        changeTitle("Do zrobienia");
         //robimy sobie mały test
         /*int name = 18;
 
