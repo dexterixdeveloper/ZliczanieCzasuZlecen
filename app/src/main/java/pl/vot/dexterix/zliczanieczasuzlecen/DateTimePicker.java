@@ -20,18 +20,20 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
     private int _day;
     private int _month;
     private int _year;
-    private int _hour;
-    private int _minute;
+    private int _hour = 0;
+    private int _minute = 0;
     private long _date;
     private Context _context;
+    boolean czyTylkoData;
 
-    public DateTimePicker(Context context, int editTextViewID, long dateTimeString)
+    public DateTimePicker(Context context, int editTextViewID, long dateTimeString, boolean czyTylkoData)
     {
         Activity act = (Activity)context;
         this._editText = (EditText)act.findViewById(editTextViewID);
         this._editText.setOnClickListener(this);
         this._context = context;
         this._date = dateTimeString;
+        this.czyTylkoData = czyTylkoData;
     }
 
     @Override
@@ -46,22 +48,28 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
     public void onClick(View v) {
         java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(_date);
-        View dialogView = View.inflate(_context, R.layout.date_time_picker, null);
+        View dialogView;
+        if (this.czyTylkoData) {
+            dialogView = View.inflate(_context, R.layout.date_picker, null);
+        } else {
+            dialogView = View.inflate(_context, R.layout.date_time_picker, null);
+        }
         AlertDialog alertDialog = new AlertDialog.Builder(_context).create();
         dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //onDateSet(this,);
                 DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
-
-                TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
-                timePicker.setIs24HourView(true);
-
+                if (!czyTylkoData) {
+                    TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
+                    timePicker.setIs24HourView(true);
+                    _hour = timePicker.getHour();
+                    _minute = timePicker.getMinute();
+                }
                 _year = datePicker.getYear();
                 _month = datePicker.getMonth();
                 _day = datePicker.getDayOfMonth();
-                _hour = timePicker.getHour();
-                _minute = timePicker.getMinute();
+
 
                 Calendar calendar = new GregorianCalendar(_year,
                         _month,
@@ -69,7 +77,7 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
                         _hour,
                         _minute);
                         Log.d("DatePicker", String.valueOf(datePicker.getMonth()));
-                        Log.d("DatePicker", String.valueOf(timePicker.getMinute()));
+                        //Log.d("DatePicker", String.valueOf(timePicker.getMinute()));
                         Log.d("DateTimePicker", String.valueOf(calendar.getTimeInMillis()));
                         updateDisplay();
 

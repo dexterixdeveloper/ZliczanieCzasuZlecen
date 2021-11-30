@@ -1,5 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +27,10 @@ public class FragmentRaporty extends FragmentPodstawowy {
     List<daneZlecenia> zlecenia;
     private TextInputEditText textInputEditTextDataKoncowa;
     private TextInputEditText textInputEditTextDataPoczatkowa;
+   // private TextInputLayout textInputLayoutDataPoczatkowa;
+    //private TextInputLayout textInputLayoutDataKoncowa;
     private Integer danaKlasy = 0;
+    private Integer danaKlasyRodzajRaportu = 0;
     daneData aktualnaData = new daneData();
 
     public View onCreateView(
@@ -44,18 +48,92 @@ public class FragmentRaporty extends FragmentPodstawowy {
 
         textInputEditTextDataKoncowa = (TextInputEditText) view.findViewById(R.id.textInputEditTextDataKoncowa);
         textInputEditTextDataPoczatkowa = (TextInputEditText) view.findViewById(R.id.textInputEditTextDataPoczatkowa);
+        //textInputLayoutDataPoczatkowa = (TextInputLayout) view.findViewById(R.id.textInputLayoutDataPoczatkowa);
+        //textInputLayoutDataKoncowa = (TextInputLayout) view.findViewById(R.id.textInputLayoutDataKoncowa);
+
         aktualnaData.podajDate();
-        new DateTimePicker(getActivity(), R.id.textInputEditTextDataKoncowa, aktualnaData.getDataMilisekundy());
-        new DateTimePicker(getActivity(), R.id.textInputEditTextDataPoczatkowa, aktualnaData.getDataMilisekundy());
+        new DateTimePicker(getActivity(), R.id.textInputEditTextDataKoncowa, aktualnaData.getDataMilisekundy("nic"), true);
+        new DateTimePicker(getActivity(), R.id.textInputEditTextDataPoczatkowa, aktualnaData.getDataMilisekundy("nic"), true);
         //textInputEditTextUwagi.setText(String.valueOf(przeniesioneID));
         obsluzGuzikWykonajRaport(getView());
 
         //Powiadomienie
         //pokazPowiadomienie();
-
+        Spinner spinner2 = (Spinner) view.findViewById(R.id.spinnerWybierzRodzajRaportu);
+        dodajDoSpinnerWybierzRodzajRaportu(spinner2, R.string.wybierz, 0);
         Spinner spinner = (Spinner) view.findViewById(R.id.spinnerWybierzFirme);
         dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, 0);
 
+    }
+
+
+
+    private void dodajDoSpinnerWybierzRodzajRaportu(Spinner spinner, final Integer wybierz, Integer wybor) {
+        //dodajemy dane do spinnera
+        ArrayList<String[]> danaSpinnera = new ArrayList<>();
+        String[] wiersz1 = {String.valueOf(1), "Miesięczny"};
+        danaSpinnera.add(wiersz1);
+        String[] wiersz2 = {String.valueOf(2), "Od daty do daty"};
+        danaSpinnera.add(wiersz2);
+        String[] wiersz3 = {String.valueOf(3), "Na dziś"};
+        danaSpinnera.add(wiersz3);
+        //dodajemy sobie na poczatku wyraz wybierz, ale poco? od razu ustawiamy jaiś raport
+        //String[] staleSpinnera = {String.valueOf(0), getString(wybierz), "0"};
+        //danaSpinnera.add(0, staleSpinnera);
+
+        SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
+        spinner.setAdapter(adapter);
+
+        //sprawdzamy czy nie mamy narzuconego wyboru z góry
+        if (wybor > 0 ) {
+            spinner.setSelection(wybor);
+        }
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                //String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
+                //Log.d("poszukiwanie: ", poszukiwanie);
+                //if (!(poszukiwanie.equals(getString(wybierz)))){
+                if (!(danaSpinnera.get(i)[1].equals(getString(wybierz)))){
+                    danaKlasyRodzajRaportu = (Integer.valueOf(danaSpinnera.get(i)[0]));
+                    Log.d("FragmentRaporty Spinner if", String.valueOf(danaKlasy));
+                }else {//if (poszukiwanie.equals(getString(dodaj))){
+                    danaKlasyRodzajRaportu = -1;
+                    Log.d("FragmentRaporty Spinner else", String.valueOf(danaKlasy));
+                }
+                //więc co wybraliśmy
+                switch(danaKlasyRodzajRaportu) {
+                    case 1:
+                        textInputEditTextDataPoczatkowa.setVisibility(View.VISIBLE);
+                        textInputEditTextDataKoncowa.setVisibility(View.GONE);
+                        textInputEditTextDataKoncowa.setHint("");
+                        textInputEditTextDataPoczatkowa.setHint("Wybierz miesiąc");
+                        break;
+                    case 2:
+                        textInputEditTextDataKoncowa.setVisibility(View.VISIBLE);
+                        textInputEditTextDataPoczatkowa.setVisibility(View.VISIBLE);
+                        textInputEditTextDataPoczatkowa.setHint(R.string.podaj_dat_od_kiedy);
+                        textInputEditTextDataKoncowa.setHint(R.string.podaj_dat_do_kiedy);
+                        break;
+                    case 3:
+                        textInputEditTextDataKoncowa.setVisibility(View.GONE);
+                        textInputEditTextDataPoczatkowa.setVisibility(View.VISIBLE);
+                        textInputEditTextDataKoncowa.setHint("");
+                        textInputEditTextDataPoczatkowa.setHint("Wybierz dzień");
+                        break;
+                    default:
+
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //danaKlasy.setFirma_id(-1);
+                danaKlasyRodzajRaportu = -1;
+                Log.d("FragmentRaporty Spinner onnothingselected", String.valueOf(danaKlasy));
+            }
+        });
     }
 
     public void dodajDoSpinnerWybierzFirme(Spinner spinner, final Integer dodaj, final Integer wybierz, Integer wybor) {
@@ -100,12 +178,49 @@ public class FragmentRaporty extends FragmentPodstawowy {
     }//public void dodajDoSpinnerEksploatacjaDodajCzynnosc(Integer rSpinner) {
 
     private void obsluzGuzikWykonajRaport(View view)  {
+        Context context = getActivity();
         view.findViewById(R.id.buttonWykonajRaport).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view){
+                Long poczatek =0L; //poczatek raportu
+                Long koniec =0L; //koniec raportu
+                switch(danaKlasyRodzajRaportu) {
+                    case -1:
+                        Toast.makeText(context, "Nie wybrałes rodzaju raportu", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1: //"Miesięczny"
+                        aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText()));
+
+                        wykonajWyslijRaport(aktualnaData.getPoczatekMiesiaca(), aktualnaData.getKoniecMiesiaca());
+                        break;
+
+                    case 2://"Od daty do daty"
+                        aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText()));
+                        poczatek = aktualnaData.getPoczatekDnia();
+                        aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText()));
+                        koniec = aktualnaData.getKoniecDnia();
+                        wykonajWyslijRaport(poczatek, koniec);
+                        break;
+
+                    case 3://"Na dziś"
+                        aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText()));
+                        poczatek = aktualnaData.getPoczatekDnia();
+                        koniec = aktualnaData.getKoniecDnia();
+                        wykonajWyslijRaport(poczatek, koniec);
+                        break;
+                    default:
+                       
+                        break;
+                }
+            }
+        });
+    }
+
+    private void wykonajWyslijRaport(Long poczatekRaportu, Long koniecRaportu) {
                 //Log.d("FragmentRaporty: ", "klik");
                 OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
-                zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())), danaKlasy);
+                //zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())), danaKlasy);
+                zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", poczatekRaportu, koniecRaportu, danaKlasy);
                 Log.d("FragmentRaporty: ", zlecenia.get(1).toStringForRaport());
 
                 //zapisujemy dane
@@ -136,24 +251,47 @@ public class FragmentRaporty extends FragmentPodstawowy {
                 long starTime = System.currentTimeMillis();
                 //raportFile.
                 //writeCsv(backupFile, db, tables);
+                //pobieramy stawki
                 List<daneStawka> stawki;
                 OSQLdaneStawka daneStawkiSQL = new OSQLdaneStawka(getActivity());
                 stawki = daneStawkiSQL.dajWszystkie();
+                //a co w przypadku gdy nie ma zdefinowanej stawki w danych godzinach, lub nie ma ich wcale?
+                //może z automatu dodajmy domyślne stawki dla każdej firmy?
+                if (stawki.isEmpty()){
+                    Log.d("Raporty", "Brak jakichkolwiek stawek, uzupełnij dane!");
+                    Toast.makeText(getActivity(), "Brak jakichkolwiek stawek, uzupełnij dane!", Toast.LENGTH_SHORT).show();
+                    //w takim razie dodajmy stawki na cały dzień dla kazdej firmy
+                    List<daneFirma> firmy;
+                    OSQLdaneFirma daneFirmySQL = new OSQLdaneFirma(getActivity());
+                    firmy = daneFirmySQL.dajWszystkie();
+                    daneStawka stawka = new daneStawka();
+                    stawka.onCreate();
+                    for (daneFirma firma : firmy){
+                        stawka.setFirma_id(firma.getId());
+                        daneStawkiSQL.dodajDane(stawka);
+                    }
+                    //w takim razie musimy jeszcze raz odpalić stawki
+                    stawki = daneStawkiSQL.dajWszystkie();
+                }
 
+                //w takim razie musimy jeszcze raz odpalić stawki
+                stawki = daneStawkiSQL.dajWszystkie();
+                //
+                Log.d("Raporty", "Stawki size: " + String.valueOf(stawki.size()));
                 //sprawdzamy jak to jest z godzinami
                 Log.d("ile stawek", String.valueOf(stawki.size()));
                 for (int j = 0; j < stawki.size(); j++) {
-                    Log.d("ile stawek for poczatek" + j, String.valueOf(stawki.size()));
+                    Log.d("ile stawek for poczatek " + j, String.valueOf(stawki.size()));
                     daneData stawkaPoczatek = new daneData();
                     daneData stawkaKoniec = new daneData();
                     stawkaKoniec.podajDate();
                     //zebysmie mieli pewność że ta sama data
-                    stawkaPoczatek.setDataMilisekundy(stawkaKoniec.getDataMilisekundy());
-                    stawkaPoczatek.setGodzina(stawkaPoczatek.getDataMilisekundy(), stawki.get(j).getPoczatek(), false);
+                    stawkaPoczatek.setDataMilisekundy(stawkaKoniec.getDataMilisekundy("nic"));
+                    stawkaPoczatek.setGodzina(stawkaPoczatek.getDataMilisekundy("nic"), stawki.get(j).getPoczatek(), false);
                     Log.d("stawka poczatek", stawkaPoczatek.getDataString());
-                    stawkaKoniec.setGodzina(stawkaKoniec.getDataMilisekundy(), stawki.get(j).getKoniec(), false);
+                    stawkaKoniec.setGodzina(stawkaKoniec.getDataMilisekundy("nic"), stawki.get(j).getKoniec(), false);
                     Log.d("stawka koniec", stawkaKoniec.getDataString());
-                    if ((stawkaPoczatek.getDataMilisekundy() > stawkaKoniec.getDataMilisekundy()) && !stawki.get(j).getKoniec().equals("00:00")) {
+                    if ((stawkaPoczatek.getDataMilisekundy("nic") > stawkaKoniec.getDataMilisekundy("nic")) && !stawki.get(j).getKoniec().equals("00:00")) {
                         //pobieramy dana problematycznej stawki
                         daneStawka stawka = new daneStawka();
                         stawka.setKoniec("00:00");
@@ -165,7 +303,12 @@ public class FragmentRaporty extends FragmentPodstawowy {
                         //dodajemy kolejną stawkę do listy
                         stawki.add(stawka);
                     }
-                    Log.d("ile stawek for koniec" + j, String.valueOf(stawki.size()));
+                    //jezeli stawka na cały dzień
+                    if ((stawkaPoczatek.getDataMilisekundy("nic") == stawkaKoniec.getDataMilisekundy("nic")) && stawki.get(j).getKoniec().equals("00:00")) {
+
+                        stawki.get(j).setKoniec("24:00");
+                    }
+                    Log.d("ile stawek for koniec " + j, String.valueOf(stawki.size()));
                 }
                 //sprawdzamy jak to jest z godzinami -END
 
@@ -176,6 +319,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
                     //data= zlecenia.get(0).toStringForRaportNaglowek(), plik);
                     myOutWriter.append(zlecenia.get(0).toStringForRaportNaglowek());
                     for (int i = 0; i < zlecenia.size(); i++){
+                        Log.d("W for", String.valueOf(i));
                         daneZlecenia zlecenie = new daneZlecenia();
                         zlecenie.setCzas_rozpoczecia(zlecenia.get(i).getCzas_rozpoczecia());
                         zlecenie.setFirma_nazwa(zlecenia.get(i).getFirma_nazwa());
@@ -191,13 +335,14 @@ public class FragmentRaporty extends FragmentPodstawowy {
 
                         //zmienna potrzebna do określenia czy już całość zadania poszła do raportu
                         boolean czyCaloscDoRaportu = false;
-                        while (czyCaloscDoRaportu == false) {
+                        while (!czyCaloscDoRaportu) {
                             //wyliczamy według stawek
 
                             for (int j = 0; j < stawki.size(); j++) {
                                 //Log.d("stawki start: ", String.valueOf(j));
                                 //Log.d("Zlecenie firma id: ", String.valueOf(zlecenie.getFirma_id()));
                                 //Log.d("Stawka firma id: ", String.valueOf(stawki.get(j).getFirma_id()));
+                                //jezeli zgadza się firma dla stawki
                                 if ((stawki.get(j).getFirma_id() == zlecenie.getFirma_id()) && !czyCaloscDoRaportu) {
                                     daneStawka stawka = new daneStawka();
                                     stawka.setKoniec(stawki.get(j).getKoniec());
@@ -210,7 +355,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
                                     //Log.d("czasStawekPocz", String.valueOf(czasStawekPoczatek.getDataString()));
                                     czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false);
                                     //Log.d("czasStawekKon", String.valueOf(czasStawekKoniec.getDataString()));
-                                    if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.getDataMilisekundy()){
+                                    if (czasStawekPoczatek.getDataMilisekundy("nic") > czasStawekKoniec.getDataMilisekundy("nic")){
                                         czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), true);
                                         Log.d("czasStawekPoczif", String.valueOf(czasStawekKoniec.getDataString()));
                                     }
@@ -221,10 +366,10 @@ public class FragmentRaporty extends FragmentPodstawowy {
                                     //Log.d("Stawka Koniec: ", String.valueOf(czasStawekKoniec.getDataString()));
                                     //jeżeli początek stawki > od końca, czyli gdy np poczatek 16:00 a koniec 00:00
                                     //if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false))
-                                    if ((zlecenie.getCzas_rozpoczecia() >= czasStawekPoczatek.getDataMilisekundy()) && (zlecenie.getCzas_rozpoczecia() <= czasStawekKoniec.getDataMilisekundy())) {
+                                    if ((zlecenie.getCzas_rozpoczecia() >= czasStawekPoczatek.getDataMilisekundy("nic")) && (zlecenie.getCzas_rozpoczecia() <= czasStawekKoniec.getDataMilisekundy("nic"))) {
                                         //jeżeli koniec zlecenia mniejszy równy końcu stawki
                                         //Log.d("Przed if", "przed if");
-                                        if (zlecenie.getCzas_zakonczenia() <= czasStawekKoniec.getDataMilisekundy()) {
+                                        if (zlecenie.getCzas_zakonczenia() <= czasStawekKoniec.getDataMilisekundy("nic")) {
                                             //dajemy do raportu
                                             //jeżeli mieści się pomiędzy czasem rozpoczecia a zakończenia
                                             myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
@@ -286,8 +431,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
                 cofnijDoPoprzedniegoFragmentu();
                 //zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
             }
-        });
-    }
+
 
     private void zapiszDoRaportu(daneZlecenia zlecenie, daneStawka stawka){
 

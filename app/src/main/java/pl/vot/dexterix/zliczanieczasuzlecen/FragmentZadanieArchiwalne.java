@@ -82,8 +82,8 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
             textInputEditTextOpis.setText(String.valueOf(danaKlasyPrzeniesiona.getOpis()));
             textInputEditTextCzasRozpoczecia.setText(String.valueOf(danaKlasyPrzeniesiona.getCzas_rozpoczecia_string()));
             textInputEditTextCzasZakonczenia.setText(String.valueOf(danaKlasyPrzeniesiona.getCzas_zakonczenia_string()));
-            new DateTimePicker(getActivity(), R.id.textInputEditTextCzasRozpoczecia, danaKlasyPrzeniesiona.getCzas_rozpoczecia());
-            new DateTimePicker(getActivity(), R.id.textInputEditTextCzasZakonczenia, danaKlasyPrzeniesiona.getCzas_zakonczenia());
+            new DateTimePicker(getActivity(), R.id.textInputEditTextCzasRozpoczecia, danaKlasyPrzeniesiona.getCzas_rozpoczecia(), false);
+            new DateTimePicker(getActivity(), R.id.textInputEditTextCzasZakonczenia, danaKlasyPrzeniesiona.getCzas_zakonczenia(), false);
             Log.d("danePojedyncze", danaKlasyPrzeniesiona.toStringDoRecyclerView());
             Log.d(">0", danaKlasyPrzeniesiona.getCzas_rozpoczecia().toString());
             dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, danaKlasyPrzeniesiona.getFirma_id());

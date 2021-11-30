@@ -22,7 +22,7 @@
                 android:id="@+id/textInputEditTextDataPoczatkowa"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/podaj_dat_od_kiedy" />
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -38,15 +38,30 @@
                 android:id="@+id/textInputEditTextDataKoncowa"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/podaj_dat_od_kiedy" />
+                 />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Spinner
-            android:id="@+id/spinnerWybierzFirme"
+
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/spinnerWybierzFirme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Spinner
+                android:id="@+id/spinnerWybierzRodzajRaportu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonWykonajRaport"

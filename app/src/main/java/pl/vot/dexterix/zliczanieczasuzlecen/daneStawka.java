@@ -60,12 +60,25 @@ public class daneStawka extends daneKlasaPodstawowa{
         this.setId(0);
         this.setStawka(0.00f);
         this.setPoczatek("00:00");
-        this.setKoniec("00:00");
+        this.setKoniec("24:00");
         this.setFirma_id(0);
         this.setFirma_nazwa("");
+        this.setUwagi("");
     }
 
     public String toStringDoRecyclerView() {
         return "W: " + getStawka() + "od" + getPoczatek();
+    }
+
+    @Override
+    public String toString() {
+        return "daneStawka{" +
+                "firma_nazwa='" + firma_nazwa + '\'' +
+                ", firma_id=" + firma_id +
+                ", stawka=" + stawka +
+                ", poczatek='" + poczatek + '\'' +
+                ", koniec='" + koniec + '\'' +
+                ", uwagi='" + uwagi + '\'' +
+                '}';
     }
 }

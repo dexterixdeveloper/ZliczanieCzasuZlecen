@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         //koniec prob
 
         //częćś do uruchomienia fragmentu z powiadomienia
+
         String fragmentDoZmiany = getIntent().getStringExtra("FragmentDoZmiany");
 
         //FragmentManager fragmentManager = getSupportFragmentManager();
@@ -134,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_stawki) {
             String tagBackStack = "FragmentStawki";
             zmianaFragmentu(new FragmentStawki(), tagBackStack, 1);
+            return true;
+        }
+
+        if (id == R.id.action_about) {
+            String tagBackStack = "FragmentAbout";
+            zmianaFragmentu(new FragmentAbout(), tagBackStack, 1);
             return true;
         }
 
@@ -271,12 +278,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static void cancelPowiadomienie(int powiadomienieID, Context context){
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.cancel(powiadomienieID);
+    }
+
     public static void pokazPowiadomienie(String tytul, String opis, String opis2, int notificationId1, Context context, String fragmentDoZmiany){
         //Kombinujemy jak z powiadomienia odpalić formatkę
         // Create an Intent for the activity you want to start
         Intent resultIntent = new Intent(context, MainActivity.class);
         resultIntent.putExtra("FragmentDoZmiany", fragmentDoZmiany);
         resultIntent.putExtra("id", notificationId1);
+        resultIntent.putExtra("NotificationID", notificationId1);
         // Create the TaskStackBuilder and add the intent, which inflates the back stack
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);

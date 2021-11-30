@@ -14,13 +14,6 @@
         android:datePickerMode="spinner"
         android:calendarViewShown="false" />
 
-    <TimePicker
-        android:id="@+id/time_picker"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5"
-        android:timePickerMode="spinner" />
-
     <Button
         android:id="@+id/date_time_set"
         android:layout_weight="1"

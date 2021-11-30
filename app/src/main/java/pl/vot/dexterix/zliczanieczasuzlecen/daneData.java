@@ -21,6 +21,25 @@ public class daneData {
         return dataMilisekundy;
     }
 
+    public long getDataMilisekundy(String zaokraglenie) {
+        if (zaokraglenie.equals("dol")){
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+            calendar.setTimeInMillis(this.dataMilisekundy);
+            calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            this.setDataMilisekundy(calendar.getTimeInMillis());
+        }else if(zaokraglenie.equals("gora")){
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+            calendar.setTimeInMillis(this.dataMilisekundy);
+            calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 1);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            this.setDataMilisekundy(calendar.getTimeInMillis());
+        }
+        return dataMilisekundy;
+    }
+
     public void setDataMilisekundy(long dataMilisekundy) {
         this.dataMilisekundy = dataMilisekundy;
         this.dataString = this.dataCzasSDF.format(this.dataMilisekundy);
@@ -99,5 +118,53 @@ public class daneData {
         this.setDataMilisekundy(calendar.getTimeInMillis());
         //Log.d("dataCzas kompletna data: ", this.dataString);
         //return this.dataMilisekundy;
+    }
+
+    public long getPoczatekMiesiaca() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
+    }
+
+    public Long getKoniecMiesiaca() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
+    }
+
+    public Long getPoczatekDnia() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
+    }
+
+    public Long getKoniecDnia() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.DAY_OF_YEAR, Calendar.DAY_OF_YEAR + 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
     }
 }

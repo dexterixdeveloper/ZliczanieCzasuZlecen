@@ -27,13 +27,14 @@ import java.util.ArrayList;
 
 public class FragmentZadanie extends FragmentPodstawowy {
 
-    private int czestotliwoscAlarmu = 10;
+    private int czestotliwoscAlarmu = 10;//minuty
     private daneZlecenia danaKlasy = new daneZlecenia();
     private daneZlecenia danaKlasyPrzeniesiona = new daneZlecenia();
     private daneZlecenia danaKlasyDlaAlarmu = new daneZlecenia();
     private TextInputEditText textInputEditTextOpis;
     private TextInputEditText textInputEditTextUwagi;
     private int przeniesioneID = 0;
+    private int przeniesioneNotificationID = 0;
     daneData aktualnaData = new daneData();
 
     public View onCreateView(
@@ -43,6 +44,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
         Bundle bundleArgumenty = getArguments();
         if (bundleArgumenty != null) {
             przeniesioneID = bundleArgumenty.getInt("id");
+            przeniesioneNotificationID = bundleArgumenty.getInt("NotificationID", 0);
         }
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_zadanie, container, false);
@@ -91,7 +93,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
                 //ustawiamy początek zlecenia
                 aktualnaData.podajDate();
-                danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy());
+                danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy("dol"));
             }
         }
     }
@@ -111,7 +113,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             @Override
             public void onClick(View view) {
                 aktualnaData.podajDate();
-                danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy());
+                danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy("dol"));
 
             }
         });
@@ -122,7 +124,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             @Override
             public void onClick(View view) {
                 aktualnaData.podajDate();
-                danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
+                danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy("gora"));
 
                 //odczytujemy kalendarz
 
@@ -138,7 +140,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             @Override
             public void onClick(View view) {
                 aktualnaData.podajDate();
-                danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
+                danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy("gora"));
                 //danaKlasy.setCzy_widoczny(1);
                 //zapiszDane("zak");
                 //zapiszDane("zaw");
@@ -157,7 +159,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
                 if (danaKlasy.getCzas_rozpoczecia().equals(0L)){
                     aktualnaData.podajDate();
-                    danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy());
+                    danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy("dol"));
                 }
                 //aktualnaData.podajDate();
                 //danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
@@ -210,7 +212,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
         intent.putExtra("opis", opis);
         intent.putExtra("opis2", opis2);
         intent.putExtra("notificationID1", notificationId1);
-
+        if (przeniesioneNotificationID > 0){
+            intent.putExtra("cancelnotificationID1", przeniesioneNotificationID);
+        }
         alarmIntent = PendingIntent.getBroadcast(getContext(), notificationId1, intent, 0);
 
         alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
@@ -327,6 +331,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     zapiszDanaZakonczone();
                     osql.dodajDane(danaKlasy);
                     danaKlasy.setStatus("zaw");
+                    cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
                 }
             }
             if (danaKlasy.getStatus().equals("zak")) {

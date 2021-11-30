@@ -31,4 +31,10 @@
     <string name="stawki">Stawki</string>
     <string name="anuluj_zlecenia">Anuluj Zlecenia</string>
     <string name="zaznaczone">Zaznaczone</string>
+    <string name="about">O...</string>
+    <string name="app_author">Autor: Marcin Łukasik (DeX) <br /> @: dexterix00@gmail.com</string>
+    <string name="app_version">Wersja aplikacji: 1.0.2021.11.14.1949</string>
+    <string name="app_changelog">Zmiany: <br/></string>
+    <string name="ustaw">Ustaw</string>
+
 </resources>

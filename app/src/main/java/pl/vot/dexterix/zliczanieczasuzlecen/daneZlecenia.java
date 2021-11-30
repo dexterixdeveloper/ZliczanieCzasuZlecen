@@ -203,15 +203,16 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
     }
 
     public String toStringForRaport() {
-        return  ';' +
+        return  ";;;" +
                 czas_rozpoczecia_string + ';' +
                 czas_zakonczenia_string + ';' +
                 firma_nazwa + ';' +
+                String.valueOf(czas_zakonczenia - czas_rozpoczecia) + ';' +
                 opis + ';' +
                 status + ';' +
                 uwagi;
     }
     public String toStringForRaportNaglowek() {
-        return "LP.;Czas Rozpoczecia;Czas Zakonczenia;Firma;Opis;Status;Uwagi;Stawka;Zarobek\n";
+        return "LP.;Data;Osoba;Czas Rozpoczęcia;Czas Zakonczeńia;Firma;Liczba h;Opis;Status;Uwagi;Stawka;Zarobek\n";
     }
 }
