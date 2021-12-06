@@ -291,13 +291,32 @@ public class FragmentZadanie extends FragmentPodstawowy {
     }
 
     private void zapiszDaneICofnijDoPoprzedniegofragmentu(String sStatus){
+
         Context context = getActivity();
-        if (danaKlasy.getFirma_id() > 0) {
+        StringBuilder uzupelnijDane = new StringBuilder();
+        uzupelnijDane.append("Uzupełnij dane: \n");
+        int daneDoUzupelnienia = 0;
+
+        danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
+        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+
+        if (danaKlasy.getOpis().equals("")){
+            daneDoUzupelnienia++;
+            uzupelnijDane.append("-Opis zadania\n");
+        }
+
+        if (danaKlasy.getFirma_id() < 1) {//od 1 bo wybierz jest na 0
+            daneDoUzupelnienia++;
+            uzupelnijDane.append("-Wybierz Firmę\n");
+        }
+        if (daneDoUzupelnienia > 0) {
+            Toast.makeText(context, uzupelnijDane, Toast.LENGTH_SHORT).show();
+            Log.d("do uzupelnienia", "Nazwa Firmy");
+        }else{
             zapiszDane(sStatus);
             cofnijDoPoprzedniegoFragmentu();
-        } else{
-                Toast.makeText(context, "Nie wybrałes firmy", Toast.LENGTH_SHORT).show();
-            }
+        }
+
     }
 
     private void zapiszDane(String sStatus){
@@ -318,8 +337,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 danaKlasyPrzeniesiona.setCzy_widoczny(0);
                 osql.updateDane(danaKlasyPrzeniesiona);
             }
-            danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
-            danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+
             danaKlasy.setCzy_widoczny(1);
             if (danaKlasy.getCzas_rozpoczecia().equals(0L)) {
                 danaKlasy.setCzas_rozpoczecia(danaKlasy.getCzas_zakonczenia());
@@ -331,7 +349,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     zapiszDanaZakonczone();
                     osql.dodajDane(danaKlasy);
                     danaKlasy.setStatus("zaw");
-                    cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
+                    if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zawieś i błąd
+                        cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
+                    }
                 }
             }
             if (danaKlasy.getStatus().equals("zak")) {

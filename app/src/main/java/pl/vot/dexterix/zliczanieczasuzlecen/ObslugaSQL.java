@@ -18,7 +18,7 @@ import java.util.List;
 public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
     //DATABASE_VERSION = 1;
@@ -26,33 +26,6 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     protected static final String DICTIONARY_TABLE_NAME_2 = "BZCZBD_Zlecenia";
     protected static final String DICTIONARY_TABLE_NAME_3 = "BZCZBD_Settings";
     protected static final String DICTIONARY_TABLE_NAME_4 = "BZCZBD_Stawki";
-
-    /*protected static final String DICTIONARY_TABLE_NAME_3 = "ElektronicznaKsiazkaAutaByDexTypPaliwa";
-    private static final String DICTIONARY_TABLE_NAME_4 = "ElektronicznaKsiazkaAutaByDexTankowania";
-    protected static final String DICTIONARY_TABLE_NAME_5 = "ElektronicznaKsiazkaAutaByDexFirmy";
-    protected static final String DICTIONARY_TABLE_NAME_6 = "ElektronicznaKsiazkaAutaByDexSieci";
-    //DATABASE_VERSION = 2;
-    protected static final String DICTIONARY_TABLE_NAME_7 = "ElektronicznaKsiazkaAutaByDexPrzegladyOkresowe";
-    //protected static final String DICTIONARY_TABLE_NAME_8 = "ElektronicznaKsiazkaAutaByDexPrzegladyOkresoweStacjaKontroli";
-    private static final String DICTIONARY_TABLE_NAME_9 = "ElektronicznaKsiazkaAutaByDexUbezpieczenieOC";
-    //private static final String DICTIONARY_TABLE_NAME_10 = "ElektronicznaKsiazkaAutaByDexUbezpieczenieOCUbezpieczalnie";
-    protected static final String DICTIONARY_TABLE_NAME_11 = "ElektronicznaKsiazkaAutaByDexEksploatacja";
-    protected static final String DICTIONARY_TABLE_NAME_12 = "ElektronicznaKsiazkaAutaByDexEksploatacjaCzynnosci";
-    protected static final String DICTIONARY_TABLE_NAME_13 = "ElektronicznaKsiazkaAutaByDexJednostki";
-    protected static final String DICTIONARY_TABLE_NAME_14 = "ElektronicznaKsiazkaAutaByDexAutaCzesci";
-    //DATABASE_VERSION = 3;
-    private static final String DICTIONARY_TABLE_NAME_15 = "ElektronicznaKsiazkaAutaByDexPaliwaAuta";
-    //DATABASE_VERSION = 5;
-    protected static final String DICTIONARY_TABLE_NAME_16 = "ElektronicznaKsiazkaAutaByDexObslugaEksploatacyjna";
-    //DATABASE_VERSION = 6
-    //private static final String DICTIONARY_TABLE_NAME_17 = "ElektronicznaKsiazkaAutaByDexUbezpieczenieOCUbezpieczalnieSieci";
-    //private static final String DICTIONARY_TABLE_NAME_18 = "ElektronicznaKsiazkaAutaByDexPrzegladyOkresoweStacjaKontroliSieci";
-    //DATABASE_VERSION = 8
-    //private static final String DICTIONARY_TABLE_NAME_19 = "ElektronicznaKsiazkaAutaByDexFirmy";
-    //DATABASE_VERSION = 9
-    private static final String DICTIONARY_TABLE_NAME_20 = "ElektronicznaKsiazkaAutaByDexKoszty";
-    //DATABASE_VERSION = 11
-    //private static final String DICTIONARY_TABLE_NAME_21= "ElektronicznaKsiazkaAutaByDexSieci";*/
 
     //ElektronicznaKsiazkaAutaByDexFirmy
     private static final String[][] DICTIONARY_TABLE_1_ROWS = {{"nazwa", "numer", "nr_telefonu", "ulica_nr", "miasto", "typ", "kalendarz_id"},
@@ -66,8 +39,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     private static final String[][] DICTIONARY_TABLE_ROWS_2_FOREIGN = {{"firma_id", "kalendarz_id"},
             {"BZCZBD_Firmy(_id)", "BZCZBD_Settings(_id)"}};
 
-    private static final String[][] DICTIONARY_TABLE_3_ROWS = {{"calendar_id", "accountName", "calendarDisplayName", "ownerAccount"},
-            {"TEXT", "TEXT", "TEXT", "TEXT"}};
+    private static final String[][] DICTIONARY_TABLE_3_ROWS = {{"ustawienie", "wartosc", "typ_danych"},
+            {"TEXT", "TEXT", "TEXT"}};
     private static final String[][] DICTIONARY_TABLE_ROWS_3_FOREIGN = {{},
             {}};
 
@@ -100,6 +73,9 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         //Database 11
         //ustawieniePoczatkowychWartosci(db);
         //db.close();
+
+        //pierwsze uruchomienie
+        //dodajDanePoczatkowe();
     }
 
     private String tworzStringBazy(String[][] daneTablicy, String[][] daneForeign, String nazwaTablicy){
@@ -193,6 +169,22 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             db.execSQL(tworzStringBazy(DICTIONARY_TABLE_4_ROWS, DICTIONARY_TABLE_ROWS_4_FOREIGN, DICTIONARY_TABLE_NAME_4));
             Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_4);
         }
+
+        if (oldVersion < 8) {
+            db.execSQL("DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_3);
+            Log.d("DebugCSQL:", "usuwanie baz: " + DICTIONARY_TABLE_NAME_3);
+            db.execSQL(tworzStringBazy(DICTIONARY_TABLE_3_ROWS, DICTIONARY_TABLE_ROWS_3_FOREIGN, DICTIONARY_TABLE_NAME_3));
+            Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_3);
+            //dodajDanePoczatkowe();
+        }//if (oldVersion < 8
+
+        if (oldVersion < 9) {
+            db.execSQL("DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_3);
+            Log.d("DebugCSQL:", "usuwanie baz: " + DICTIONARY_TABLE_NAME_3);
+            db.execSQL(tworzStringBazy(DICTIONARY_TABLE_3_ROWS, DICTIONARY_TABLE_ROWS_3_FOREIGN, DICTIONARY_TABLE_NAME_3));
+            Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_3);
+            //dodajDanePoczatkowe();
+        }//if (oldVersion < 9
         /*if (oldVersion < 5){
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_czas text");
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_przebieg integer");

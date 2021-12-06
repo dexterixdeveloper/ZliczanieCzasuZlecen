@@ -91,10 +91,25 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
 
     // updates the date in the birth date EditText
     private void updateDisplay() {
-
+        String prefixDay = "";
+        String prefixMonth = "";
+        String prefixHour = "";
+        String prefixMinute = "";
+        if (_day < 10){
+            prefixDay = "0";
+        }
+        if (_month < 9){
+            prefixMonth = "0";
+        }
+        if (_hour < 10){
+            prefixHour = "0";
+        }
+        if (_minute < 10){
+            prefixMinute = "0";
+        }
         _editText.setText(new StringBuilder()
                 // Month is 0 based so add 1
-                .append(_day).append("-").append(_month + 1).append("-").append(_year).append(" ").append(_hour).append(":").append(_minute));
+                .append(prefixDay).append(_day).append("-").append(prefixMonth).append(_month + 1).append("-").append(_year).append(" ").append(prefixHour).append(_hour).append(":").append(prefixMinute).append(_minute));
     }
 
     @Override

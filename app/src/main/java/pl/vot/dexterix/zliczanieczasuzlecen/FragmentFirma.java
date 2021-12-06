@@ -1,5 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -60,23 +62,11 @@ public class FragmentFirma extends FragmentPodstawowy {
         dodajDoSpinnerWybierzKalendarz(R.string.wybierz, 0L);
 
         //Fragment z1 = getVisibleFragment();
+        obsluzGuzikDodaj(R.id.buttonDodaj);
 
-        Button buttonDodaj = (Button) view.findViewById(R.id.buttonDodaj);
-        buttonDodaj.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                zapiszDane();
-                //finish();
-                //getActivity().finish();
-                //(FragmentFirma.this).
-                cofnijDoPoprzedniegoFragmentu();
-
-            }
-        });
         //sprawdzamy czy przekazano id z poprzedniej klasy
         if (przeniesioneID > 0) {
-            buttonDodaj.setText("Aktualizuj");
+            //(Button) view.findViewById(R.id.buttonDodaj).setText("Aktualizuj");
             OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
             danaKlasy = osql.dajOkreslonyRekord(przeniesioneID);
             Log.d("FragmentFirma:  ", String.valueOf(przeniesioneID));
@@ -97,6 +87,21 @@ public class FragmentFirma extends FragmentPodstawowy {
 
         }
 
+    }
+
+    private void obsluzGuzikDodaj(int button) {
+        Button buttonDodaj = (Button) getActivity().findViewById(button);
+        if (przeniesioneID > 0) {
+            buttonDodaj.setText("Aktualizuj");
+        }
+        buttonDodaj.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                    zapiszDaneICofnijDoPoprzedniegofragmentu();
+
+            }
+        });
     }
 
     //to daje nam możliwość przekazania danych do tego fragmentu
@@ -177,7 +182,11 @@ public class FragmentFirma extends FragmentPodstawowy {
         });
     }//public void dodajDoSpinnerEksploatacjaDodajCzynnosc(Integer rSpinner) {
 
-    private void zapiszDane(){
+    private void zapiszDaneICofnijDoPoprzedniegofragmentu(){
+        Context context = getActivity();
+        StringBuilder uzupelnijDane = new StringBuilder();
+        uzupelnijDane.append("Uzupełnij dane: \n");
+        int daneDoUzupelnienia = 0;
 
         danaKlasy.setNazwa(String.valueOf(textInputEditTextNazwa.getText()));
         danaKlasy.setUlicaNr(String.valueOf(textInputEditTextUlicaNr.getText()));
@@ -185,6 +194,22 @@ public class FragmentFirma extends FragmentPodstawowy {
         Log.d("FragmentFirma: set Miasto: ", danaKlasy.getMiasto());
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
         danaKlasy.setNr_telefonu(Integer.valueOf(String.valueOf(textInputEditTextNrTelefonu.getText())));
+
+        if (danaKlasy.getNazwa().equals("")){
+            daneDoUzupelnienia++;
+            uzupelnijDane.append("-Nazwa Firmy\n");
+        }
+
+        if (daneDoUzupelnienia > 0) {
+            Toast.makeText(context, uzupelnijDane, Toast.LENGTH_SHORT).show();
+            Log.d("do uzupelnienia", "Nazwa Firmy");
+        }else{
+            zapiszDane();
+            cofnijDoPoprzedniegoFragmentu();
+        }
+    }
+
+    private void zapiszDane(){
 
         Log.d("dana klasy: ", danaKlasy.toString());
         OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());

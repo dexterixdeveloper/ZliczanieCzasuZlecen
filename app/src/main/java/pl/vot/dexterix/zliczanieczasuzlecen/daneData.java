@@ -1,5 +1,7 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -93,7 +95,11 @@ public class daneData {
         try {
             Date dataCzas = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.ENGLISH).parse(przekazanaData);
             Long dataMilisekundy1 = dataCzas.getTime();
+            Log.d("daneData", String.valueOf(dataMilisekundy1));
+            Log.d("danaeData", String.valueOf(this.dataMilisekundy));
             this.setDataMilisekundy(dataMilisekundy1);
+            Log.d("daneData", String.valueOf(getDataMilisekundy()));
+            Log.d("danaeData", String.valueOf(this.dataMilisekundy));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -121,9 +127,12 @@ public class daneData {
     }
 
     public long getPoczatekMiesiaca() {
+        Log.d("danaeData", String.valueOf(this.dataMilisekundy));
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
         calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -137,6 +146,7 @@ public class daneData {
         calendar.setTimeInMillis(this.dataMilisekundy);
         calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -146,20 +156,33 @@ public class daneData {
     }
 
     public Long getPoczatekDnia() {
+        Log.d("danaeData", String.valueOf(this.dataMilisekundy));
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        Log.d("1", String.valueOf(calendar.getTimeInMillis()));
         calendar.setTimeInMillis(this.dataMilisekundy);
+        Log.d("2", String.valueOf(calendar.getTimeInMillis()));
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR));
+        Log.d("3", String.valueOf(calendar.getTimeInMillis()));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        Log.d("4", String.valueOf(calendar.getTimeInMillis()));
         calendar.set(Calendar.MINUTE, 0);
+        Log.d("5", String.valueOf(calendar.getTimeInMillis()));
         calendar.set(Calendar.SECOND, 0);
+        Log.d("6", String.valueOf(calendar.getTimeInMillis()));
         calendar.set(Calendar.MILLISECOND, 0);
+        Log.d("7", String.valueOf(calendar.getTimeInMillis()));
         this.setDataMilisekundy(calendar.getTimeInMillis());
 
         return dataMilisekundy;
     }
 
     public Long getKoniecDnia() {
+        Log.d("danaeData", String.valueOf(this.dataMilisekundy));
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(this.dataMilisekundy);
-        calendar.set(Calendar.DAY_OF_YEAR, Calendar.DAY_OF_YEAR + 1);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)+1);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);

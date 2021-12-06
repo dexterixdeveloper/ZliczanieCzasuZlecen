@@ -1,5 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,11 +9,13 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +23,10 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -35,6 +40,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_ID = "PowiadomienieZliczanieCzasuZlecen";
     public final FragmentManager fm = getSupportFragmentManager();
     private String TAG = "MainActivity";
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 615;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_CALENDAR = 616;
+    private static final int MY_PERMISSIONS_REQUEST_READ_CALENDAR = 617;
+
+    private static final int CREATE_FILE = 1;
+
+
+    //ustawienia aplikacji
+    private Boolean FirstRun;//czy 1 uruchomienie
+        //uprawnienia
+    private Boolean AccessCalendar;//czy dostęp do kalendarza
+    private Boolean AccessFiles;//czy dostęp do plików zewnętrznych
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +63,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         createNotificationChannel();
         clickOnFloatingButton();
+        getUstawienia();
+        if (FirstRun){
+            poprosOUprawnienia();
+        }
         //toolbar.setTitle("456");
         //sprobujmy zrobic backup na starcie
-        ObslugaSQL osql = new ObslugaSQL(this);
+        //ObslugaSQL osql = new ObslugaSQL(this);
         Log.d("Katalog: ", "yy");
         //TODO: Właczyć backup
         //osql.zrobKopieBazy("bla", this);
@@ -90,6 +111,158 @@ public class MainActivity extends AppCompatActivity {
             zmianaFragmentu(new FragmentZadaniaDoZrobienia(), tagBackStack, 0);
             //StandardFragment standardFragment = new StandardFragment();
             //fragmentTransaction.replace(android.R.id.content, standardFragment);
+        }
+
+        //testowanie zapisu pliku
+        //createFile();
+        
+
+    }
+    //test na tworzenie pliku w lokalizacji wybranej przez usera
+    private void createFile(Uri pickerInitialUri) {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, "invoice.pdf");
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker when your app creates the document.
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+
+        startActivityForResult(intent, CREATE_FILE);
+    }
+
+
+    private void getUstawienia(){
+        OSQLdaneUstawienia osql = new OSQLdaneUstawienia(this);
+        List<daneUstawienia> ustawienia = osql.dajWszystkie();
+        if (!ustawienia.isEmpty()) {
+            for (daneUstawienia ustawienie : ustawienia) {
+
+                switch (ustawienie.getUstawienie()) {
+                    case "FirstRun":
+                        FirstRun = Boolean.valueOf(ustawienie.getWartosc());//czy 1 uruchomienie
+                        break;
+                    case "AccessCalendar":
+                        AccessCalendar = Boolean.valueOf(ustawienie.getWartosc());//czy dostęp do kalendarza
+                        break;
+                    case "AccessFiles":
+                        AccessFiles = Boolean.valueOf(ustawienie.getWartosc());//czy dostęp do plików zewnętrznych
+                        break;
+
+                }
+
+            }
+        }else{
+            String[][] danePoczatkowe = {
+                    {"FirstRun", "true", "Boolean"},//czy 1 uruchomienie
+                    {"AccessCalendar", "false", "Boolean"},//czy dostęp do kalendarza
+                    {"AccessFiles", "false", "Boolean"}//czy dostęp do plików zewnętrznych
+            };
+            for (String[] dana : danePoczatkowe){
+                daneUstawienia ustawienie = new daneUstawienia();
+                ustawienie.setTypDanych(dana[2]);
+                ustawienie.setWartosc(dana[1]);
+                ustawienie.setUstawienie(dana[0]);
+
+                osql.dodajDane(ustawienie);
+            }
+            getUstawienia();
+        }
+    }
+
+    private void dodajDanePoczatkowe(){
+
+        String[][] danePoczatkowe = {
+                {"FirstRun", "true", "Boolean"},//czy 1 uruchomienie
+                {"AccessCalendar", "false", "Boolean"},//czy dostęp do kalendarza
+                {"AccessFiles", "false", "Boolean"}//czy dostęp do plików zewnętrznych
+        };
+        for (String[] dana : danePoczatkowe){
+            daneUstawienia ustawienie = new daneUstawienia();
+            ustawienie.setTypDanych(dana[2]);
+            ustawienie.setWartosc(dana[1]);
+            ustawienie.setUstawienie(dana[0]);
+
+
+        }
+
+    }
+
+    private void poprosOUprawnienia() {
+        /*if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+        }*/
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_CALENDAR)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_CALENDAR)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_CALENDAR},
+                        MY_PERMISSIONS_REQUEST_WRITE_CALENDAR);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CALENDAR)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_CALENDAR)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_CALENDAR},
+                        MY_PERMISSIONS_REQUEST_READ_CALENDAR);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
         }
     }
 
