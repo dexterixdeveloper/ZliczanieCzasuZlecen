@@ -345,9 +345,12 @@ public class FragmentZadanie extends FragmentPodstawowy {
             }
             if (sStatus.equals("zaw")){
                 if(danaKlasy.getCzas_zakonczenia()>danaKlasy.getCzas_rozpoczecia()){
-                    danaKlasy.setStatus("zak");
-                    zapiszDanaZakonczone();
-                    osql.dodajDane(danaKlasy);
+                    if (przeniesioneID > 0) {
+                        danaKlasy.setStatus("zak");
+                        zapiszDanaZakonczone();
+                        osql.dodajDane(danaKlasy);
+                    }
+
                     danaKlasy.setStatus("zaw");
                     if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zawieś i błąd
                         cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
@@ -356,7 +359,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
             }
             if (danaKlasy.getStatus().equals("zak")) {
                 zapiszDanaZakonczone();
-                cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
+                if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zakończ i błąd
+                    cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
+                }
             }
             Log.d("dana klasy: ", danaKlasy.toString());
 

@@ -22,6 +22,7 @@ public class FragmentAbout extends FragmentPodstawowy{
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ukryjFloatingButton();
         TextView textViewChangeLog = getActivity().findViewById(R.id.textViewChangeLog);
         textViewChangeLog.append(zmianyWprogramie());
 
@@ -32,7 +33,12 @@ public class FragmentAbout extends FragmentPodstawowy{
                 {"2021.12.02", "Ususnięcie możliwości dodania firmy z pustą nazwą"},
                 {"2021.12.02", "Ususnięcie możliwości dodania zadania z pustym opisem"},
                 {"2021.12.02", "Automatyczne dodawanie dat w polach dat w  raportach"},
-                {"2021.12.02", "Naprawa nie działających raportów"}
+                {"2021.12.02", "Naprawa nie działających raportów"},
+                {"2021.12.06", "Usunięcie błędu przy ustawieniu statusu podczas 1 uruchomienia zadania"},
+                {"2021.12.06", "Usunięcie błędu ze złym odwołaniem do kalendarzy"},
+                {"2021.12.13", "Naprawa mechanizmu zapisu i wysyłania plików"},
+                {"2021.12.13", "Usunięcie guzika FAB z formatek, gdzie jest bezużyteczny"},
+                {"2021.12.14", "Poprawienie mechanizmu tworzenia kopii zapasowej"}
         };
         StringBuilder uzupelnijDane = new StringBuilder();
         uzupelnijDane.append("\n");

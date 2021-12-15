@@ -1,6 +1,8 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +16,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -32,6 +33,8 @@ public class FragmentRaporty extends FragmentPodstawowy {
     //private TextInputLayout textInputLayoutDataKoncowa;
     private Integer danaKlasy = 0;
     private Integer danaKlasyRodzajRaportu = 0;
+    private Long poczatek =0L; //poczatek raportu
+    private Long koniec =0L; //koniec raportu
     daneData aktualnaData = new daneData();
 
     public View onCreateView(
@@ -46,7 +49,7 @@ public class FragmentRaporty extends FragmentPodstawowy {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        ukryjFloatingButton();
         textInputEditTextDataKoncowa = (TextInputEditText) view.findViewById(R.id.textInputEditTextDataKoncowa);
         textInputEditTextDataPoczatkowa = (TextInputEditText) view.findViewById(R.id.textInputEditTextDataPoczatkowa);
         //textInputLayoutDataPoczatkowa = (TextInputLayout) view.findViewById(R.id.textInputLayoutDataPoczatkowa);
@@ -190,15 +193,16 @@ public class FragmentRaporty extends FragmentPodstawowy {
         view.findViewById(R.id.buttonWykonajRaport).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                Long poczatek =0L; //poczatek raportu
-                Long koniec =0L; //koniec raportu
+
                 switch(danaKlasyRodzajRaportu) {
                     case -1:
                         Toast.makeText(context, "Nie wybrałes rodzaju raportu", Toast.LENGTH_SHORT).show();
                         break;
                     case 1: //"Miesięczny"
                         aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText()));
-                        wykonajWyslijRaport(aktualnaData.getPoczatekMiesiaca(), aktualnaData.getKoniecMiesiaca());
+                        poczatek = aktualnaData.getPoczatekMiesiaca();
+                        koniec = aktualnaData.getKoniecMiesiaca();
+                        //wykonajWyslijRaport(aktualnaData.getPoczatekMiesiaca(), aktualnaData.getKoniecMiesiaca());
                         break;
 
                     case 2://"Od daty do daty"
@@ -206,21 +210,56 @@ public class FragmentRaporty extends FragmentPodstawowy {
                         poczatek = aktualnaData.getPoczatekDnia();
                         aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText()));
                         koniec = aktualnaData.getKoniecDnia();
-                        wykonajWyslijRaport(poczatek, koniec);
+                        //wykonajWyslijRaport(poczatek, koniec);
                         break;
 
                     case 3://"Na dziś"
                         aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText()));
                         poczatek = aktualnaData.getPoczatekDnia();
                         koniec = aktualnaData.getKoniecDnia();
-                        wykonajWyslijRaport(poczatek, koniec);
+                        //wykonajWyslijRaport(poczatek, koniec);
                         break;
                     default:
                        
                         break;
                 }
+                wykonajWyslijRaport1();
             }
         });
+    }
+
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+
+        if (requestCode == WRITE_SEND_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using resultData.getData().
+            //Uri uri = null;
+            if (resultData != null) {
+                uriToFile = resultData.getData();
+                Log.i("TAG", "Uri: " + uriToFile.toString());
+                wykonajWyslijRaport(poczatek, koniec);
+            }else{
+                Toast.makeText(getActivity(), "Nie wybrałeś pliku raportu!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Nie wybrałeś pliku raportu!");
+            }
+        }
+        if (requestCode == SEND_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using resultData.getData().
+            //Uri uri = null;
+            cofnijDoPoprzedniegoFragmentu();
+        }
+    }
+
+    private void wykonajWyslijRaport1() {
+        //tworzymy plik
+        createFile("text/plain", "raport.csv", WRITE_SEND_REQUEST_CODE);
     }
 
     private void wykonajWyslijRaport(Long poczatekRaportu, Long koniecRaportu) {
@@ -229,11 +268,11 @@ public class FragmentRaporty extends FragmentPodstawowy {
                 //zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())), danaKlasy);
                 zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", poczatekRaportu, koniecRaportu, danaKlasy);
                 if (!zlecenia.isEmpty()) {//czy przypadkiem nie jest pusty raport
-                    Log.d("FragmentRaporty: ", zlecenia.get(0).toStringForRaport());
+                    //Log.d("FragmentRaporty: ", zlecenia.get(0).toStringForRaport());
 
                     //zapisujemy dane
 
-                    File raportDir = FileUtils.createDirIfNotExist(getActivity().getExternalFilesDir(null) + "/raport");
+                    /*File raportDir = FileUtils.createDirIfNotExist(getActivity().getExternalFilesDir(null) + "/raport");
                     //File backupDir = FileUtils.createDirIfNotExist(  context.getApplicationInfo().dataDir + "/backup");
                     Log.d("Path: ", getActivity().getExternalFilesDir(null) + "/raport");
                     //Log.d("Path: ", context.getApplicationInfo().dataDir + "/backup");
@@ -251,14 +290,15 @@ public class FragmentRaporty extends FragmentPodstawowy {
                     } catch (IOException e) {
                         Log.d("FragmentRaporty: ", "cos sie zjeblo");
                         e.printStackTrace();
-                    }
+                    }*/
+                    //tworzymy plik raportu
 
 
-                    Log.d("FragmentRaporty: ", "Started to fill the raport file in " + raportFile.getAbsolutePath());
-                    Toast.makeText(getActivity(), "Started to fill the raport file in " + raportFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                    Log.d("FragmentRaporty: ", "Started to fill the raport file in " + uriToFile.toString());
+                    //Toast.makeText(getActivity(), "Started to fill the raport file in " + uriToFile.toString(), Toast.LENGTH_SHORT).show();
+                    //TODO: tu skończyłem
                     long starTime = System.currentTimeMillis();
-                    //raportFile.
-                    //writeCsv(backupFile, db, tables);
+                    Log.d("cos chyba", "nie bangla");
                     //pobieramy stawki
                     List<daneStawka> stawki;
                     OSQLdaneStawka daneStawkiSQL = new OSQLdaneStawka(getActivity());
@@ -321,122 +361,124 @@ public class FragmentRaporty extends FragmentPodstawowy {
                     //sprawdzamy jak to jest z godzinami -END
 
                     daneData czas = new daneData();
-                    try {
-                        FileOutputStream plik = new FileOutputStream(raportDir.getAbsolutePath() + "/" + fileName);
-                        OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
-                        //data= zlecenia.get(0).toStringForRaportNaglowek(), plik);
-                        myOutWriter.append(zlecenia.get(0).toStringForRaportNaglowek());
-                        for (int i = 0; i < zlecenia.size(); i++) {
-                            Log.d("W for", String.valueOf(i));
-                            daneZlecenia zlecenie = new daneZlecenia();
-                            zlecenie.setCzas_rozpoczecia(zlecenia.get(i).getCzas_rozpoczecia());
-                            zlecenie.setFirma_nazwa(zlecenia.get(i).getFirma_nazwa());
-                            zlecenie.setOpis(zlecenia.get(i).getOpis());
-                            zlecenie.setStatus(zlecenia.get(i).getStatus());
-                            zlecenie.setUwagi(zlecenia.get(i).getUwagi());
-                            zlecenie.setCzas_zakonczenia(zlecenia.get(i).getCzas_zakonczenia());
-                            zlecenie.setFirma_id(zlecenia.get(i).getFirma_id());
-                            zlecenie.setCzas_rozpoczecia_string(zlecenia.get(i).getCzas_rozpoczecia_string());
-                            zlecenie.setCzas_zakonczenia_string(zlecenia.get(i).getCzas_zakonczenia_string());
+                    /*FileOutputStream plik = new FileOutputStream(raportDir.getAbsolutePath() + "/" + fileName);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
+                    //data= zlecenia.get(0).toStringForRaportNaglowek(), plik);
+                    myOutWriter.append(zlecenia.get(0).toStringForRaportNaglowek());*/
+                    for (int i = 0; i < zlecenia.size(); i++) {
+                        Log.d("W for", String.valueOf(i));
+                        daneZlecenia zlecenie = new daneZlecenia();
+                        zlecenie.setCzas_rozpoczecia(zlecenia.get(i).getCzas_rozpoczecia());
+                        zlecenie.setFirma_nazwa(zlecenia.get(i).getFirma_nazwa());
+                        zlecenie.setOpis(zlecenia.get(i).getOpis());
+                        zlecenie.setStatus(zlecenia.get(i).getStatus());
+                        zlecenie.setUwagi(zlecenia.get(i).getUwagi());
+                        zlecenie.setCzas_zakonczenia(zlecenia.get(i).getCzas_zakonczenia());
+                        zlecenie.setFirma_id(zlecenia.get(i).getFirma_id());
+                        zlecenie.setCzas_rozpoczecia_string(zlecenia.get(i).getCzas_rozpoczecia_string());
+                        zlecenie.setCzas_zakonczenia_string(zlecenia.get(i).getCzas_zakonczenia_string());
 
-                            //Log.d(String.valueOf(i), String.valueOf(zlecenia.get(i).getFirma_id()));
+                        //Log.d(String.valueOf(i), String.valueOf(zlecenia.get(i).getFirma_id()));
 
-                            //zmienna potrzebna do określenia czy już całość zadania poszła do raportu
-                            boolean czyCaloscDoRaportu = false;
-                            while (!czyCaloscDoRaportu) {
-                                //wyliczamy według stawek
+                        //zmienna potrzebna do określenia czy już całość zadania poszła do raportu
+                        boolean czyCaloscDoRaportu = false;
+                        while (!czyCaloscDoRaportu) {
+                            //wyliczamy według stawek
 
-                                for (int j = 0; j < stawki.size(); j++) {
-                                    //Log.d("stawki start: ", String.valueOf(j));
-                                    //Log.d("Zlecenie firma id: ", String.valueOf(zlecenie.getFirma_id()));
-                                    //Log.d("Stawka firma id: ", String.valueOf(stawki.get(j).getFirma_id()));
-                                    //jezeli zgadza się firma dla stawki
-                                    if ((stawki.get(j).getFirma_id() == zlecenie.getFirma_id()) && !czyCaloscDoRaportu) {
-                                        daneStawka stawka = new daneStawka();
-                                        stawka.setKoniec(stawki.get(j).getKoniec());
-                                        stawka.setPoczatek(stawki.get(j).getPoczatek());
-                                        stawka.setStawka(stawki.get(j).getStawka());
+                            for (int j = 0; j < stawki.size(); j++) {
+                                //Log.d("stawki start: ", String.valueOf(j));
+                                //Log.d("Zlecenie firma id: ", String.valueOf(zlecenie.getFirma_id()));
+                                //Log.d("Stawka firma id: ", String.valueOf(stawki.get(j).getFirma_id()));
+                                //jezeli zgadza się firma dla stawki
+                                if ((stawki.get(j).getFirma_id() == zlecenie.getFirma_id()) && !czyCaloscDoRaportu) {
+                                    daneStawka stawka = new daneStawka();
+                                    stawka.setKoniec(stawki.get(j).getKoniec());
+                                    stawka.setPoczatek(stawki.get(j).getPoczatek());
+                                    stawka.setStawka(stawki.get(j).getStawka());
 
-                                        daneData czasStawekPoczatek = new daneData();
-                                        daneData czasStawekKoniec = new daneData();
-                                        czasStawekPoczatek.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getPoczatek(), false);
-                                        //Log.d("czasStawekPocz", String.valueOf(czasStawekPoczatek.getDataString()));
-                                        czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false);
-                                        //Log.d("czasStawekKon", String.valueOf(czasStawekKoniec.getDataString()));
-                                        if (czasStawekPoczatek.getDataMilisekundy("nic") > czasStawekKoniec.getDataMilisekundy("nic")) {
-                                            czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), true);
-                                            Log.d("czasStawekPoczif", String.valueOf(czasStawekKoniec.getDataString()));
+                                    daneData czasStawekPoczatek = new daneData();
+                                    daneData czasStawekKoniec = new daneData();
+                                    czasStawekPoczatek.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getPoczatek(), false);
+                                    //Log.d("czasStawekPocz", String.valueOf(czasStawekPoczatek.getDataString()));
+                                    czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false);
+                                    //Log.d("czasStawekKon", String.valueOf(czasStawekKoniec.getDataString()));
+                                    if (czasStawekPoczatek.getDataMilisekundy("nic") > czasStawekKoniec.getDataMilisekundy("nic")) {
+                                        czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), true);
+                                        Log.d("czasStawekPoczif", String.valueOf(czasStawekKoniec.getDataString()));
+                                    }
+                                    //TODO: wykombinować jakoś żeby  dało się pominąć rozdzilenaie stawek do północy
+                                    //jeżeli początek zlecenia jest równy większy od początku stawki
+                                    //Log.d("zlecenie czas rozpoczecia: ", String.valueOf(zlecenie.getCzas_rozpoczecia_string()));
+                                    //Log.d("Stawka Poczatek: ", String.valueOf(czasStawekPoczatek.getDataString()));
+                                    //Log.d("Stawka Koniec: ", String.valueOf(czasStawekKoniec.getDataString()));
+                                    //jeżeli początek stawki > od końca, czyli gdy np poczatek 16:00 a koniec 00:00
+                                    //if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false))
+                                    if ((zlecenie.getCzas_rozpoczecia() >= czasStawekPoczatek.getDataMilisekundy("nic")) && (zlecenie.getCzas_rozpoczecia() <= czasStawekKoniec.getDataMilisekundy("nic"))) {
+                                        //jeżeli koniec zlecenia mniejszy równy końcu stawki
+                                        //Log.d("Przed if", "przed if");
+                                        if (zlecenie.getCzas_zakonczenia() <= czasStawekKoniec.getDataMilisekundy("nic")) {
+                                            //dajemy do raportu
+                                            //jeżeli mieści się pomiędzy czasem rozpoczecia a zakończenia
+                                            //myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //zapisujemy dane
+                                            alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //Log.d("FragmentRaporty: zapis do pliku:if ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //Log.d("W if", "w if");
+                                            czyCaloscDoRaportu = true;
+                                        } else {
+                                            //gdy koniec zadania jednak > koniec stawki
+                                            //Log.d("W else", "w else");
+                                            //zapisujemy
+                                            long czasZakonczeniaTmp = zlecenie.getCzas_zakonczenia();
+                                            zlecenie.setCzas_zakonczenia(czasStawekKoniec.getDataMilisekundy());
+                                            zlecenie.setCzas_zakonczenia_string(czasStawekKoniec.getDataString());
+                                            //myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //zapisujemy dane
+                                            alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            //Log.d("FragmentRaporty: zapis do pliku: ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            zlecenie.setCzas_zakonczenia(czasZakonczeniaTmp);
+                                            daneData czasTmp = new daneData();
+                                            czasTmp.setDataMilisekundy(czasZakonczeniaTmp);
+                                            zlecenie.setCzas_zakonczenia_string(czasTmp.getDataString());
+                                            //Log.d("Czas zakonczenniaTMP", String.valueOf(czasZakonczeniaTmp));
+                                            zlecenie.setCzas_rozpoczecia(czasStawekKoniec.getDataMilisekundy());
+                                            //Log.d("czasStawekKoniec", String.valueOf(czasStawekKoniec.getDataMilisekundy()));
+                                            zlecenie.setCzas_rozpoczecia_string(czasStawekKoniec.getDataString());
+                                        /*if(czasStawekKoniec.getDataMilisekundy() > zlecenie.getCzas_zakonczenia()){
+                                            zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), true));
+                                            Log.d("zlecenie czas rozpoczecia set if ", String.valueOf(zlecenie.getCzas_rozpoczecia()));
+                                        }else{
+                                            zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), false));
+                                            Log.d("zlecenie czas rozpoczecia set else", String.valueOf(zlecenie.getCzas_rozpoczecia()));
+                                        }*/
+
                                         }
-                                        //TODO: wykombinować jakoś żeby  dało się pominąć rozdzilenaie stawek do północy
-                                        //jeżeli początek zlecenia jest równy większy od początku stawki
-                                        //Log.d("zlecenie czas rozpoczecia: ", String.valueOf(zlecenie.getCzas_rozpoczecia_string()));
-                                        //Log.d("Stawka Poczatek: ", String.valueOf(czasStawekPoczatek.getDataString()));
-                                        //Log.d("Stawka Koniec: ", String.valueOf(czasStawekKoniec.getDataString()));
-                                        //jeżeli początek stawki > od końca, czyli gdy np poczatek 16:00 a koniec 00:00
-                                        //if (czasStawekPoczatek.getDataMilisekundy() > czasStawekKoniec.setGodzina(zlecenie.getCzas_rozpoczecia(), stawka.getKoniec(), false))
-                                        if ((zlecenie.getCzas_rozpoczecia() >= czasStawekPoczatek.getDataMilisekundy("nic")) && (zlecenie.getCzas_rozpoczecia() <= czasStawekKoniec.getDataMilisekundy("nic"))) {
-                                            //jeżeli koniec zlecenia mniejszy równy końcu stawki
-                                            //Log.d("Przed if", "przed if");
-                                            if (zlecenie.getCzas_zakonczenia() <= czasStawekKoniec.getDataMilisekundy("nic")) {
-                                                //dajemy do raportu
-                                                //jeżeli mieści się pomiędzy czasem rozpoczecia a zakończenia
-                                                myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                                //Log.d("FragmentRaporty: zapis do pliku:if ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                                //Log.d("W if", "w if");
-                                                czyCaloscDoRaportu = true;
-                                            } else {
-                                                //gdy koniec zadania jednak > koniec stawki
-                                                //Log.d("W else", "w else");
-                                                //zapisujemy
-                                                long czasZakonczeniaTmp = zlecenie.getCzas_zakonczenia();
-                                                zlecenie.setCzas_zakonczenia(czasStawekKoniec.getDataMilisekundy());
-                                                zlecenie.setCzas_zakonczenia_string(czasStawekKoniec.getDataString());
-                                                myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                                //Log.d("FragmentRaporty: zapis do pliku: ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
-                                                zlecenie.setCzas_zakonczenia(czasZakonczeniaTmp);
-                                                daneData czasTmp = new daneData();
-                                                czasTmp.setDataMilisekundy(czasZakonczeniaTmp);
-                                                zlecenie.setCzas_zakonczenia_string(czasTmp.getDataString());
-                                                //Log.d("Czas zakonczenniaTMP", String.valueOf(czasZakonczeniaTmp));
-                                                zlecenie.setCzas_rozpoczecia(czasStawekKoniec.getDataMilisekundy());
-                                                //Log.d("czasStawekKoniec", String.valueOf(czasStawekKoniec.getDataMilisekundy()));
-                                                zlecenie.setCzas_rozpoczecia_string(czasStawekKoniec.getDataString());
-                                            /*if(czasStawekKoniec.getDataMilisekundy() > zlecenie.getCzas_zakonczenia()){
-                                                zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), true));
-                                                Log.d("zlecenie czas rozpoczecia set if ", String.valueOf(zlecenie.getCzas_rozpoczecia()));
-                                            }else{
-                                                zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), false));
-                                                Log.d("zlecenie czas rozpoczecia set else", String.valueOf(zlecenie.getCzas_rozpoczecia()));
-                                            }*/
 
-                                            }
-                                        }
                                     }
                                 }
-                                //w razie gdyby nie było ustawionej stawki:
-                                //czyCaloscDoRaportu = true;
-                                //myOutWriter.append(zlecenie.toStringForRaport() + ";" + "0" + ";");
-                            }//while (czyCaloscDoRaportu == false) { -END
-                            //wyliczamy według stawek -END
-                            //myOutWriter.append(zlecenia.get(i).toStringForRaport());
+                            }
+                            //w razie gdyby nie było ustawionej stawki:
+                            //czyCaloscDoRaportu = true;
+                            //myOutWriter.append(zlecenie.toStringForRaport() + ";" + "0" + ";");
+                        }//while (czyCaloscDoRaportu == false) { -END
+                        //wyliczamy według stawek -END
+                        //myOutWriter.append(zlecenia.get(i).toStringForRaport());
 
-                        }
-                        myOutWriter.close();
-                        plik.close();
-                    } catch (IOException e) {
-
-                        Log.d("FragmentRaporty: ", "cos sie sparolilo");
-                        Log.e("Exception", "File write failed: " + e.toString());
-                        e.printStackTrace();
                     }
-                    Log.d("FragmentRaporty: ", raportFile.getName());
+                    //myOutWriter.close();
+                    //plik.close();
+                    //Log.d("FragmentRaporty: ", uriToFile.toString());
 
                     long endTime = System.currentTimeMillis();
                     Log.d("FragmentRaporty: ", "Creating raport took " + (endTime - starTime) + "ms.");
                     Toast.makeText(getActivity(), "Creating raport took " + (endTime - starTime) + "ms.", Toast.LENGTH_SHORT).show();
                     //automatycznie już wywsyłamy raporty
-                    sendRaportsFiles();
-                    cofnijDoPoprzedniegoFragmentu();
+                    //dodajemy tylko Uri do raportu
+
+                    fileListUris.add(uriToFile);
+                    sendFiles();
+                    //sendRaportsFiles();
+                    //cofnijDoPoprzedniegoFragmentu();
                     //zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
                 }else{
                     Toast.makeText(getActivity(), "Brak danych do raportu", Toast.LENGTH_SHORT).show();

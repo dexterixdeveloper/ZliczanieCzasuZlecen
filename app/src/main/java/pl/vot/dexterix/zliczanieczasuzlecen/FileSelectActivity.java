@@ -14,8 +14,6 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
-import pl.vot.dexterix.zliczanieczasuzlecen.R;
-
 import java.io.File;
 
 public class FileSelectActivity extends Activity{
@@ -35,7 +33,7 @@ public class FileSelectActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_select);
         addListenerOnButtonRestore(R.id.buttonZrobione);
-        Intent resultIntent = new Intent("com.example.myapp.ACTION_RETURN_FILE");
+        Intent resultIntent = new Intent("pl.vot.dexterix.zliczanieczasuzlecen.ACTION_RETURN_FILE");
         // Get the files/ subdirectory of internal storage
         privateRootDir = getFilesDir();
         // Get the files/images subdirectory;

@@ -4,8 +4,8 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,14 +29,16 @@ import java.util.List;
  * and some other SO threads as well.
  *
  */
-public class BackupExportFromSQL {
+public class BackupExportFromSQL extends FragmentPodstawowy{
 
     private static final String TAG = BackupExportFromSQL.class.getSimpleName();
+
+    //private SQLiteDatabase db1 = null;
 
     public static final String DB_BACKUP_DB_VERSION_KEY = "dbVersion";
     public static final String DB_BACKUP_TABLE_NAME = "table";
 
-    public static void export(SQLiteDatabase db, String sciezkaB, Context context) throws IOException{
+    /*public static void export(SQLiteDatabase db, String sciezkaB, Context context) throws IOException{
     //public static String export(SQLiteDatabase db, String sciezkaB, Context context) throws IOException{
         if( !FileUtils.isExternalStorageWritable() ){
             throw new IOException("Cannot write to external storage");
@@ -72,20 +73,15 @@ public class BackupExportFromSQL {
         Toast.makeText(context, "Creating backup took " + (endTime - starTime) + "ms.", Toast.LENGTH_SHORT).show();
 
         //return backupFile.getAbsolutePath();
-    }
+    }*/
 
     public static String createBackupFileName(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HHmm");
         return "db_backup_" + sdf.format(new Date()) + "_ZliczanieCzasuZlecen.csv";
     }
 
-    /**
-     * Get all the table names we have in db
-     *
-     * @param db
-     * @return
-     */
-    public static List<String> getTablesOnDataBase(SQLiteDatabase db){
+
+    /*public static List<String> getTablesOnDataBase(SQLiteDatabase db){
         Cursor c = null;
         List<String> tables = new ArrayList<>();
         try{
@@ -107,6 +103,45 @@ public class BackupExportFromSQL {
                 c.close();
         }
         return tables;
+    }*/
+
+    //protected void writeBackup(SQLiteDatabase db, List<String> tables, Uri uri){
+    protected void writeBackup(Context context, Uri uri){
+       // SQLiteDatabase db = SQLiteDatabase.;
+        OSQLbackup osql = new OSQLbackup(context);
+        Log.d("przed wyjebka dataver: ", osql.getVersion());
+        //osql.
+        //SQLiteDatabase db = osql.getDB();
+        //db.
+        //tabele w bazie
+        List<String> tables = osql.getTablesOnDataBase();
+        //wersja bazy danych
+        String versionDB = DB_BACKUP_DB_VERSION_KEY + "=" + osql.getVersion();
+        //no i mamy kursor
+        Cursor curCSV = null;
+        //robimy backup po kolei każdej z tabel
+        for(String table: tables){
+            curCSV = osql.rawQuery("SELECT * FROM " + table,null);
+            //StringBuilder wiersz = new StringBuilder();
+            while(curCSV.moveToNext()) {
+                StringBuilder wiersz = new StringBuilder();
+                wiersz.append(versionDB);
+                wiersz.append(";");
+                wiersz.append(table);
+                //wiersz.append(";");
+                int columns = curCSV.getColumnCount();
+                for (int i = 0; i < columns; i++){
+                    wiersz.append(";");
+                    wiersz.append(curCSV.getColumnName(i));
+                    wiersz.append(";");
+                    wiersz.append(curCSV.getString(i));
+                }
+                wiersz.append("\n");
+                alterDocument(uri, wiersz.toString(), context);
+                Log.d("dane: ", wiersz.toString());
+            }
+        }
+
     }
 
     private static void writeCsv(File backupFile, SQLiteDatabase db, List<String> tables){

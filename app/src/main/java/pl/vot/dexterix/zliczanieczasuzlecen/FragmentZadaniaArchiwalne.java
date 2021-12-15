@@ -27,6 +27,7 @@ public class FragmentZadaniaArchiwalne extends FragmentPodstawowy {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ukryjFloatingButton();
         /*extends AppCompatActivity {
 
     List<daneZlecenia> zlecenia;

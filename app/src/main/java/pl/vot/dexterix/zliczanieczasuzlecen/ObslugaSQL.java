@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -412,14 +411,23 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         db.close();
     }
 
+    public Cursor rawQuery(String zapytanie, String[] argumenty){
+        Cursor c = null;
+        SQLiteDatabase db = getReadableDatabase();
+        c = db.rawQuery(zapytanie, argumenty);
+        return c;
+    }
     public void zrobKopieBazy(String  sciezka, Context context){
         SQLiteDatabase db = getReadableDatabase();
-        try {
-            BackupExportFromSQL.export(db, sciezka, context);
+        //BackupExportFromSQL befs = new BackupExportFromSQL();
+        //befs.export(  context);
+        /*try {
+
+           // BackupExportFromSQL.export(db, sciezka, context);
         } catch (IOException e) {
             e.printStackTrace();
             //Log.d("blad exportu: ", e.printStackTrace())
-        }
+        }*/
         db.close();
     }//public void zrobKopieBazy(){
 
@@ -445,6 +453,38 @@ public class ObslugaSQL extends SQLiteOpenHelper {
                 c.close();
         }
         db.close();
+        return tables;
+    }
+
+    public String getVersion() {
+        return String.valueOf(DATABASE_VERSION);
+    }
+
+    public SQLiteDatabase getDB(){
+        return getReadableDatabase();
+    }
+
+    public static List<String> getTablesOnDataBase(SQLiteDatabase db){
+        Cursor c = null;
+        List<String> tables = new ArrayList<>();
+        try{
+            c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+            if (c.moveToFirst()) {
+                while ( !c.isAfterLast() ) {
+                    if (c.getString(0) != "android_metadata" & c.getString(0) != "sqlite_sequence" ) {//zabezpieczamy sie przed zapisaniem tabel systemowych
+                        tables.add(c.getString(0));
+                        c.moveToNext();
+                    }
+                }
+            }
+        }
+        catch(Exception throwable){
+            Log.e("TAG", "Could not get the table names from db", throwable);
+        }
+        finally{
+            if(c!=null)
+                c.close();
+        }
         return tables;
     }
 }

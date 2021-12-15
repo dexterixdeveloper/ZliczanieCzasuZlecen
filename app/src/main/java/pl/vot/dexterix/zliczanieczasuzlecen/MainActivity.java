@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 615;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_CALENDAR = 616;
     private static final int MY_PERMISSIONS_REQUEST_READ_CALENDAR = 617;
+    //taki tam test tworzenia pliku
+
+
 
     private static final int CREATE_FILE = 1;
 
@@ -118,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         
 
     }
+
+
     //test na tworzenie pliku w lokalizacji wybranej przez usera
     private void createFile(Uri pickerInitialUri) {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
