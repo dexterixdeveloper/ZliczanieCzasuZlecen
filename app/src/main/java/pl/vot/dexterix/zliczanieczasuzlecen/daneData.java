@@ -126,6 +126,38 @@ public class daneData {
         //return this.dataMilisekundy;
     }
 
+    public long getPoczatekRoku() {
+        Log.d("danaeData", String.valueOf(this.dataMilisekundy));
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
+        calendar.set(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
+    }
+
+    public long getKonieckRoku() {
+        Log.d("danaeData", String.valueOf(this.dataMilisekundy));
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTimeInMillis(this.dataMilisekundy);
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 1);
+        calendar.set(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        this.setDataMilisekundy(calendar.getTimeInMillis());
+
+        return dataMilisekundy;
+    }
+
     public long getPoczatekMiesiaca() {
         Log.d("danaeData", String.valueOf(this.dataMilisekundy));
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());

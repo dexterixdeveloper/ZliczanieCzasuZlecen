@@ -70,8 +70,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
         //Powiadomienie
         //pokazPowiadomienie();
 
-        Spinner spinner = (Spinner) view.findViewById(R.id.spinnerWybierzFirme);
-        dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, 0);
+        dodajDoSpinnerWybierzFirme(R.id.spinnerWybierzFirme, R.string.dodaj, R.string.wybierz, 0);
 
         //sprawdzamy czy przekazano id z poprzedniej klasy
         if (przeniesioneID > 0) {
@@ -89,7 +88,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
             Log.d("danePojedyncze", danaKlasyPrzeniesiona.toStringDoRecyclerView());
             Log.d(">0", danaKlasyPrzeniesiona.getCzas_rozpoczecia().toString());
-            dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, danaKlasyPrzeniesiona.getFirma_id());
+            dodajDoSpinnerWybierzFirme(R.id.spinnerWybierzFirme, R.string.dodaj, R.string.wybierz, danaKlasyPrzeniesiona.getFirma_id());
             if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
                 //ustawiamy początek zlecenia
                 aktualnaData.podajDate();
@@ -226,7 +225,8 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
     }
 
-    public void dodajDoSpinnerWybierzFirme(Spinner spinner, final Integer dodaj, final Integer wybierz, Integer wybor) {
+    public void dodajDoSpinnerWybierzFirme(int rIdSpinner, final Integer dodaj, final Integer wybierz, Integer wybor) {
+        Spinner spinner = (Spinner) getActivity().findViewById(rIdSpinner);
         OSQLdaneFirma dA = new OSQLdaneFirma(getActivity());
         Log.d("Spinner", "2)");
         ArrayList<String[]> danaSpinnera;

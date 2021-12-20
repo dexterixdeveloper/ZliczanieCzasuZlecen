@@ -199,6 +199,10 @@ public class FragmentFirma extends FragmentPodstawowy {
             daneDoUzupelnienia++;
             uzupelnijDane.append("-Nazwa Firmy\n");
         }
+        if (danaKlasy.getKalendarz_id() < 1){
+            daneDoUzupelnienia++;
+            uzupelnijDane.append("-Kalendarz\n");
+        }
 
         if (daneDoUzupelnienia > 0) {
             Toast.makeText(context, uzupelnijDane, Toast.LENGTH_SHORT).show();
@@ -217,7 +221,16 @@ public class FragmentFirma extends FragmentPodstawowy {
         if (przeniesioneID > 0) {
             osql.updateDane(danaKlasy);
         }else{
-            osql.dodajDane(danaKlasy);
+            long idRekordu = -1;
+            idRekordu = osql.dodajDane(danaKlasy);
+            //ustawiamy stawkę początkową
+            OSQLdaneStawka osqls = new OSQLdaneStawka(getActivity());
+            daneStawka stawka = new daneStawka();
+            stawka.onCreate();
+
+            stawka.setFirma_id(Integer.valueOf((int) idRekordu));
+            osqls.dodajDane(stawka);
+
         }
         //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
     }//private void zapiszDane(){

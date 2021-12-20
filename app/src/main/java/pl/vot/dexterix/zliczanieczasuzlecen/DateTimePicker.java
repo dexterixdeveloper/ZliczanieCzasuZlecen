@@ -48,23 +48,35 @@ public class DateTimePicker  implements View.OnClickListener, DatePickerDialog.O
     public void onClick(View v) {
         java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(_date);
+        Log.d("TTimre:", String.valueOf(_minute));
         View dialogView;
+        TimePicker timePicker = null;
+        //timePicker.setHour(0);
+
         if (this.czyTylkoData) {
             dialogView = View.inflate(_context, R.layout.date_picker, null);
         } else {
             dialogView = View.inflate(_context, R.layout.date_time_picker, null);
+            timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
+            timePicker.setIs24HourView(true);
+            timePicker.setHour(calendar.get(java.util.Calendar.HOUR_OF_DAY));
+            timePicker.setMinute(calendar.get(java.util.Calendar.MINUTE));
         }
+        DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
+        datePicker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         AlertDialog alertDialog = new AlertDialog.Builder(_context).create();
+        TimePicker finalTimePicker = timePicker;
         dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //onDateSet(this,);
-                DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
+                //DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
+                //8DatePickerDialog datePickerDialog = new DatePickerDialog(_context, R.id.date_picker, 2011, 12, 23);
                 if (!czyTylkoData) {
-                    TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
-                    timePicker.setIs24HourView(true);
-                    _hour = timePicker.getHour();
-                    _minute = timePicker.getMinute();
+
+                    _hour = finalTimePicker.getHour();
+                    _minute = finalTimePicker.getMinute();
+                    //Log.d("TTimre:", String.valueOf(_minute));
                 }
                 _year = datePicker.getYear();
                 _month = datePicker.getMonth();

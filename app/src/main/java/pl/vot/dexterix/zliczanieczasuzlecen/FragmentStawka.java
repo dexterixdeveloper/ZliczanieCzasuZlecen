@@ -37,6 +37,7 @@ public class FragmentStawka extends FragmentPodstawowy {
             przeniesioneID = bundleArgumenty.getInt("id");
         }
         // Inflate the layout for this fragment
+        changeTitle("Stawka");
         return inflater.inflate(R.layout.fragment_stawka, container, false);
     }
 
@@ -44,7 +45,7 @@ public class FragmentStawka extends FragmentPodstawowy {
         super.onViewCreated(view, savedInstanceState);
         //odpalamy klasę odpowiedzialną za datę:\
         daneData aktualnaData = new daneData();
-
+        ukryjFloatingButton();
         //Odpalamy okienko opis:
         textInputEditTextStawka = (TextInputEditText) view.findViewById(R.id.textInputEditTextStawka);
         textInputEditTextPoczatek = (TextInputEditText) view.findViewById(R.id.textInputEditTextPoczatek);

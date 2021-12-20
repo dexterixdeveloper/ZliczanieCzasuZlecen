@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,9 +17,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
+    private Long dataPoczatkowa = 0L;
+    private Long dataKoncowa = 0L;
+    private int firmaId = 0;
+
     List<daneZlecenia> zlecenia;// = new LinkedList<>();
 
     @Override
@@ -73,7 +80,9 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         super.onViewCreated(view, savedInstanceState);
 
         clickOnFloatingButton();
-        wypelnijRecyclerView();
+        dodajSpinnerOkresCzasu(R.id.spinnerWybierzPrzedzialCzasu, 0);
+        dodajSpinnerWybierzFirme(R.id.spinner2WybierzFirme, 0);
+        //wypelnijRecyclerView();
 
     }
 
@@ -99,7 +108,7 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
        
         // Initialize contacts
         OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
-        zlecenia = daneZleceniaSQL.dajWszystkieDoRecyclerViewNZ("zaw");
+        zlecenia = daneZleceniaSQL.dajWszystkieDoRecyclerViewNZ("zaw", dataPoczatkowa, dataKoncowa, firmaId);
 
         // Create adapter passing in the sample user data
         FragmentRecyclerZlecenia adapter = new FragmentRecyclerZlecenia(getContext(), zlecenia);
@@ -261,5 +270,107 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                         zmianaFragmentu(new FragmentZadanie(), "FragmentZadanie");
                     }
                 });
+    }
+
+    private void dodajSpinnerOkresCzasu(int rIdSpinner, Integer wybor) {
+        Spinner spinner = (Spinner) getActivity().findViewById(rIdSpinner);
+        //dodajemy dane do spinnera
+        ArrayList<String[]> danaSpinnera = new ArrayList<>();
+        String[] wiersz1 = {String.valueOf(1), "Aktualny miesiąc"};
+        danaSpinnera.add(wiersz1);
+        String[] wiersz2 = {String.valueOf(2), "Dziś"};
+        danaSpinnera.add(wiersz2);
+        String[] wiersz3 = {String.valueOf(3), "Aktualny rok"};
+        danaSpinnera.add(wiersz3);
+        String[] wiersz4 = {String.valueOf(4), "Wszystko"};
+        danaSpinnera.add(wiersz4);
+
+        SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
+        spinner.setAdapter(adapter);
+
+        //sprawdzamy czy nie mamy narzuconego wyboru z góry
+        if (wybor > 0 ) {
+            spinner.setSelection(wybor);
+        }
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                int wybrany = Integer.valueOf(danaSpinnera.get(i)[0]);
+                //ustawiamy sobie z czapy date
+                daneData dataAktualna = new daneData();
+                dataAktualna.podajDate();
+                //więc co wybraliśmy
+                switch(wybrany) {
+                    case 1://Aktualny miesiąc
+                        dataPoczatkowa = dataAktualna.getPoczatekMiesiaca();
+                        dataKoncowa = dataAktualna.getKoniecMiesiaca();
+                        break;
+                    case 2://Dziś
+                        dataPoczatkowa = dataAktualna.getPoczatekDnia();
+                        dataKoncowa = dataAktualna.getKoniecDnia();
+                        break;
+                    case 3://Aktualny rok
+                        dataPoczatkowa = dataAktualna.getPoczatekRoku();
+                        dataKoncowa = dataAktualna.getKonieckRoku();
+                        break;
+                    case 4://Wszystko
+                        dataPoczatkowa = 0L;
+                        dataKoncowa = 0L;
+                        break;
+                    default:
+
+                        break;
+
+                    //wykonajWyslijRaport(poczatek, koniec);
+                }
+                wypelnijRecyclerView();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void dodajSpinnerWybierzFirme(int rIdSpinner, Integer wybor) {
+        Spinner spinner = (Spinner) getActivity().findViewById(rIdSpinner);
+        //dodajemy dane do spinnera
+        OSQLdaneFirma dA = new OSQLdaneFirma(getActivity());
+        Log.d("Spinner", "2)");
+        ArrayList<String[]> danaSpinnera;
+        danaSpinnera = dA.podajNazwa();
+        //danaSpinnera.add("0 Dodaj");
+        //danaSpinnera.add(0, getString(dodaj));
+        //dodajemy sobie na poczatku wyraz wybierz
+        String[] staleSpinnera = {String.valueOf(0), "Wszystkie", "0"};
+        danaSpinnera.add(0, staleSpinnera);
+        //Spinner spinner = (Spinner) findViewById(rSpinner);
+        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
+        SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
+        spinner.setAdapter(adapter);
+        if (wybor > 0 ) {
+            spinner.setSelection(wybor);
+        }
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
+                Log.d("poszukiwanie: ", poszukiwanie);
+                if (!(poszukiwanie.equals("Wszystkie")) ){
+                    firmaId = Integer.valueOf(danaSpinnera.get(i)[0]);
+                    //OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
+                }else{
+                    firmaId = 0;
+                }
+                wypelnijRecyclerView();
+            }
+
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 }

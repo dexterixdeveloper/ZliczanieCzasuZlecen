@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 public class FragmentAbout extends FragmentPodstawowy{
     private TextView textViewChangeLog;
+    private String version = "1.0.2021.12.20.2359 BETA";
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
@@ -25,6 +26,8 @@ public class FragmentAbout extends FragmentPodstawowy{
         ukryjFloatingButton();
         TextView textViewChangeLog = getActivity().findViewById(R.id.textViewChangeLog);
         textViewChangeLog.append(zmianyWprogramie());
+        TextView textViewVersion = getActivity().findViewById(R.id.textViewVersion);
+        textViewVersion.append(version);
 
     }
     private StringBuilder zmianyWprogramie(){
@@ -38,7 +41,10 @@ public class FragmentAbout extends FragmentPodstawowy{
                 {"2021.12.06", "Usunięcie błędu ze złym odwołaniem do kalendarzy"},
                 {"2021.12.13", "Naprawa mechanizmu zapisu i wysyłania plików"},
                 {"2021.12.13", "Usunięcie guzika FAB z formatek, gdzie jest bezużyteczny"},
-                {"2021.12.14", "Poprawienie mechanizmu tworzenia kopii zapasowej"}
+                {"2021.12.14", "Poprawienie mechanizmu tworzenia kopii zapasowej"},
+                {"2021.12.16", "Dodanie filtrów na listach zadań"},
+                {"2021.12.16", "Automatyczne dodawanie stawek przy tworzeniu nowej firmy"},
+                {"2021.12.20", "Naprawa wyświetlania dat przy poprawianiu zleceń"}
         };
         StringBuilder uzupelnijDane = new StringBuilder();
         uzupelnijDane.append("\n");

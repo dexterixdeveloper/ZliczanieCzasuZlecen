@@ -118,6 +118,7 @@ public class BackupExportFromSQL extends FragmentPodstawowy{
         //wersja bazy danych
         String versionDB = DB_BACKUP_DB_VERSION_KEY + "=" + osql.getVersion();
         //no i mamy kursor
+        //osql.
         Cursor curCSV = null;
         //robimy backup po kolei każdej z tabel
         for(String table: tables){

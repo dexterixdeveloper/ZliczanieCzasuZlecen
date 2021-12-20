@@ -132,12 +132,15 @@ public class OSQLdaneFirma extends ObslugaSQL{
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
     }//public void dodajDaneFirmy(daneFirma dane_funkcji) {*/
 
-    public void dodajDane(daneFirma dane_funkcji) {
+    public long dodajDane(daneFirma dane_funkcji) {
         ContentValues wartosci = contentValues(dane_funkcji);
 
         //Log.d("SQL: dDMT", wartosci.toString());
 
-        dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        long idRekordu = -1;
+        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
     }//public void dodajDaneFirmy(daneFirma dane_funkcji) {
 

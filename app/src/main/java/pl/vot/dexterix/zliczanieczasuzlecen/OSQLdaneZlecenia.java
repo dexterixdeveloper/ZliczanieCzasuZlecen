@@ -61,10 +61,17 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return idRekordu;
     }
 
-    public List<daneZlecenia> dajWszystkieDoRecyclerView(String status){
+    public List<daneZlecenia> dajWszystkieDoRecyclerView(String status, Long poczatek, Long koniec, int firmaId){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny = 1";
+        if (koniec > poczatek){
+            zapytanie = zapytanie + " AND a.czas_rozpoczecia >= '" + poczatek + "' AND a.czas_zakonczenia <= '" + koniec + "'";
+        }
+        if (firmaId > 0){
+            zapytanie = zapytanie + " AND a.firma_id = '" + firmaId + "'";
+        }
+        zapytanie = zapytanie + " ORDER BY a.czas_rozpoczecia DESC";
         return dajDane(zapytanie);
     }
 
@@ -79,10 +86,17 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
-    public List<daneZlecenia> dajWszystkieDoRecyclerViewNZ(String status){
+    public List<daneZlecenia> dajWszystkieDoRecyclerViewNZ(String status, Long poczatek, Long koniec, int firmaId){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.firma_id AS firma_id " +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status != 'zak' AND a.status != 'zakwtle' AND a.status != 'anuluj' AND a.czy_widoczny = 1";
+        if (koniec > poczatek){
+            zapytanie = zapytanie + " AND a.czas_rozpoczecia >= '" + poczatek + "' AND a.czas_zakonczenia <= '" + koniec + "'";
+        }
+        if (firmaId > 0){
+            zapytanie = zapytanie + " AND a.firma_id = '" + firmaId + "'";
+        }
+        zapytanie = zapytanie + " ORDER BY a.czas_rozpoczecia DESC";
         return dajDane(zapytanie);
     }
 

@@ -162,6 +162,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         }//if (oldVersion < 4){
         if (oldVersion < 6){
             db.execSQL("DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_1 + "_old");
+            //db.execSQL(.dump);
             Log.d("DebugCSQL:", "DROP TABLE IF EXISTS " + DICTIONARY_TABLE_NAME_1 + "_old");
         }//if (oldVersion < 4){
         if (oldVersion < 7) {
@@ -419,15 +420,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     }
     public void zrobKopieBazy(String  sciezka, Context context){
         SQLiteDatabase db = getReadableDatabase();
-        //BackupExportFromSQL befs = new BackupExportFromSQL();
-        //befs.export(  context);
-        /*try {
-
-           // BackupExportFromSQL.export(db, sciezka, context);
-        } catch (IOException e) {
-            e.printStackTrace();
-            //Log.d("blad exportu: ", e.printStackTrace())
-        }*/
+        db.execSQL(DATABASE_NAME + " .dump");
         db.close();
     }//public void zrobKopieBazy(){
 
