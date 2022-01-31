@@ -184,6 +184,30 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
                 '}';
     }
 
+    public daneZlecenia(){
+        this.czas_zawieszenia = 0L;
+        this.czas_zawieszenia_string = "";
+        this.czas_rozpoczecia = 0L;
+        this.czas_rozpoczecia_string = "";
+        this.opis = "";
+        this.firma_id = 0;
+        this.czas_zakonczenia = 0L;
+        this.czas_zakonczenia_string = "";
+        this.status = "";
+        this.rozliczona = "";
+        this.firma_nazwa = "";
+        this.kalendarz_id = 0;
+        this.kalendarz_id_long = 0L;
+        this.kalendarz_zadanie_id = 0L;
+        this.isChecked = false;
+        this.id = 0;
+        this.poprzedni_rekord_data_usuniecia = "";
+        this.poprzedni_rekord_id = 0;
+        this.poprzedni_rekord_powod_usuniecia = "";
+        this.data_synchronizacji = 0;
+        this.data_utworzenia =0;
+    }
+
     public void onCreate(){
         this.setId(0);
         this.setCzas_rozpoczecia(0L);
@@ -199,6 +223,14 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
         this.setRozliczona("");
         this.setKalendarz_id(0);
         this.setKalendarz_zadanie_id(0L);
+        this.setSynchron(0);
+        this.setChecked(false);
+        this.setId(0);
+        this.setPoprzedni_rekord_data_usuniecia("");
+        this.setPoprzedni_rekord_id(0);
+        this.setPoprzedni_rekord_powod_usuniecia("");
+        this.setData_synchronizacji(0);
+        this.setData_utworzenia(0);
 
     }
 

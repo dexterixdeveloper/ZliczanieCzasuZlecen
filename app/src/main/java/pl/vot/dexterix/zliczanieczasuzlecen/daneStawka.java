@@ -64,6 +64,9 @@ public class daneStawka extends daneKlasaPodstawowa{
         this.setFirma_id(0);
         this.setFirma_nazwa("");
         this.setUwagi("");
+        this.setSynchron(0);
+        this.setData_synchronizacji(0);
+        this.setData_utworzenia(0);
     }
 
     public String toStringDoRecyclerView() {

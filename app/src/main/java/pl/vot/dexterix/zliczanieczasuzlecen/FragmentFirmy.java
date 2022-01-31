@@ -1,5 +1,10 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,11 +16,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FragmentFirmy extends FragmentPodstawowy {
+
 
         List<daneFirma> danaKlasy;
         @Override
@@ -31,10 +47,13 @@ public class FragmentFirmy extends FragmentPodstawowy {
         public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             //Fragment z1 = getVisibleFragment();
+
             clickOnFloatingButton();
             wypelnijRecyclerView();
+            synchronizujSQL();
 
         }
+
     private void wypelnijRecyclerView(){
             //setContentView(R.layout.fragment_zadania_recycler);
 
@@ -93,7 +112,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
                     bundleDane.putInt("id", name);
                     FragmentFirma fragmentDoZamiany = FragmentFirma.newInstance(name);
                     zmianaFragmentu(fragmentDoZamiany, "FragmentFirma");
-                    Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();
                 }
             });
             // Attach the adapter to the recyclerview to populate items
@@ -115,5 +134,70 @@ public class FragmentFirmy extends FragmentPodstawowy {
             });
 
         }
+
+    private void synchronizujSQL() {
+        getActualToken(getActivity());
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+        ReadMessages();
+
+        final String tokenek = getActualTokenId();
+        Log.d("token", tokenek);
+        Log.d("###############","############");
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, TOKEN_ID_URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                synchronizujFirmy(R.id.textViewSynchroFirmy);
+                Log.d("Odpowiedź", response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                Log.d("Bład", error.toString());
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> param = new HashMap<String, String>();
+
+                param.put("tokenid",tokenek );
+                return param;
+            }
+        };
+        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                ReadMessages();
+
+            }
+        };
+
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
     }
+
+    private void ReadMessages(){
+        danaKlasy.clear();
+        OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
+        danaKlasy = firma.dajWszystkie();
+        wypelnijRecyclerView();
+        /*messagesSQliteOpenHelper = new MessagesSQliteOpenHelper(MainActivity.this);
+        SQLiteDatabase database = messagesSQliteOpenHelper.getReadableDatabase();
+        Cursor cursor = messagesSQliteOpenHelper.ReadMessages(database);
+        while (cursor.moveToNext()){
+            String title = cursor.getString(cursor.getColumnIndex(DbStrings.TITLE));
+            String messgae= cursor.getString(cursor.getColumnIndex(DbStrings.MESSAGE));
+            MessageData messageData = new MessageData(title,messgae);
+            arrayList.add(messageData);
+        }
+
+        adapter.notifyDataSetChanged();*/
+    }
+
+}
 

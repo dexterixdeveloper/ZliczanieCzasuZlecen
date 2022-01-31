@@ -17,7 +17,8 @@ import java.util.List;
 public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 11;
+    public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
     //DATABASE_VERSION = 1;
@@ -91,7 +92,10 @@ public class ObslugaSQL extends SQLiteOpenHelper {
                 "poprzedni_rekord_id integer, " +
                 "poprzedni_rekord_data_usuniecia text, " +
                 "poprzedni_rekord_powod_usuniecia text, " +
-                "czy_widoczny integer";
+                "czy_widoczny integer, " +
+                "synchron integer, " +
+                "data_utworzenia text, " +
+                "data_synchronizacji text";
 
         for (int kolumna = 0; kolumna < daneForeign[0].length; kolumna++){
             for (int wiersz = 0; wiersz < 2; wiersz++){
@@ -185,6 +189,25 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_3);
             //dodajDanePoczatkowe();
         }//if (oldVersion < 9
+
+        if (oldVersion < 10){
+
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_1 + " ADD COLUMN synchron INTEGER");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_2 + " ADD COLUMN synchron INTEGER");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_3 + " ADD COLUMN synchron INTEGER");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_4 + " ADD COLUMN synchron INTEGER");
+        }
+        if (oldVersion < 11){
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_1 + " ADD COLUMN data_utworzenia TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_1 + " ADD COLUMN data_synchronizacji TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_2 + " ADD COLUMN data_utworzenia TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_2 + " ADD COLUMN data_synchronizacji TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_3 + " ADD COLUMN data_utworzenia TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_3 + " ADD COLUMN data_synchronizacji TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_4 + " ADD COLUMN data_utworzenia TEXT");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_4 + " ADD COLUMN data_synchronizacji TEXT");
+
+        }
         /*if (oldVersion < 5){
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_czas text");
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_przebieg integer");
@@ -346,8 +369,14 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         try {
-
-            //db.insert(nazwa_tabeli, null, wartosci);
+            daneData aktualnaData = new daneData();
+            if(!wartosci.containsKey("data_utworzenia")) {
+                //db.insert(nazwa_tabeli, null, wartosci);
+                wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
+            }
+            if(!wartosci.containsKey("data_synchronizacji")) {
+                wartosci.put("data_synchronizacji", "");
+            }
             idRekordu = db.insertOrThrow(nazwa_tabeli, null, wartosci);
             //Log.d("Wstawianie ", String.valueOf(idRekordu));
 
@@ -367,8 +396,15 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         Log.d("DebugCSQL updateDaneSQL:", nazwa_tabeli);
 
         SQLiteDatabase db = getWritableDatabase();
-
+        daneData aktualnaData = new daneData();
         try {
+            if(!wartosci.containsKey("data_utworzenia")) {
+                //db.insert(nazwa_tabeli, null, wartosci);
+                wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
+            }
+            if(!wartosci.containsKey("data_synchronizacji")) {
+                wartosci.put("data_synchronizacji", "");
+            }
             //db.insert(nazwa_tabeli, null, wartosci);
             db.update(nazwa_tabeli,  wartosci, "_id = ?", new String[] {String.valueOf(_id_)});
         } catch(SQLException excepion){
@@ -414,10 +450,31 @@ public class ObslugaSQL extends SQLiteOpenHelper {
 
     public Cursor rawQuery(String zapytanie, String[] argumenty){
         Cursor c = null;
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         c = db.rawQuery(zapytanie, argumenty);
         return c;
     }
+
+    protected void zerujDateSynchronizacji(String nazwa_tabeli) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues wartosci = new ContentValues();
+        wartosci.put("data_synchronizacji", "0");
+        try {
+
+            //db.insert(nazwa_tabeli, null, wartosci);
+            db.update(nazwa_tabeli, wartosci, null, null );
+        } catch (SQLException excepion) {
+            Log.d("Wywalilo", nazwa_tabeli);
+            Log.d("wyjatek", excepion.toString());
+            //tutaj trzeba coś dopisać
+            //CheckLista.wyswietlToast("Błąd insertu!!!");
+            //CheckLista.
+        }
+        Log.d("DebugCSQL:", "koniec update danych do tabeli: " + nazwa_tabeli);
+        db.close();
+
+    }
+
     public void zrobKopieBazy(String  sciezka, Context context){
         SQLiteDatabase db = getReadableDatabase();
         db.execSQL(DATABASE_NAME + " .dump");

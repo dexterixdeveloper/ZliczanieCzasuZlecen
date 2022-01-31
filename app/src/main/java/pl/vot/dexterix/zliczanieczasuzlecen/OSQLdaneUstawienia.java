@@ -21,15 +21,9 @@ public class OSQLdaneUstawienia extends ObslugaSQL {
         super(context);
     }
 
-    public long dodajDane(daneUstawienia dane){
+    public long dodajDane(daneUstawienia dane_funkcji){
 
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("ustawienie", dane.getUstawienie());
-        wartosci.put("wartosc", dane.getWartosc());
-        wartosci.put("typ_danych", dane.getTypDanych());
-        wartosci.put("uwagi", dane.getUwagi());
-        wartosci.put("czy_widoczny", dane.getCzy_widoczny());
-
+        ContentValues wartosci = contentValues(dane_funkcji);
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
@@ -44,7 +38,7 @@ public class OSQLdaneUstawienia extends ObslugaSQL {
 
     public List<daneUstawienia> dajWszystkie(){
         String zapytanie = "SELECT _id, ustawienie, wartosc, typ_danych, " +
-                "uwagi " +
+                "uwagi, synchron " +
                 "FROM " + DICTIONARY_TABLE_NAME;
         return dajDane(zapytanie);
     }
@@ -122,6 +116,13 @@ public class OSQLdaneUstawienia extends ObslugaSQL {
         wartosci.put("wartosc", dane_funkcji.getWartosc());
         wartosci.put("typ_danych", dane_funkcji.getTypDanych());
         wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.put("synchron", dane_funkcji.getSynchron());
+        if(dane_funkcji.getData_synchronizacji() > 0){
+            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
+        }
+        if(dane_funkcji.getData_utworzenia() > 0){
+            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
+        }
         return wartosci;
     }
 
@@ -159,6 +160,15 @@ public class OSQLdaneUstawienia extends ObslugaSQL {
         }
         if (kursor.getColumnIndex("czy_widoczny") > -1) {
             dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
         }
         return dane_funkcji;
     }//private daneFirma cursorDane(Cursor kursor){

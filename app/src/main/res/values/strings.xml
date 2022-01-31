@@ -36,5 +36,8 @@
     <string name="app_version">Wersja aplikacji: </string>
     <string name="app_changelog">Zmiany: <br/></string>
     <string name="ustaw">Ustaw</string>
+    <string name="wszystkie_firmy">Wszystkie Firmy</string>
+    <string name="FCM_Pref" >pl.vot.dexterix.ZliczanieCzasuZlecen.fcm_pref</string>
+    <string name="FCM_TOKEN" >FCM_TOKEN</string>
 
 </resources>

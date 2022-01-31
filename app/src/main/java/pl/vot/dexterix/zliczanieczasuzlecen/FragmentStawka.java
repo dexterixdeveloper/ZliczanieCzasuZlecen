@@ -144,7 +144,7 @@ public class FragmentStawka extends FragmentPodstawowy {
             Log.d("danedouzu: ", String.valueOf(daneDoUzupelnienia));
             uzupelnijDane.append("-Firma\n");
         }
-        if (danaKlasy.getStawka() <= 0){
+        if (danaKlasy.getStawka() < 0){
             daneDoUzupelnienia++;
             uzupelnijDane.append("-Stawka\n");
         }
@@ -176,6 +176,8 @@ public class FragmentStawka extends FragmentPodstawowy {
         Log.d("dana klasy: ", danaKlasy.toString());
         OSQLdaneStawka osql = new OSQLdaneStawka(getActivity());
 
+        daneData dataUtworzenia = new daneData();
+        danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
         if (przeniesioneID > 0) {
             osql.updateDane(danaKlasy);
         }else{

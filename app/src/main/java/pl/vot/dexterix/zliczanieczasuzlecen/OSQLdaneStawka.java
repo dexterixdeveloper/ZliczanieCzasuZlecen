@@ -22,15 +22,9 @@ public class OSQLdaneStawka extends ObslugaSQL {
         super(context);
     }
 
-    public long dodajDane(daneStawka dane){
+    public long dodajDane(daneStawka dane_funkcji){
 
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("firma_id", dane.getFirma_id());
-        wartosci.put("stawka", dane.getStawka());
-        wartosci.put("poczatek", dane.getPoczatek());
-        wartosci.put("koniec", dane.getKoniec());
-        wartosci.put("uwagi", dane.getUwagi());
-        wartosci.put("czy_widoczny", dane.getCzy_widoczny());
+        ContentValues wartosci = contentValues(dane_funkcji);
 
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
@@ -46,8 +40,19 @@ public class OSQLdaneStawka extends ObslugaSQL {
 
     public List<daneStawka> dajWszystkie(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
-                "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
+                "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
+                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
+                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny " +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id";
+        return dajDane(zapytanie);
+    }
+
+    public List<daneStawka> dajDoSynchronizacji(){
+        String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
+                "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
+                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
+                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id WHERE a.synchron = 0 OR a.synchron IS NULL";
         return dajDane(zapytanie);
     }
 
@@ -125,6 +130,13 @@ public class OSQLdaneStawka extends ObslugaSQL {
         wartosci.put("poczatek", dane_funkcji.getPoczatek());
         wartosci.put("koniec", dane_funkcji.getKoniec());
         wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.put("synchron", dane_funkcji.getSynchron());
+        if(dane_funkcji.getData_synchronizacji() > 0){
+            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
+        }
+        if(dane_funkcji.getData_utworzenia() > 0){
+            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
+        }
         return wartosci;
     }
 
@@ -167,6 +179,15 @@ public class OSQLdaneStawka extends ObslugaSQL {
         }
         if (kursor.getColumnIndex("czy_widoczny") > -1) {
             dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
         }
         return dane_funkcji;
     }//private daneFirma cursorDane(Cursor kursor){

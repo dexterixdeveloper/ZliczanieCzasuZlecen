@@ -219,19 +219,26 @@ public class FragmentFirma extends FragmentPodstawowy {
         OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
 
         if (przeniesioneID > 0) {
+            daneData dataUtworzenia = new daneData();
+            danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
             osql.updateDane(danaKlasy);
         }else{
             long idRekordu = -1;
+            daneData dataUtworzenia = new daneData();
+            danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
             idRekordu = osql.dodajDane(danaKlasy);
             //ustawiamy stawkę początkową
             OSQLdaneStawka osqls = new OSQLdaneStawka(getActivity());
             daneStawka stawka = new daneStawka();
             stawka.onCreate();
 
+            stawka.setData_utworzenia(dataUtworzenia.getAktualnaData());
             stawka.setFirma_id(Integer.valueOf((int) idRekordu));
             osqls.dodajDane(stawka);
 
         }
         //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
     }//private void zapiszDane(){
+
+
 }

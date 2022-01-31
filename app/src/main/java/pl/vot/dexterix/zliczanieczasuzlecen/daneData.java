@@ -63,6 +63,21 @@ public class daneData {
         konwertujDateZeStringa(dataString);
     }
 
+    public long getAktualnaData(){
+        String aktualnaData = "";
+        //textInputEditTextDataTankowania.setText(String.valueOf(aktualnaData));
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        Long calendarDataWMiliSekundach = calendar.getTimeInMillis();
+        //calendarT
+
+        //SimpleDateFormat dataCzasSDF = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        aktualnaData = this.dataCzasSDF.format(calendar.getTime());
+        //classData aktualnaDataWylot = new classData();
+        this.setDataMilisekundy(calendarDataWMiliSekundach);
+        this.setDataString(aktualnaData);
+        return this.dataMilisekundy;
+    }
+
     public void podajDate(){
         String aktualnaData = "";
         //textInputEditTextDataTankowania.setText(String.valueOf(aktualnaData));

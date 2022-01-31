@@ -22,40 +22,40 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         super(context);
     }
 
-    public void updateDane(daneZlecenia dane){
+    public void updateDane(daneZlecenia dane_funkcji){
 
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("firma_id", dane.getFirma_id());
-        wartosci.put("opis", dane.getOpis());
-        wartosci.put("czas_rozpoczecia", dane.getCzas_rozpoczecia());
-        wartosci.put("czas_zawieszenia", dane.getCzas_zawieszenia());
-        wartosci.put("czas_zakonczenia", dane.getCzas_zakonczenia());
-        wartosci.put("status", dane.getStatus());
-        wartosci.put("rozliczona", dane.getRozliczona());
-        wartosci.put("uwagi", dane.getUwagi());
-        wartosci.put("czy_widoczny", dane.getCzy_widoczny());
-        wartosci.put("kalendarz_id", dane.getKalendarz_id());
-        wartosci.put("kalendarz_zadanie_id", dane.getKalendarz_zadanie_id());
+        ContentValues wartosci = contentValues(dane_funkcji);
 
-        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane.getId());
+        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
 
     }
 
-    public long dodajDane(daneZlecenia dane){
-
+    private ContentValues contentValues(daneZlecenia dane_funkcji){
         ContentValues wartosci = new ContentValues();
-        wartosci.put("firma_id", dane.getFirma_id());
-        wartosci.put("opis", dane.getOpis());
-        wartosci.put("czas_rozpoczecia", dane.getCzas_rozpoczecia());
-        wartosci.put("czas_zawieszenia", dane.getCzas_zawieszenia());
-        wartosci.put("czas_zakonczenia", dane.getCzas_zakonczenia());
-        wartosci.put("status", dane.getStatus());
-        wartosci.put("rozliczona", dane.getRozliczona());
-        wartosci.put("uwagi", dane.getUwagi());
-        wartosci.put("czy_widoczny", dane.getCzy_widoczny());
-        wartosci.put("kalendarz_id", dane.getKalendarz_id());
-        wartosci.put("kalendarz_zadanie_id", dane.getKalendarz_zadanie_id());
+        wartosci.put("firma_id", dane_funkcji.getFirma_id());
+        wartosci.put("opis", dane_funkcji.getOpis());
+        wartosci.put("czas_rozpoczecia", dane_funkcji.getCzas_rozpoczecia());
+        wartosci.put("czas_zawieszenia", dane_funkcji.getCzas_zawieszenia());
+        wartosci.put("czas_zakonczenia", dane_funkcji.getCzas_zakonczenia());
+        wartosci.put("status", dane_funkcji.getStatus());
+        wartosci.put("rozliczona", dane_funkcji.getRozliczona());
+        wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.put("czy_widoczny", dane_funkcji.getCzy_widoczny());
+        wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id());
+        wartosci.put("kalendarz_zadanie_id", dane_funkcji.getKalendarz_zadanie_id());
+        wartosci.put("synchron", dane_funkcji.getSynchron());
+        if(dane_funkcji.getData_synchronizacji() > 0){
+            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
+        }
+        if(dane_funkcji.getData_utworzenia() > 0){
+            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
+        }
+        return wartosci;
+    }
 
+    public long dodajDane(daneZlecenia dane_funkcji){
+
+        ContentValues wartosci = contentValues(dane_funkcji);
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
@@ -119,7 +119,21 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
                 "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
-                "a.czy_widoczny AS czy_widoczny FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id";
+                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id";
+        return dajDane(zapytanie);
+    }
+
+    public List<daneZlecenia> dajDoSynchronizacji(){
+        /*String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
+                "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
+                "z.calendar_id AS calendar_id, " +
+                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
+                "a.czy_widoczny AS czy_widoczny FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id LEFT JOIN " + DICTIONARY_TABLE_NAME_3 + " AS z ON a.kalendarz_id = z._id";*/
+        String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
+                "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
+                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
+                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji" +
+                " FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.synchron = 0 OR a.synchron IS NULL";
         return dajDane(zapytanie);
     }
 
@@ -270,6 +284,15 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         }
         if (kursor.getColumnIndex("czy_widoczny") > -1) {
             dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
         }
         return dane_funkcji;
     }//private daneFirma cursorDane(Cursor kursor){

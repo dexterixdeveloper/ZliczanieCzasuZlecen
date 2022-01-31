@@ -45,10 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_CALENDAR = 617;
     //taki tam test tworzenia pliku
 
-
-
     private static final int CREATE_FILE = 1;
-
 
     //ustawienia aplikacji
     private Boolean FirstRun;//czy 1 uruchomienie
@@ -60,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //synchronizacja SQL
+
+        //Synchronizacja SQL END
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.app_name));
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         //toolbar.setTitle("456");
         //sprobujmy zrobic backup na starcie
         //ObslugaSQL osql = new ObslugaSQL(this);
-        Log.d("Katalog: ", "yy");
+        //Log.d("Katalog: ", "yy");
         //TODO: Właczyć backup
         //osql.zrobKopieBazy("bla", this);
         //koniec prob
@@ -434,10 +435,7 @@ public class MainActivity extends AppCompatActivity {
     private void clickOnFloatingButton() {
         FloatingActionButton fab = findViewById(R.id.floatingActionButtonDodaj);
         fab.setVisibility(View.INVISIBLE);
-
-
     }
-
 
     //otwieramy kanał dla powiadomień : Andek 8+
     private void createNotificationChannel() {
@@ -506,5 +504,6 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(notificationId, builder.build());
         //to pokazaliśmy
     }
+    //to przerabiamy
 
 }

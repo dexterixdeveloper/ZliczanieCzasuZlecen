@@ -1,7 +1,9 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,12 +18,10 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
@@ -35,6 +35,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
     private Integer danaKlasyRodzajRaportu = 0;
     private Long poczatek =0L; //poczatek raportu
     private Long koniec =0L; //koniec raportu
+    protected boolean czyWyslijRaport = true;
     daneData aktualnaData = new daneData();
 
     public View onCreateView(
@@ -66,7 +67,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
 
         dodajDoSpinnerWybierzRodzajRaportu(R.id.spinnerWybierzRodzajRaportu, R.string.wybierz, 0);
 
-        dodajDoSpinnerWybierzFirme(R.id.spinnerWybierzFirme, R.string.dodaj, R.string.wybierz, 0);
+        dodajDoSpinnerWybierzFirme(R.id.spinnerWybierzFirme, R.string.dodaj, R.string.wszystkie_firmy, 0);
 
     }
 
@@ -243,7 +244,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
             if (resultData != null) {
                 uriToFile = resultData.getData();
                 Log.i(TAG, "Uri: " + uriToFile.toString());
-                wykonajWyslijRaport(poczatek, koniec);
+                wykonajWyslijRaport(poczatek, koniec, czyWyslijRaport);
             }else{
                 Toast.makeText(getActivity(), "Nie wybrałeś pliku raportu!", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Nie wybrałeś pliku raportu!");
@@ -260,11 +261,15 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
     }
 
     private void wykonajWyslijRaport1() {
-        //tworzymy plik
-        createFile("text/plain", "raport.csv", WRITE_SEND_REQUEST_CODE);
+        if (czyWyslijRaport) {
+            //tworzymy plik
+            createFile("text/plain", "raport.csv", WRITE_SEND_REQUEST_CODE);
+        }else{
+            wykonajWyslijRaport(poczatek, koniec, czyWyslijRaport);
+        }
     }
 
-    private void wykonajWyslijRaport(Long poczatekRaportu, Long koniecRaportu) {
+    private void wykonajWyslijRaport(Long poczatekRaportu, Long koniecRaportu, boolean wyslij) {
                 //Log.d("FragmentRaportyDoWyslania: ", "klik");
                 OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
                 //zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())), danaKlasy);
@@ -295,12 +300,13 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                     }*/
                     //tworzymy plik raportu
 
-
-                    Log.d("FragmentRaportyDoWyslania: ", "Started to fill the raport file in " + uriToFile.toString());
+                    if (czyWyslijRaport) {
+                        Log.d("FragmentRaportyDoWyslania: ", "Started to fill the raport file in " + uriToFile.toString());
+                    }
                     //Toast.makeText(getActivity(), "Started to fill the raport file in " + uriToFile.toString(), Toast.LENGTH_SHORT).show();
                     //TODO: tu skończyłem
                     long starTime = System.currentTimeMillis();
-                    Log.d("cos chyba", "nie bangla");
+                    //Log.d("cos chyba", "nie bangla");
                     //pobieramy stawki
                     List<daneStawka> stawki;
                     OSQLdaneStawka daneStawkiSQL = new OSQLdaneStawka(getActivity());
@@ -341,24 +347,39 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                         Log.d("stawka poczatek", stawkaPoczatek.getDataString());
                         stawkaKoniec.setGodzina(stawkaKoniec.getDataMilisekundy("nic"), stawki.get(j).getKoniec(), false);
                         Log.d("stawka koniec", stawkaKoniec.getDataString());
-                        if ((stawkaPoczatek.getDataMilisekundy("nic") > stawkaKoniec.getDataMilisekundy("nic")) && !stawki.get(j).getKoniec().equals("00:00")) {
+                        //wyłączyłem sprawdzanie stawek, bo się bardacha robiła
+                        /*if ((stawkaPoczatek.getDataMilisekundy("nic") > stawkaKoniec.getDataMilisekundy("nic")) && !stawki.get(j).getKoniec().equals("00:00")) {
                             //pobieramy dana problematycznej stawki
                             daneStawka stawka = new daneStawka();
                             stawka.setKoniec("00:00");
                             stawka.setPoczatek(stawki.get(j).getPoczatek());
                             stawka.setStawka(stawki.get(j).getStawka());
                             stawka.setFirma_id(stawki.get(j).getFirma_id());
+                            stawka.setFirma_nazwa(stawki.get(j).getFirma_nazwa());
                             //zmieniamy problematyczna stawkę
                             stawki.get(j).setPoczatek("00:00");
                             //dodajemy kolejną stawkę do listy
                             stawki.add(stawka);
-                        }
+                        }*/
                         //jezeli stawka na cały dzień
                         if ((stawkaPoczatek.getDataMilisekundy("nic") == stawkaKoniec.getDataMilisekundy("nic")) && stawki.get(j).getKoniec().equals("00:00")) {
 
                             stawki.get(j).setKoniec("24:00");
                         }
                         Log.d("ile stawek for koniec " + j, String.valueOf(stawki.size()));
+                    }
+                    //jeżeli to tylko raport wyliczeniowy
+                    List<daneZlecenRaporty> raportZlecen = new LinkedList<>();
+                    if (!wyslij){
+                        for (daneStawka stawka: stawki){
+                            daneZlecenRaporty raportekZlecen = new daneZlecenRaporty(0,0,0L, "");
+                            raportekZlecen.setFirmaId(stawka.getFirma_id());
+                            Log.d("stawk", String.valueOf(stawka.getId()));
+                            raportekZlecen.setStawkaWysokosc(stawka.getStawka());
+                            raportekZlecen.setCzas(0L);
+                            raportekZlecen.setFirmaNazwa(stawka.getFirma_nazwa());
+                            raportZlecen.add(raportekZlecen);
+                        }
                     }
                     //sprawdzamy jak to jest z godzinami -END
 
@@ -388,9 +409,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                             //wyliczamy według stawek
 
                             for (int j = 0; j < stawki.size(); j++) {
-                                //Log.d("stawki start: ", String.valueOf(j));
-                                //Log.d("Zlecenie firma id: ", String.valueOf(zlecenie.getFirma_id()));
-                                //Log.d("Stawka firma id: ", String.valueOf(stawki.get(j).getFirma_id()));
+
                                 //jezeli zgadza się firma dla stawki
                                 if ((stawki.get(j).getFirma_id() == zlecenie.getFirma_id()) && !czyCaloscDoRaportu) {
                                     daneStawka stawka = new daneStawka();
@@ -423,7 +442,15 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                                             //jeżeli mieści się pomiędzy czasem rozpoczecia a zakończenia
                                             //myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
                                             //zapisujemy dane
-                                            alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            if (wyslij) {
+                                                alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            }else{
+                                                for (daneZlecenRaporty raport1: raportZlecen){
+                                                    if ((raport1.getFirmaId() == zlecenie.getFirma_id()) && (stawka.getStawka() == raport1.getStawkaWysokosc())){
+                                                        raport1.setCzas(raport1.getCzas() + zlecenie.getCzas_zakonczenia() - zlecenie.getCzas_rozpoczecia());
+                                                    }
+                                                }
+                                            }
                                             //Log.d("FragmentRaportyDoWyslania: zapis do pliku:if ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
                                             //Log.d("W if", "w if");
                                             czyCaloscDoRaportu = true;
@@ -436,7 +463,15 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                                             zlecenie.setCzas_zakonczenia_string(czasStawekKoniec.getDataString());
                                             //myOutWriter.append(zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
                                             //zapisujemy dane
-                                            alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            if (wyslij) {
+                                                alterDocument(uriToFile, zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
+                                            }else{
+                                                for (daneZlecenRaporty raport1: raportZlecen){
+                                                    if ((raport1.getFirmaId() == zlecenie.getFirma_id()) && (stawka.getStawka() == raport1.getStawkaWysokosc())){
+                                                        raport1.setCzas(raport1.getCzas() + zlecenie.getCzas_zakonczenia() - zlecenie.getCzas_rozpoczecia());
+                                                    }
+                                                }
+                                            }
                                             //Log.d("FragmentRaportyDoWyslania: zapis do pliku: ", zlecenie.toStringForRaport() + ";" + stawka.getStawka() + ";\n");
                                             zlecenie.setCzas_zakonczenia(czasZakonczeniaTmp);
                                             daneData czasTmp = new daneData();
@@ -446,13 +481,6 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                                             zlecenie.setCzas_rozpoczecia(czasStawekKoniec.getDataMilisekundy());
                                             //Log.d("czasStawekKoniec", String.valueOf(czasStawekKoniec.getDataMilisekundy()));
                                             zlecenie.setCzas_rozpoczecia_string(czasStawekKoniec.getDataString());
-                                        /*if(czasStawekKoniec.getDataMilisekundy() > zlecenie.getCzas_zakonczenia()){
-                                            zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), true));
-                                            Log.d("zlecenie czas rozpoczecia set if ", String.valueOf(zlecenie.getCzas_rozpoczecia()));
-                                        }else{
-                                            zlecenie.setCzas_rozpoczecia(czasStawekKoniec.setGodzina(zlecenie.getCzas_zakonczenia(), stawka.getKoniec(), false));
-                                            Log.d("zlecenie czas rozpoczecia set else", String.valueOf(zlecenie.getCzas_rozpoczecia()));
-                                        }*/
 
                                         }
 
@@ -460,25 +488,28 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                                 }
                             }
                             //w razie gdyby nie było ustawionej stawki:
-                            //czyCaloscDoRaportu = true;
-                            //myOutWriter.append(zlecenie.toStringForRaport() + ";" + "0" + ";");
+
                         }//while (czyCaloscDoRaportu == false) { -END
                         //wyliczamy według stawek -END
-                        //myOutWriter.append(zlecenia.get(i).toStringForRaport());
-
                     }
-                    //myOutWriter.close();
-                    //plik.close();
-                    //Log.d("FragmentRaportyDoWyslania: ", uriToFile.toString());
 
                     long endTime = System.currentTimeMillis();
                     Log.d("FragmentRaportyDoWyslania: ", "Creating raport took " + (endTime - starTime) + "ms.");
                     Toast.makeText(getActivity(), "Creating raport took " + (endTime - starTime) + "ms.", Toast.LENGTH_SHORT).show();
                     //automatycznie już wywsyłamy raporty
                     //dodajemy tylko Uri do raportu
-
-                    fileListUris.add(uriToFile);
-                    sendFiles();
+                    if (wyslij) {
+                        fileListUris.add(uriToFile);
+                        sendFiles();
+                    }else{
+                        //zmianaFragmentu(new FragmentRaportyWyliczeniowePokaz(),"FragmentRaportyWyliczeniowePokaz");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Firma | Wysokość Stawki | Czas | Zarobek\n");
+                        for (daneZlecenRaporty dzr: raportZlecen){
+                            sb.append(dzr.toString());
+                        }
+                        pokazOkienkoAlertuRaportu("OK", "Podsumowanie", sb.toString());
+                    }
                     //sendRaportsFiles();
                     //cofnijDoPoprzedniegoFragmentu();
                     //zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
@@ -488,25 +519,28 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                 }
             }
 
+    private void pokazOkienkoAlertuRaportu(String sPositive, String sTytul, String sWiadomowsc){
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
 
-    private void zapiszDoRaportu(daneZlecenia zlecenie, daneStawka stawka){
+        alertDialog.setTitle(sTytul);
+        alertDialog.setMessage(sWiadomowsc);
+        /*alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "nNeutralny",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });*/
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, sPositive,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
 
-    }
+                        dialog.dismiss();
+                    }
+                });
 
-    private void writeToFile(String data, FileOutputStream plik) {
-        try {
-            //FileOutputStream plik = new FileOutputStream(dir + "/" + fileName);//openFileOutput(filename, Context.MODE_PRIVATE);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
-            myOutWriter.append(data);
-            myOutWriter.close();
-            //plik.close();
+        alertDialog.show();
 
 
-        }
-        catch (IOException e) {
-            Log.d("FragmentRaportyDoWyslania: ", "cos sie sparolilo");
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
     }
 
     public static String createFileName(){

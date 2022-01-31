@@ -321,10 +321,12 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
     private void zapiszDane(String sStatus){
 
-
+        daneData dataUtworzenia = new daneData();
+        danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
             danaKlasy.setStatus(sStatus);
             OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
             if (przeniesioneID > 0) {
+                danaKlasyPrzeniesiona.setData_utworzenia(dataUtworzenia.getAktualnaData());
                 if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
                     Log.d("Status,", danaKlasyPrzeniesiona.getStatus());
                     Log.d("Wtle", "jka?");

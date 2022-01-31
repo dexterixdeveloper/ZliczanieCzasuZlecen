@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentSettings extends FragmentPodstawowy{
@@ -48,13 +49,15 @@ public class FragmentSettings extends FragmentPodstawowy{
 
 
         Button buttonGuzik = (Button) getActivity().findViewById(button);
+        buttonGuzik.setText("Synchronizacja");
         buttonGuzik.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 //renumerujRekordy();
                 //createFile("text/plain", "foobar.txt");
-
-                Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
+                String tagBackStack = "FragmentSynchronizacja";
+                zmianaFragmentu(new FragmentSynchronizacja(), tagBackStack);
+                //Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
 
 
             }
@@ -65,13 +68,26 @@ public class FragmentSettings extends FragmentPodstawowy{
 
 
         Button buttonGuzik = (Button) getActivity().findViewById(button);
-        //buttonGuzik.setText("Wybierz Kalendarz");
+        buttonGuzik.setText("Zeruj daty synchronizacji");
         buttonGuzik.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 //FragmentWyborKalendarza fragmentDoZamiany = new FragmentWyborKalendarza();
                 //zmianaFragmentu(fragmentDoZamiany, "FragmentWyborKalendarza");
-                Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
+                OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
+                List<daneFirma> daneTestowe = new ArrayList<>();
+                daneTestowe = osql.dajWszystkie();
+                for (int i = 0; i < daneTestowe.size(); i++){
+                    Log.d("czas synchr ", String.valueOf(daneTestowe.get(i).getData_synchronizacji()));
+                }
+                osql.zerujDateSynchronizacji();
+                List<daneFirma> daneTestowe1 = new ArrayList<>();
+                daneTestowe1 = osql.dajWszystkie();
+                for (int i = 0; i < daneTestowe1.size(); i++){
+                    Log.d("czas synchr 2", String.valueOf(daneTestowe1.get(i).getData_synchronizacji()));
+                }
+                osql.close();
+                //Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
 
             }
         });

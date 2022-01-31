@@ -35,5 +35,8 @@ public class daneUstawienia extends daneKlasaPodstawowa{
         this.setWartosc("");
         this.setUwagi("");
         this.setTypDanych("");
+        this.setSynchron(0);
+        this.setData_synchronizacji(0);
+        this.setData_utworzenia(0);
     }
 }

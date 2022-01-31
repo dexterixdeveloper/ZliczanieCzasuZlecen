@@ -39,9 +39,20 @@ public class OSQLdaneFirma extends ObslugaSQL{
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
                 "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.uwagi AS uwagi, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
-                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny FROM " + DICTIONARY_TABLE_NAME + " AS a ";
+                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji," +
+                "a.synchron AS synchron FROM " + DICTIONARY_TABLE_NAME + " AS a ";
         return dajDane(zapytanie);
     }
+    public List<daneFirma> dajDoSynchronizacji(){
+            String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
+                    "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
+                    "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.uwagi AS uwagi, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
+                    "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, " +
+                    "a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji FROM " + DICTIONARY_TABLE_NAME + " AS a ";
+                    //"WHERE a.synchron = 0 OR a.synchron IS NULL";
+            //a.synchron = 0 OR
+            return dajDane(zapytanie);
+        }
 
     public daneFirma dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
@@ -73,6 +84,10 @@ public class OSQLdaneFirma extends ObslugaSQL{
         return dajDane(zapytanie);
     }
 
+    public void zerujDateSynchronizacji(){
+        zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
+    }
+
     public void updateDane(daneFirma dane_funkcji) {
         ContentValues wartosci = contentValues(dane_funkcji);
 
@@ -99,18 +114,29 @@ public class OSQLdaneFirma extends ObslugaSQL{
         ContentValues wartosci = new ContentValues();
         wartosci.put("nazwa", dane_funkcji.getNazwa());
         //Log.d("OSQLdaneFirma: Nazwa: ", dane_funkcji.getNazwa());
-        //wartosci.put("numer", dane_funkcji.getNumer());
+        wartosci.put("numer", dane_funkcji.getNumer());
         wartosci.put("nr_telefonu", dane_funkcji.getNr_telefonu());
         //Log.d("OSQLdaneFirma: Numer Telefonu", String.valueOf(dane_funkcji.getNr_telefonu()));
         wartosci.put("ulica_nr", dane_funkcji.getUlicaNr());
         //Log.d("OSQLdaneFirma: UlicaNr: ", dane_funkcji.getUlicaNr());
         wartosci.put("miasto", dane_funkcji.getMiasto());
+        wartosci.put("typ", dane_funkcji.getTyp());
         //Log.d("OSQLdaneFirma: Miasto: ", dane_funkcji.getMiasto());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id_str());
         //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(dane_funkcji.getKalendarz_id()));
                 //wartosci.put("siec_id", dane_funkcji.getSiec_id());
         //wartosci.put("typ", dane_funkcji.getTyp());
         wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.put("poprzedni_rekord_id", dane_funkcji.getPoprzedni_rekord_id());
+        wartosci.put("poprzedni_rekord_data_usuniecia", dane_funkcji.getPoprzedni_rekord_data_usuniecia());
+        wartosci.put("poprzedni_rekord_powod_usuniecia", dane_funkcji.getPoprzedni_rekord_powod_usuniecia());
+        wartosci.put("synchron", dane_funkcji.getSynchron());
+        if(dane_funkcji.getData_synchronizacji() > 0){
+            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
+        }
+        if(dane_funkcji.getData_utworzenia() > 0){
+            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
+        }
         //Log.d("OSQLdaneFirma: Uwagi: ", dane_funkcji.getUwagi());
         return wartosci;
     }
@@ -256,6 +282,15 @@ public class OSQLdaneFirma extends ObslugaSQL{
         }
         if (kursor.getColumnIndex("czy_widoczny") > -1) {
             dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
         }
         //Log.d("dane firm", dane_funkcji.toString());
         return dane_funkcji;

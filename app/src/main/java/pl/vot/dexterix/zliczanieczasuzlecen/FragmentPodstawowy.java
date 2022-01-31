@@ -1,21 +1,38 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +42,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FragmentPodstawowy extends Fragment {
     private static final String CHANNEL_ID = "PowiadomienieZliczanieCzasuZlecen";
@@ -34,6 +53,12 @@ public class FragmentPodstawowy extends Fragment {
     protected static final int WRITE_SEND_REQUEST_CODE = 43;
     private static final int EDIT_REQUEST_CODE = 44;
     protected static final int SEND_REQUEST_CODE = 45;
+    //do synchronizacaji
+    protected String TOKEN_ID_URL = "https://dexterix.vot.pl/zliczazle/sendtokenid.php";
+    protected BroadcastReceiver broadcastReceiver;
+    protected String SYNCHRONIZE_URL = "https://dexterix.vot.pl/zliczazle/synchronizemessages.php";
+    //String SYNCHRONIZE_URL = "https://dexterix.vot.pl/zliczazle/sendmessage.php";
+
     protected Uri uriToFile = null;
     //lista Uri do wysłania
     protected ArrayList<Uri> fileListUris = new ArrayList<Uri>();
@@ -140,6 +165,409 @@ public class FragmentPodstawowy extends Fragment {
     //wysyłanie pliku na zewnątrz: DropBox, Dysk Google, email, itd
     protected void sendRaportsFile(){
 
+    }
+
+    public void getActualToken(Context context){
+        final String[] token = new String[1];
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("Pobieramy token", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        token[0] = task.getResult();
+
+                        // Log and toast
+                        //String msg = getString(token);
+
+                        Log.d("Pobieramy token", token[0]);
+                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(getResources().getString(R.string.FCM_TOKEN), token[0]);
+                        editor.commit();
+                        Toast.makeText(context, token[0], Toast.LENGTH_SHORT).show();
+                        //return token;
+                    }
+                });
+
+    }
+
+    protected String getActualTokenId(){
+        //pobieramy token z zapisania
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
+        String token_id= sharedPreferences.getString(getResources().getString(R.string.FCM_TOKEN),"");
+        //Log.d("Token get acktu", token_id);
+        if (token_id.equals("")){
+            getActualToken(getActivity());
+            sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
+            token_id= sharedPreferences.getString(getResources().getString(R.string.FCM_TOKEN),"");
+        }
+        return token_id;
+    }
+
+    protected void synchronizujFirmy(int RidtextView) {
+        /*getActualToken(getActivity());*/
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+
+        OSQLdaneFirma daneOSQL = new OSQLdaneFirma(getActivity());
+        List<daneFirma> daneDoSynchronizacji;
+        daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        for (daneFirma danaS: daneDoSynchronizacji) {
+            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                    Log.d("Odpowiedź", response);
+                    Log.d("Odpowiedź długość: ", String.valueOf(response.length()));
+                    JSONObject Jasonobject = null;
+                    String statusSynchronizacji = null;
+                    try {
+                        Jasonobject = new JSONObject(response);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    //JSONArray array = null;
+
+                    /*try {
+                        array = new JSONArray(response);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }*/
+
+
+
+                    /*Statusy synchronizacji:
+                           -konflikt
+                           -insertsrv
+                            -error
+                            -zgodne
+                            -updateserv
+                            -updatekon
+                     */
+
+                    try {
+                        statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
+                        Log.d("status", statusSynchronizacji);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (statusSynchronizacji != null){
+                        daneFirma danaUpdate = new daneFirma();
+
+                        switch (statusSynchronizacji){
+                            case "konflikt":
+                                //konflikt dancyh, dodajemy nowy rekord z wysłanymi danymi i nadpisujemy to id danymi z serwera
+                                daneOSQL.dodajDane(danaS);
+                                //daneFirma danaUpdate = new daneFirma();
+                                textView.append("id = " + danaS.getId() + " Konflikt: updatujemy rekord i przenosimy nasz na koniec\n");
+                                try{
+                                    danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                    danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                    danaUpdate.setSynchron(1);
+                                    danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
+                                    danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
+                                    danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
+                                    danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+                                    danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
+                                    danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
+                                    danaUpdate.setTyp(Jasonobject.getString("typ"));
+                                    danaUpdate.setMiasto(Jasonobject.getString("miasto"));
+                                    danaUpdate.setUlica_nr(Jasonobject.getString("ulica_nr"));
+                                    danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
+                                    danaUpdate.setNumer(Jasonobject.getString("numer"));
+                                    danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
+                                    danaUpdate.setId(Jasonobject.getInt("id"));
+                                    daneOSQL.updateDane(danaUpdate);
+                                }catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "insertsrv":
+                                textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
+                                try{
+                                    danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                    danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                    danaS.setSynchron(1);
+
+                                    daneOSQL.updateDane(danaS);
+                                }catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "error":
+                                textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
+                                break;
+                            case "zgodne":
+                                textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
+                                break;
+                            case "updateserv":
+                                textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
+                                try{
+                                    danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                    danaS.setSynchron(1);
+                                    daneOSQL.updateDane(danaS);
+                                }catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "updatekon":
+                                textView.append("id = " + danaS.getId() + "Nieaktualny rekord, zmieniam w bazie\n");
+                                try{
+                                    danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                    danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                    danaUpdate.setSynchron(1);
+                                    danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
+                                    danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
+                                    danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
+                                    danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+                                    danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
+                                    danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
+                                    danaUpdate.setTyp(Jasonobject.getString("typ"));
+                                    danaUpdate.setMiasto(Jasonobject.getString("miasto"));
+                                    danaUpdate.setUlica_nr(Jasonobject.getString("ulica_nr"));
+                                    danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
+                                    danaUpdate.setNumer(Jasonobject.getString("numer"));
+                                    danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
+                                    danaUpdate.setId(Jasonobject.getInt("id"));
+                                    daneOSQL.updateDane(danaUpdate);
+                                }catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+
+                        }
+                    }
+
+                    //textView.append(response);
+                    //textView.append("\n");
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    Log.d("Bład", error.toString());
+                    textView.append(error.toString() + "\n");
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> param = new HashMap<String, String>();
+                    Log.d("data utw: ", String.valueOf(danaS.getData_utworzenia()));
+                    Log.d("data synchro:  ", String.valueOf(danaS.getData_synchronizacji()));
+                    if ((danaS.getData_utworzenia() >= 0) && (danaS.getData_synchronizacji() <= 0)) {
+                        param.put("statusSynchronizacji", "add");
+                        Log.d("Wstawiam status synchro:", "add");
+                    }else{
+                        param.put("statusSynchronizacji", "update");
+                        Log.d("Wstawiam status synchro:", "update");
+                    }
+                    param.put("tokenid", getActualTokenId());
+                    param.put("tabela", "BZCZBD_Firmy");
+                    param.put("_id", String.valueOf(danaS.getId()));
+                    param.put("nazwa", danaS.getNazwa());
+                    if(danaS.getNumer() != null) {
+                        param.put("numer", danaS.getNumer());
+                    }else{param.put("numer", "0");}
+                    param.put("nr_telefonu", String.valueOf(danaS.getNr_telefonu()));
+                    param.put("ulica_nr", danaS.getUlica_nr());
+                    param.put("miasto", danaS.getMiasto());
+                    param.put("typ", danaS.getTyp());
+                    param.put("kalendarz_id", String.valueOf(danaS.getKalendarz_id()));
+                    param.put("uwagi", danaS.getUwagi());
+                    if(danaS.getPoprzedni_rekord_id() != null) {
+                        param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
+                    }else{param.put("poprzedni_rekord_id", "0");}
+                    if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
+                        param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
+                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
+                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                        param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
+                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
+                    param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
+                    param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
+                    param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
+
+                    return param;
+                }
+            };
+            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+        }
+
+        /*broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                ReadMessages();
+
+            }
+        };*/
+
+        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+    }
+
+    protected void synchronizujStawki(int RidtextView) {
+        /*getActualToken(getActivity());*/
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneStawka.UI_SYNCHRONIZE_MESSAGE));
+
+        OSQLdaneStawka daneOSQL = new OSQLdaneStawka(getActivity());
+        List<daneStawka> daneDoSynchronizacji;
+        daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        for (daneStawka danaS: daneDoSynchronizacji) {
+            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                    Log.d("Odpowiedź", response);
+                    textView.append(response);
+                    textView.append("\n");
+                    if (response.contains("Successfully")){//.equals("Zsynchronizowano")){
+                        danaS.setSynchron(1);
+                        daneOSQL.updateDane(danaS);
+                        textView.append(danaS.getStawka() + " dodano synchronizację\n");
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    Log.d("Bład", error.toString());
+                    textView.append(error.toString());
+                    textView.append("\n");
+
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> param = new HashMap<String, String>();
+                    param.put("tokenid", getActualTokenId());
+                    param.put("tabela", "BZCZBD_Stawki");
+                    param.put("_id", String.valueOf(danaS.getId()));
+
+                    param.put("firma_id", String.valueOf(danaS.getFirma_id()));
+                    param.put("stawka", String.valueOf(danaS.getStawka()));
+                    param.put("poczatek", danaS.getPoczatek());
+                    param.put("koniec", danaS.getKoniec());
+
+                    param.put("uwagi", danaS.getUwagi());
+                    if(danaS.getPoprzedni_rekord_id() != null) {
+                        param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
+                    }else{param.put("poprzedni_rekord_id", "0");}
+                    if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
+                        param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
+                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
+                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                        param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
+                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
+                    param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
+                    param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
+                    param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
+                    return param;
+                }
+            };
+            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+        }
+
+        /*broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                ReadMessages();
+
+            }
+        };*/
+
+        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+    }
+
+    protected void synchronizujZlecenia(int RidtextView) {
+        /*getActualToken(getActivity());*/
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneZlecenia.UI_SYNCHRONIZE_MESSAGE));
+
+        OSQLdaneZlecenia daneOSQL = new OSQLdaneZlecenia(getActivity());
+        List<daneZlecenia> daneDoSynchronizacji;
+        daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        for (daneZlecenia danaS: daneDoSynchronizacji) {
+            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                    Log.d("Odpowiedź", response);
+                    textView.append(response);
+                    textView.append("\n");
+                    if (response.contains("Successfully")){//.equals("Zsynchronizowano")){
+                        danaS.setSynchron(1);
+                        daneOSQL.updateDane(danaS);
+                        textView.append(danaS.getOpis() + " dodano synchronizację\n");
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                    Log.d("Bład", error.toString());
+                    textView.append(error.toString());
+                    textView.append("\n");
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> param = new HashMap<String, String>();
+                    param.put("tokenid", getActualTokenId());
+                    param.put("tabela", "BZCZBD_Zlecenia");
+                    param.put("_id", String.valueOf(danaS.getId()));
+
+                    param.put("firma_id", String.valueOf(danaS.getFirma_id()));
+                    param.put("czas_rozpoczecia", String.valueOf(danaS.getCzas_zawieszenia()));
+                    param.put("opis", danaS.getOpis());
+                    param.put("status", danaS.getStatus());
+                    if (danaS.getRozliczona() != null) {
+                        param.put("rozliczona", danaS.getRozliczona());
+                    }else{param.put("rozliczona","");}
+                    param.put("czas_zakonczenia", String.valueOf(danaS.getCzas_zakonczenia()));
+                    param.put("kalendarz_id", String.valueOf(danaS.getKalendarz_id()));
+                    param.put("kalendarz_id_long", String.valueOf(danaS.getKalendarz_id_long()));
+                    param.put("kalendarz_zadanie_id", String.valueOf(danaS.getKalendarz_zadanie_id()));
+                    param.put("czas_zawieszenia", String.valueOf(danaS.getCzas_zawieszenia()));
+
+                    param.put("uwagi", danaS.getUwagi());
+                    if(danaS.getPoprzedni_rekord_id() != null) {
+                        param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
+                    }else{param.put("poprzedni_rekord_id", "0");}
+                    if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
+                        param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
+                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
+                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                        param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
+                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
+                    param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
+                    param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
+                    param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
+                    return param;
+                }
+            };
+            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+        }
+
+        /*broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                ReadMessages();
+
+            }
+        };*/
+
+        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
     }
 
     //ukrywamy floating button

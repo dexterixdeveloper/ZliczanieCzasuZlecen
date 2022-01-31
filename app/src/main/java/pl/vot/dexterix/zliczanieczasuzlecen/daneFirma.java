@@ -6,6 +6,7 @@ public class daneFirma extends daneKlasaPodstawowa{
     private Integer nr_telefonu;
     private String ulica_nr;
     private String miasto;
+    private String typ;
     //dane przypidsanego kalendarza do firmy
     private long kalendarz_id;
     private String kalendarz_nazwa;
@@ -16,21 +17,35 @@ public class daneFirma extends daneKlasaPodstawowa{
     //private String typ;
 
     public daneFirma() {
-        this.nazwa = null;
-        this.numer = null;
-        this.nr_telefonu = null;
-        this.ulica_nr = null;
-        this.miasto = null;
+        this.nazwa = "";
+        this.numer = "";
+        this.nr_telefonu = 0;
+        this.ulica_nr = "";
+        this.miasto = "";
         //this.siec_id = null;
         //this.siec_nazwa = null;
-        //this.typ = null;
-        this.uwagi = null;
+        this.typ = "";
+        this.uwagi = "";
         this.kalendarz_id = 0L;
         this.kalendarz_nazwa = null;
-
+        this.poprzedni_rekord_data_usuniecia = "0";
+        this.id = 0;
+        this.poprzedni_rekord_id = 0;
+        this.poprzedni_rekord_powod_usuniecia = "0";
+        this.czy_widoczny = 1;
+        this.synchron = 0;
+        this.data_synchronizacji = 0;
+        this.data_utworzenia = 0;
     }
 
-    /*public String getSiec_nazwa() {
+    public String getTyp() {
+        return typ;
+    }
+
+    public void setTyp(String typ) {
+        this.typ = typ;
+    }
+/*public String getSiec_nazwa() {
         return siec_nazwa;
     }*/
 

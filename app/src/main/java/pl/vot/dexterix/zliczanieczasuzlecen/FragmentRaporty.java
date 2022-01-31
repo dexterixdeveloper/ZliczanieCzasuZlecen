@@ -23,6 +23,18 @@ public class FragmentRaporty extends FragmentPodstawowy{
         super.onViewCreated(view, savedInstanceState);
         ukryjFloatingButton();
         setActionOnButtonRaportyDoWyslania();
+        setActionOnButtonRaportyWyliczeniowe();
+    }
+
+    private void setActionOnButtonRaportyWyliczeniowe() {
+        Button button = getActivity().findViewById(R.id.buttonRaportyWyliczeniowe);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tagBackStack = "FragmentRaportyWyliczeniowe";
+                zmianaFragmentu(new FragmentRaportyWyliczeniowe(), tagBackStack);
+            }
+        });
     }
 
     private void setActionOnButtonRaportyDoWyslania() {
@@ -31,7 +43,7 @@ public class FragmentRaporty extends FragmentPodstawowy{
             @Override
             public void onClick(View view) {
                 String tagBackStack = "FragmentRaportyDoWyslania";
-                zmianaFragmentu(new FragmentRaportyDoWyslania(), tagBackStack, true);
+                zmianaFragmentu(new FragmentRaportyDoWyslania(), tagBackStack);
             }
         });
 
