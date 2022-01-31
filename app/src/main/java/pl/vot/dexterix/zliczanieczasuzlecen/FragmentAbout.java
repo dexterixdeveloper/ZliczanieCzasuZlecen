@@ -44,7 +44,8 @@ public class FragmentAbout extends FragmentPodstawowy{
                 {"2021.12.14", "Poprawienie mechanizmu tworzenia kopii zapasowej"},
                 {"2021.12.16", "Dodanie filtrów na listach zadań"},
                 {"2021.12.16", "Automatyczne dodawanie stawek przy tworzeniu nowej firmy"},
-                {"2021.12.20", "Naprawa wyświetlania dat przy poprawianiu zleceń"}
+                {"2021.12.20", "Naprawa wyświetlania dat przy poprawianiu zleceń"},
+                {"2022.01.31", "Wdrażanie synchronizacji danych z zewnętrznym serwerem"}
         };
         StringBuilder uzupelnijDane = new StringBuilder();
         uzupelnijDane.append("\n");
