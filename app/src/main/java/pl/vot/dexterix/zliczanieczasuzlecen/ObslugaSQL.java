@@ -22,6 +22,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
     //DATABASE_VERSION = 1;
+    private static final String DICTIONARY_TABLE_NAME = "";
     protected static final String DICTIONARY_TABLE_NAME_1 = "BZCZBD_Firmy";
     protected static final String DICTIONARY_TABLE_NAME_2 = "BZCZBD_Zlecenia";
     protected static final String DICTIONARY_TABLE_NAME_3 = "BZCZBD_Settings";
@@ -363,6 +364,39 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         }//if (nazwa_tabeli.equals("ElektronicznaKsiazkaAutaByDexTypPaliwa")){
     }//public void wstawDanePobraneZCSV(String nazwa_tabeli, ContentValues wartosci){*/
 
+    public String getTableName(){
+        return DICTIONARY_TABLE_NAME;
+    }
+
+    protected long dodajZastapDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
+        Log.d("DebugCSQL:", nazwa_tabeli);
+        long idRekordu =-1;
+        SQLiteDatabase db = getWritableDatabase();
+
+        try {
+            daneData aktualnaData = new daneData();
+            if(!wartosci.containsKey("data_utworzenia")) {
+                //db.insert(nazwa_tabeli, null, wartosci);
+                wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
+            }
+            if(!wartosci.containsKey("data_synchronizacji")) {
+                wartosci.put("data_synchronizacji", "0");
+            }
+            idRekordu = db.insertWithOnConflict(nazwa_tabeli, null, wartosci, SQLiteDatabase.CONFLICT_REPLACE);
+            //Log.d("Wstawianie ", String.valueOf(idRekordu));
+
+        } catch(SQLException excepion){
+            Log.d("Wywalilo", nazwa_tabeli);
+            Log.d("wyjatek", excepion.toString());
+            //tutaj trzeba coś dopisać
+            //CheckLista.wyswietlToast("Błąd insertu!!!");
+            //CheckLista.
+        }
+        Log.d("DebugCSQL:", "koniec wstawiania lub zastępowania danych do tabeli: " + nazwa_tabeli);
+        db.close();
+        return idRekordu;
+    }
+
     protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         Log.d("DebugCSQL:", nazwa_tabeli);
         long idRekordu =-1;
@@ -375,7 +409,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
                 wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
             }
             if(!wartosci.containsKey("data_synchronizacji")) {
-                wartosci.put("data_synchronizacji", "");
+                wartosci.put("data_synchronizacji", "0");
             }
             idRekordu = db.insertOrThrow(nazwa_tabeli, null, wartosci);
             //Log.d("Wstawianie ", String.valueOf(idRekordu));
@@ -403,7 +437,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
                 wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
             }
             if(!wartosci.containsKey("data_synchronizacji")) {
-                wartosci.put("data_synchronizacji", "");
+                //musi być 1 bo inaczej nie mam pomysłu jak odróżnić czy wcale nie było synchronizacji od zmiany
+                wartosci.put("data_synchronizacji", "1");
             }
             //db.insert(nazwa_tabeli, null, wartosci);
             db.update(nazwa_tabeli,  wartosci, "_id = ?", new String[] {String.valueOf(_id_)});
@@ -455,10 +490,49 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         return c;
     }
 
+    protected void updateDaneHurtem(String nazwa_tabeli, ContentValues cv_wartosci, String warunek, String[] warunek_args){
+        SQLiteDatabase db = getWritableDatabase();
+        //ContentValues wartosci = new ContentValues();
+        //wartosci.put("data_synchronizacji", "0");
+        try {
+
+            //db.insert(nazwa_tabeli, null, wartosci);
+            db.update(nazwa_tabeli, cv_wartosci, warunek, warunek_args );
+        } catch (SQLException excepion) {
+            Log.d("Wywalilo", nazwa_tabeli);
+            Log.d("wyjatek", excepion.toString());
+            //tutaj trzeba coś dopisać
+            //CheckLista.wyswietlToast("Błąd insertu!!!");
+            //CheckLista.
+        }
+        Log.d("DebugCSQL:", "koniec update danych do tabeli: " + nazwa_tabeli);
+        db.close();
+    }
+
     protected void zerujDateSynchronizacji(String nazwa_tabeli) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues wartosci = new ContentValues();
         wartosci.put("data_synchronizacji", "0");
+        try {
+
+            //db.insert(nazwa_tabeli, null, wartosci);
+            db.update(nazwa_tabeli, wartosci, null, null );
+        } catch (SQLException excepion) {
+            Log.d("Wywalilo", nazwa_tabeli);
+            Log.d("wyjatek", excepion.toString());
+            //tutaj trzeba coś dopisać
+            //CheckLista.wyswietlToast("Błąd insertu!!!");
+            //CheckLista.
+        }
+        Log.d("DebugCSQL:", "koniec update danych do tabeli: " + nazwa_tabeli);
+        db.close();
+
+    }
+
+    protected void zerujDateUtworzenia(String nazwa_tabeli) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues wartosci = new ContentValues();
+        wartosci.put("data_utworzenia", "0");
         try {
 
             //db.insert(nazwa_tabeli, null, wartosci);

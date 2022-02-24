@@ -82,6 +82,13 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
+        <provider
+            android:name="pl.vot.dexterix.zliczanieczasuzlecen.StubProvider"
+            android:authorities="com.example.android.datasync.provider"
+            android:exported="false"
+            android:syncable="true"/>
+
+
     </application>
 
 </manifest>

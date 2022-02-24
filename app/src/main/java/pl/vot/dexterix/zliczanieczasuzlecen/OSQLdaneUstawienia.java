@@ -67,7 +67,7 @@ public class OSQLdaneUstawienia extends ObslugaSQL {
                 dane_funkcji.add(dana_funkcji);
                 kursor.moveToNext();
             }//while (!kursor.isAfterLast()) {
-            Log.d("DebugCSQL:", "daj dane OSQLStawki");
+            //Log.d("DebugCSQL:", "daj dane OSQLStawki");
         }//if (kursor.getCount() > 0) {
         else{
             daneUstawienia dana_funkcji = new daneUstawienia();

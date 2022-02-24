@@ -39,5 +39,6 @@
     <string name="wszystkie_firmy">Wszystkie Firmy</string>
     <string name="FCM_Pref" >pl.vot.dexterix.ZliczanieCzasuZlecen.fcm_pref</string>
     <string name="FCM_TOKEN" >FCM_TOKEN</string>
+    <string name="ActiveDatabase">ActiveDatabase</string>
 
 </resources>

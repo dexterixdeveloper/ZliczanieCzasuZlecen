@@ -1,14 +1,18 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 
@@ -43,6 +47,7 @@ public class FragmentSettings extends FragmentPodstawowy{
         addListenerOnButtonRestore(R.id.button3);
         addListenerOnButtonSendBackup(R.id.buttonSendBackup);
         addListenerOnButtonSendRaporty(R.id.buttonSendReports);
+        addListenerOnSwitch(R.id.toggleButtonBaza);
     }
 
     private void addListenerOnButtonRestore(int button) {
@@ -74,6 +79,7 @@ public class FragmentSettings extends FragmentPodstawowy{
             public void onClick(View v) {
                 //FragmentWyborKalendarza fragmentDoZamiany = new FragmentWyborKalendarza();
                 //zmianaFragmentu(fragmentDoZamiany, "FragmentWyborKalendarza");
+                Log.d("Zeruję daty synchronizacji dla firm", "");
                 OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
                 List<daneFirma> daneTestowe = new ArrayList<>();
                 daneTestowe = osql.dajWszystkie();
@@ -87,19 +93,153 @@ public class FragmentSettings extends FragmentPodstawowy{
                     Log.d("czas synchr 2", String.valueOf(daneTestowe1.get(i).getData_synchronizacji()));
                 }
                 osql.close();
+                Log.d("Daty synchronizacji dla firm ", " wyzerowane");
+                osql = null;
+                daneTestowe = null;
+                daneTestowe1 = null;
+
+                Log.d("Zeruję daty synchronizacji dla Stawek", "");
+                OSQLdaneStawka osqlS = new OSQLdaneStawka(getActivity());
+                List<daneStawka> daneTestoweS = new ArrayList<>();
+                daneTestoweS = osqlS.dajWszystkie();
+                for (int i = 0; i < daneTestoweS.size(); i++){
+                    Log.d("czas synchr ", String.valueOf(daneTestoweS.get(i).getData_synchronizacji()));
+                }
+                osqlS.zerujDateSynchronizacji();
+                List<daneStawka> daneTestoweSk = new ArrayList<>();
+                daneTestoweSk = osqlS.dajWszystkie();
+                for (int i = 0; i < daneTestoweSk.size(); i++){
+                    Log.d("czas synchr 2", String.valueOf(daneTestoweSk.get(i).getData_synchronizacji()));
+                }
+                osqlS.close();
+                Log.d("Daty synchronizacji dla Stawek ", " wyzerowane");
+                osqlS = null;
+                daneTestoweS = null;
+                daneTestoweSk = null;
+
+                Log.d("Zeruję daty synchronizacji dla Zleceń", "");
+                OSQLdaneZlecenia osqlZ = new OSQLdaneZlecenia(getActivity());
+                List<daneZlecenia> daneTestoweZ = new ArrayList<>();
+                daneTestoweZ = osqlZ.dajWszystkie();
+                for (int i = 0; i < daneTestoweZ.size(); i++){
+                    Log.d("czas synchr ", String.valueOf(daneTestoweZ.get(i).getData_synchronizacji()));
+                }
+                osqlZ.zerujDateSynchronizacji();
+                List<daneZlecenia> daneTestoweZk = new ArrayList<>();
+                daneTestoweZk = osqlZ.dajWszystkie();
+                for (int i = 0; i < daneTestoweZk.size(); i++){
+                    Log.d("czas synchr 2", String.valueOf(daneTestoweZk.get(i).getData_synchronizacji()));
+                }
+                osqlZ.close();
+                Log.d("Daty synchronizacji dla Zleceń ", " wyzerowane");
+                osqlZ = null;
+                daneTestoweZ = null;
+                daneTestoweZk = null;
                 //Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
+    private void addListenerOnSwitch(int RidTogglebutton){
+
+        ToggleButton toggle = (ToggleButton) getActivity().findViewById(RidTogglebutton);
+        toggle.setText("Baza Produkcyjna");
+        toggle.setTextOff("Baza Produkcyjna");
+        toggle.setTextOn("Baza Testowa");
+        String activeBase = getActiveDataBase();
+        if (activeBase.equals("1")){
+            toggle.setChecked(false);
+        }else{
+            toggle.setChecked(true);
+        }
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+
+                    SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.ActiveDatabase), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(getResources().getString(R.string.ActiveDatabase), "0");
+                    editor.apply();
+                    Log.d("toggle", "0");
+                } else {
+                    // The toggle is disabled
+                    SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.ActiveDatabase), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(getResources().getString(R.string.ActiveDatabase), "1");
+                    editor.apply();
+                    Log.d("toggle", "1");
+                }
+            }
+        });
+
+
+    }
 
     private void addListenerOnButtonSendBackup(int buttonSendBackup) {
         Button buttonBackupSendBackup = (Button) getActivity().findViewById(buttonSendBackup);
+        buttonBackupSendBackup.setText("Zeruj daty utworzenia");
         buttonBackupSendBackup.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-            Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
+                Log.d("Zeruję daty utworzenia dla firm", "");
+                OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
+                List<daneFirma> daneTestowe = new ArrayList<>();
+                daneTestowe = osql.dajWszystkie();
+                for (int i = 0; i < daneTestowe.size(); i++){
+                    Log.d("czas utworzenia ", String.valueOf(daneTestowe.get(i).getData_utworzenia()));
+                }
+                osql.zerujDateUtworzenia();
+                List<daneFirma> daneTestowe1 = new ArrayList<>();
+                daneTestowe1 = osql.dajWszystkie();
+                for (int i = 0; i < daneTestowe1.size(); i++){
+                    Log.d("czas utworzenia 2", String.valueOf(daneTestowe1.get(i).getData_utworzenia()));
+                }
+                osql.close();
+                Log.d("Daty utworzenia dla firm ", " wyzerowane");
+                osql = null;
+                daneTestowe = null;
+                daneTestowe1 = null;
+
+                Log.d("Zeruję daty utworzenia dla Stawek", "");
+                OSQLdaneStawka osqlS = new OSQLdaneStawka(getActivity());
+                List<daneStawka> daneTestoweS = new ArrayList<>();
+                daneTestoweS = osqlS.dajWszystkie();
+                for (int i = 0; i < daneTestoweS.size(); i++){
+                    Log.d("czas utworzenia ", String.valueOf(daneTestoweS.get(i).getData_utworzenia()));
+                }
+                osqlS.zerujDateUtworzenia();
+                List<daneStawka> daneTestoweSk = new ArrayList<>();
+                daneTestoweSk = osqlS.dajWszystkie();
+                for (int i = 0; i < daneTestoweSk.size(); i++){
+                    Log.d("czas utworzenia 2", String.valueOf(daneTestoweSk.get(i).getData_utworzenia()));
+                }
+                osqlS.close();
+                Log.d("Daty utworzenia dla Stawek ", " wyzerowane");
+                osqlS = null;
+                daneTestoweS = null;
+                daneTestoweSk = null;
+
+                Log.d("Zeruję daty utworzenia dla Zleceń", "");
+                OSQLdaneZlecenia osqlZ = new OSQLdaneZlecenia(getActivity());
+                List<daneZlecenia> daneTestoweZ = new ArrayList<>();
+                daneTestoweZ = osqlZ.dajWszystkie();
+                for (int i = 0; i < daneTestoweZ.size(); i++){
+                    Log.d("czas utworzenia ", String.valueOf(daneTestoweS.get(i).getData_utworzenia()));
+                }
+                osqlZ.zerujDateUtworzenia();
+                List<daneZlecenia> daneTestoweZk = new ArrayList<>();
+                daneTestoweZk = osqlZ.dajWszystkie();
+                for (int i = 0; i < daneTestoweZk.size(); i++){
+                    Log.d("czas utworzenia 2", String.valueOf(daneTestoweZk.get(i).getData_utworzenia()));
+                }
+                osqlZ.close();
+                Log.d("Daty utworzenia dla Zleceń ", " wyzerowane");
+                osqlZ = null;
+                daneTestoweZ = null;
+                daneTestoweZk = null;
             /*private File privateRootDir;
             // The path to the "backup" subdirectory
             private File backupDir;

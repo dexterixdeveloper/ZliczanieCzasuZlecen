@@ -35,6 +35,10 @@ public class OSQLdaneFirma extends ObslugaSQL{
         return dajDane(zapytanie);
     }*/
 
+    public String getTableName(){
+        return DICTIONARY_TABLE_NAME;
+    }
+
     public List<daneFirma> dajWszystkie(){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
@@ -48,8 +52,9 @@ public class OSQLdaneFirma extends ObslugaSQL{
                     "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
                     "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.uwagi AS uwagi, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
                     "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, " +
-                    "a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji FROM " + DICTIONARY_TABLE_NAME + " AS a ";
-                    //"WHERE a.synchron = 0 OR a.synchron IS NULL";
+                    "a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji FROM " + DICTIONARY_TABLE_NAME + " AS a " +
+                    "WHERE a.data_synchronizacji IN ('0', '1')";
+                    //< 2 bo 0 oznacza nie zsynchronizowany rekord, 1 zaktualizowany rekord, a jakakolwiek liczba oznacza datę synchronizacji
             //a.synchron = 0 OR
             return dajDane(zapytanie);
         }
@@ -86,6 +91,10 @@ public class OSQLdaneFirma extends ObslugaSQL{
 
     public void zerujDateSynchronizacji(){
         zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
+    }
+
+    public void zerujDateUtworzenia(){
+        zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
     }
 
     public void updateDane(daneFirma dane_funkcji) {
@@ -157,6 +166,19 @@ public class OSQLdaneFirma extends ObslugaSQL{
         dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
     }//public void dodajDaneFirmy(daneFirma dane_funkcji) {*/
+
+    public long dodajZastapDane(daneFirma dane_funkcji){
+
+        ContentValues wartosci = contentValues(dane_funkcji);
+
+        //Log.d("SQL: dDMT", wartosci.toString());
+
+        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        long idRekordu = -1;
+        idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
+        //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
+    }
 
     public long dodajDane(daneFirma dane_funkcji) {
         ContentValues wartosci = contentValues(dane_funkcji);

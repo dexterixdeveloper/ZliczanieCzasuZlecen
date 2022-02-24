@@ -1,6 +1,7 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,9 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Fragment z1 = getVisibleFragment();
-
+        Log.d("Token", "przed daj");
+        Log.d("Token", getActualTokenId());
+        Log.d("Token", "po daj");
         ukryjFloatingButton();
         addListenerOnButtonSynchronizujWszystko();
 
@@ -34,8 +37,8 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
             @Override
             public void onClick(View view) {
                 synchronizujFirmy(R.id.textViewSynchronizacja);
-                synchronizujStawki(R.id.textViewSynchronizacja);
-                synchronizujZlecenia(R.id.textViewSynchronizacja);
+                //synchronizujStawki(R.id.textViewSynchronizacja);
+                //synchronizujZlecenia(R.id.textViewSynchronizacja);
             }
         });
     }

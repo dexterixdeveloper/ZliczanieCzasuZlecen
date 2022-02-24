@@ -29,6 +29,9 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
 
     }
+    public String getTableName(){
+        return DICTIONARY_TABLE_NAME;
+    }
 
     private ContentValues contentValues(daneZlecenia dane_funkcji){
         ContentValues wartosci = new ContentValues();
@@ -132,8 +135,10 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
                 "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
-                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji" +
-                " FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.synchron = 0 OR a.synchron IS NULL";
+                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id " +// WHERE a.synchron = 0 OR a.synchron IS NULL";
+                "WHERE a.data_synchronizacji IN ('0', '1')";
+                //< 2 bo 0 oznacza nie zsynchronizowany rekord, 1 zaktualizowany rekord, a jakakolwiek liczba oznacza datę synchronizacji
         return dajDane(zapytanie);
     }
 
@@ -225,6 +230,27 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dane_funkcji;
     }//public List<daneAuta> dajWszystkieAuta(){
 
+    public void zerujDateSynchronizacji(){
+        zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
+    }
+
+    public void zerujDateUtworzenia(){
+        zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
+    }
+
+    public long dodajZastapDane(daneZlecenia dane_funkcji){
+
+        ContentValues wartosci = contentValues(dane_funkcji);
+
+        //Log.d("SQL: dDMT", wartosci.toString());
+
+        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        long idRekordu = -1;
+        idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
+        //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
+    }
+
     //kursor dla odczytu danych z bazy
     private daneZlecenia cursorDane(Cursor kursor) {
         daneZlecenia dane_funkcji = new daneZlecenia();
@@ -296,6 +322,14 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         }
         return dane_funkcji;
     }//private daneFirma cursorDane(Cursor kursor){
+
+    protected void updateDaneHurtemIdFirmy(Integer stare_id, Integer nowe_id) {
+        ContentValues wartosci = new ContentValues();
+        wartosci.put("firma_id", nowe_id);
+        String[] args = {String.valueOf(stare_id)};
+        String warunek = "firma_id = ?";
+        updateDaneHurtem(DICTIONARY_TABLE_NAME, wartosci, warunek, args);
+    }
 
     /*public List<String> podajNazwa(){
         //ObslugaSQL chsql = new ObslugaSQL(kontekst);

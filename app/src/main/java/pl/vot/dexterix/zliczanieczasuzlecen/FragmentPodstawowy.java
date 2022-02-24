@@ -184,16 +184,71 @@ public class FragmentPodstawowy extends Fragment {
                         // Log and toast
                         //String msg = getString(token);
 
-                        Log.d("Pobieramy token", token[0]);
+                        //Log.d("Pobieramy token", token[0]);
                         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString(getResources().getString(R.string.FCM_TOKEN), token[0]);
-                        editor.commit();
+                        editor.apply();
                         Toast.makeText(context, token[0], Toast.LENGTH_SHORT).show();
                         //return token;
                     }
                 });
 
+    }
+
+    protected String getActiveDataBase(){
+        //pobieramy bazę z zapisania
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.ActiveDatabase), Context.MODE_PRIVATE);
+        String pref = sharedPreferences.getString(getResources().getString(R.string.ActiveDatabase),"1");
+        //Log.d("Token get acktu", token_id);
+
+        return pref;
+    }
+
+    private void wyslijToken() {
+        getActualToken(getActivity());
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+        //ReadMessages();
+
+        final String tokenek = getActualTokenId();
+        //Log.d("token", tokenek);
+        Log.d("###############","############");
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, TOKEN_ID_URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                //synchronizujFirmy(R.id.textViewSynchroFirmy);
+                Log.d("Odpowiedź", response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                Log.d("Bład", error.toString());
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> param = new HashMap<String, String>();
+
+                param.put("tokenid",tokenek );
+                return param;
+            }
+        };
+        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+
+
+       /*broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+
+                ReadMessages();
+
+            }
+        };*/
+
+        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
     }
 
     protected String getActualTokenId(){
@@ -209,6 +264,213 @@ public class FragmentPodstawowy extends Fragment {
         return token_id;
     }
 
+    private daneFirma getFirmaFromJson(JSONObject Jasonobject){
+        daneFirma danaUpdate = new daneFirma();
+        try{
+
+            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+            danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+            danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
+            danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
+            danaUpdate.setTyp(Jasonobject.getString("typ"));
+            danaUpdate.setMiasto(Jasonobject.getString("miasto"));
+            danaUpdate.setUlica_nr(Jasonobject.getString("ulica_nr"));
+            danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
+            danaUpdate.setNumer(Jasonobject.getString("numer"));
+            danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
+            danaUpdate.setId(Jasonobject.getInt("id"));
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return danaUpdate;
+    }
+
+    private void synchronizujFirme(daneFirma danaS, String tabela_nazwa, int RidtextView, boolean czyWysylamy, boolean czyOstatni){
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                OSQLdaneFirma daneOSQL = new OSQLdaneFirma(getActivity());
+                //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                Log.d("Odpowiedź", response);
+                Log.d("Odpowiedź długość: ", String.valueOf(response.length()));
+                JSONObject Jasonobject = null;
+                String statusSynchronizacji = null;
+                try {
+                    Jasonobject = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
+                    Log.d("status", statusSynchronizacji);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (statusSynchronizacji != null){
+                    daneFirma danaUpdate = new daneFirma();
+
+                    switch (statusSynchronizacji){
+                        case "konflikt":
+                            //konflikt dancyh, dodajemy nowy rekord z wysłanymi danymi i nadpisujemy to id danymi z serwera
+                            //OSQLdaneFirma daneOSQL = new OSQLdaneFirma(getActivity());
+                            Long idnowego = daneOSQL.dodajDane(danaS);
+                            //i tu jesteśmy w pułapce: zadania oraz stawki są zależne od id firmy
+                            //trzeb by hurtem to poprawić
+                            OSQLdaneZlecenia updateZlecenia = new OSQLdaneZlecenia(getActivity());
+                            updateZlecenia.updateDaneHurtemIdFirmy(danaS.getId(), Math.toIntExact(idnowego));
+                            updateZlecenia = null;//robimy pusty
+                            OSQLdaneStawka updateStawka = new OSQLdaneStawka(getActivity());
+                            updateStawka.updateDaneHurtemIdFirmy(danaS.getId(), Math.toIntExact(idnowego));
+                            updateStawka = null; //robimy pusty
+                            //daneFirma danaUpdate = new daneFirma();
+                            textView.append("id = " + danaS.getId() + " Konflikt: updatujemy rekord i przenosimy nasz na koniec\n");
+                            daneOSQL.updateDane(getFirmaFromJson(Jasonobject));
+                            break;
+                        case "insertsrv":
+                            textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
+                            try{
+                                danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "error":
+                            textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
+                            break;
+                        case "zgodne":
+                            textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
+                            try {
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            danaS.setSynchron(1);
+
+                            daneOSQL.updateDane(danaS);
+                            break;
+                        case "updateserv":
+                            textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
+                            try{
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "updatekon":
+                            textView.append("id = " + danaS.getId() + " Nieaktualny rekord, zmieniam w bazie\n");
+                            daneOSQL.updateDane(getFirmaFromJson(Jasonobject));
+                            break;
+                        case "updateadd":
+                            danaUpdate = getFirmaFromJson(Jasonobject);
+                            textView.append("id = " + danaUpdate.getId() + " Nowy lub nieaktualny rekord rekord, zmieniam w bazie\n");
+                            daneOSQL.dodajZastapDane(danaUpdate);
+                            synchronizujFirmy(RidtextView);
+                            break;
+                        case "koniec":
+                            textView.append("Brak danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            textView.append("Koniec synchronizacji tabeli  " + tabela_nazwa + "\n");
+                            synchronizujStawki(RidtextView);
+                            break;
+                        case "test1":
+                            textView.append("test danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            break;
+                        case "Token Error":
+                            textView.append("Problem z autoryzacją, zarejestruj urządzenie\n");
+                            wyslijToken();
+                            break;
+                    }
+                    if (czyOstatni){
+                        // tu upewniamy się czy wszystko zostało wysłane, bo przy dodawaniu jak na serwerze już istniało id to dodawaliśmy nowy rekord, którego nie uwzględniliśmy w for
+                        //teraz tylko wykombinować jak pobrać resztę nieposiadanych rekordów i pozmienianych na serwerze
+                        //chyba, że się zapętli :P
+                        synchronizujFirmy(RidtextView);
+                    }
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                Log.d("Bład", error.toString());
+                textView.append(error.toString() + "\n");
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("tokenid", getActualTokenId());
+                //Log.d("Token", getActualTokenId());
+                param.put("tabela", tabela_nazwa);
+                //dodajemy flagę jaka to baza: 1 - produkcyjna; 0 - testowa
+                param.put("flagabazy", getActiveDataBase());
+                if (czyWysylamy) {
+                    Log.d("data utw: ", String.valueOf(danaS.getData_utworzenia()));
+                    Log.d("data synchro:  ", String.valueOf(danaS.getData_synchronizacji()));
+                    if ((danaS.getData_utworzenia() >= 0) && (danaS.getData_synchronizacji() <= 0)) {
+                        param.put("statusSynchronizacji", "add");
+                        Log.d("Wstawiam status synchro:", "add");
+                    } else if (danaS.getData_synchronizacji() > 0) {
+                        param.put("statusSynchronizacji", "update");
+                        Log.d("Wstawiam status synchro:", "update");
+                    }
+                    param.put("_id", String.valueOf(danaS.getId()));
+                    param.put("nazwa", danaS.getNazwa());
+                    if (danaS.getNumer() != null) {
+                        param.put("numer", danaS.getNumer());
+                    } else {
+                        param.put("numer", "0");
+                    }
+                    param.put("nr_telefonu", String.valueOf(danaS.getNr_telefonu()));
+                    param.put("ulica_nr", danaS.getUlica_nr());
+                    param.put("miasto", danaS.getMiasto());
+                    param.put("typ", danaS.getTyp());
+                    param.put("kalendarz_id", String.valueOf(danaS.getKalendarz_id()));
+                    param.put("uwagi", danaS.getUwagi());
+                    if (danaS.getPoprzedni_rekord_id() != null) {
+                        param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
+                    } else {
+                        param.put("poprzedni_rekord_id", "0");
+                    }
+                    if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
+                        param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
+                    } else {
+                        param.put("poprzedni_rekord_data_usuniecia", "0");
+                    }
+                    if (danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                        param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
+                    } else {
+                        param.put("poprzedni_rekord_powod_usuniecia", "");
+                    }
+                    param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
+                    param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
+                    param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
+                }else{
+                    param.put("statusSynchronizacji", "give");
+                    Log.d("Wstawiam status synchro:", "give");
+                }
+                return param;
+            }
+        };
+        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
+    }
+
     protected void synchronizujFirmy(int RidtextView) {
         /*getActualToken(getActivity());*/
         getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
@@ -217,200 +479,25 @@ public class FragmentPodstawowy extends Fragment {
         List<daneFirma> daneDoSynchronizacji;
         daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
         TextView textView = (TextView) getActivity().findViewById(RidtextView);
-        for (daneFirma danaS: daneDoSynchronizacji) {
-            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                    Log.d("Odpowiedź", response);
-                    Log.d("Odpowiedź długość: ", String.valueOf(response.length()));
-                    JSONObject Jasonobject = null;
-                    String statusSynchronizacji = null;
-                    try {
-                        Jasonobject = new JSONObject(response);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    //JSONArray array = null;
-
-                    /*try {
-                        array = new JSONArray(response);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }*/
-
-
-
-                    /*Statusy synchronizacji:
-                           -konflikt
-                           -insertsrv
-                            -error
-                            -zgodne
-                            -updateserv
-                            -updatekon
-                     */
-
-                    try {
-                        statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
-                        Log.d("status", statusSynchronizacji);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (statusSynchronizacji != null){
-                        daneFirma danaUpdate = new daneFirma();
-
-                        switch (statusSynchronizacji){
-                            case "konflikt":
-                                //konflikt dancyh, dodajemy nowy rekord z wysłanymi danymi i nadpisujemy to id danymi z serwera
-                                daneOSQL.dodajDane(danaS);
-                                //daneFirma danaUpdate = new daneFirma();
-                                textView.append("id = " + danaS.getId() + " Konflikt: updatujemy rekord i przenosimy nasz na koniec\n");
-                                try{
-                                    danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
-                                    danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
-                                    danaUpdate.setSynchron(1);
-                                    danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
-                                    danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
-                                    danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
-                                    danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
-                                    danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
-                                    danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
-                                    danaUpdate.setTyp(Jasonobject.getString("typ"));
-                                    danaUpdate.setMiasto(Jasonobject.getString("miasto"));
-                                    danaUpdate.setUlica_nr(Jasonobject.getString("ulica_nr"));
-                                    danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
-                                    danaUpdate.setNumer(Jasonobject.getString("numer"));
-                                    danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
-                                    danaUpdate.setId(Jasonobject.getInt("id"));
-                                    daneOSQL.updateDane(danaUpdate);
-                                }catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case "insertsrv":
-                                textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
-                                try{
-                                    danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
-                                    danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
-                                    danaS.setSynchron(1);
-
-                                    daneOSQL.updateDane(danaS);
-                                }catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case "error":
-                                textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
-                                break;
-                            case "zgodne":
-                                textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
-                                break;
-                            case "updateserv":
-                                textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
-                                try{
-                                    danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
-                                    danaS.setSynchron(1);
-                                    daneOSQL.updateDane(danaS);
-                                }catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case "updatekon":
-                                textView.append("id = " + danaS.getId() + "Nieaktualny rekord, zmieniam w bazie\n");
-                                try{
-                                    danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
-                                    danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
-                                    danaUpdate.setSynchron(1);
-                                    danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
-                                    danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
-                                    danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
-                                    danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
-                                    danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
-                                    danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
-                                    danaUpdate.setTyp(Jasonobject.getString("typ"));
-                                    danaUpdate.setMiasto(Jasonobject.getString("miasto"));
-                                    danaUpdate.setUlica_nr(Jasonobject.getString("ulica_nr"));
-                                    danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
-                                    danaUpdate.setNumer(Jasonobject.getString("numer"));
-                                    danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
-                                    danaUpdate.setId(Jasonobject.getInt("id"));
-                                    daneOSQL.updateDane(danaUpdate);
-                                }catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-
-                        }
-                    }
-
-                    //textView.append(response);
-                    //textView.append("\n");
-
+        String tabela_nazwa = daneOSQL.getTableName();
+        textView.append("Synchronizujemy tabelę " + tabela_nazwa + "\n");
+        if (daneDoSynchronizacji.size() > 0){
+            for (daneFirma danaS: daneDoSynchronizacji) {
+                if (!(daneDoSynchronizacji.get(daneDoSynchronizacji.size()-1).equals(danaS))) {
+                    Log.d("ile do synchronizacji1: ", String.valueOf(daneDoSynchronizacji.size()));
+                    synchronizujFirme(danaS, tabela_nazwa, RidtextView, true, false);
+                }else{
+                    synchronizujFirme(danaS, tabela_nazwa, RidtextView, true, true);
+                    Log.d("ile do synchronizacji2: ", String.valueOf(daneDoSynchronizacji.size()));
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
-                    Log.d("Bład", error.toString());
-                    textView.append(error.toString() + "\n");
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> param = new HashMap<String, String>();
-                    Log.d("data utw: ", String.valueOf(danaS.getData_utworzenia()));
-                    Log.d("data synchro:  ", String.valueOf(danaS.getData_synchronizacji()));
-                    if ((danaS.getData_utworzenia() >= 0) && (danaS.getData_synchronizacji() <= 0)) {
-                        param.put("statusSynchronizacji", "add");
-                        Log.d("Wstawiam status synchro:", "add");
-                    }else{
-                        param.put("statusSynchronizacji", "update");
-                        Log.d("Wstawiam status synchro:", "update");
-                    }
-                    param.put("tokenid", getActualTokenId());
-                    param.put("tabela", "BZCZBD_Firmy");
-                    param.put("_id", String.valueOf(danaS.getId()));
-                    param.put("nazwa", danaS.getNazwa());
-                    if(danaS.getNumer() != null) {
-                        param.put("numer", danaS.getNumer());
-                    }else{param.put("numer", "0");}
-                    param.put("nr_telefonu", String.valueOf(danaS.getNr_telefonu()));
-                    param.put("ulica_nr", danaS.getUlica_nr());
-                    param.put("miasto", danaS.getMiasto());
-                    param.put("typ", danaS.getTyp());
-                    param.put("kalendarz_id", String.valueOf(danaS.getKalendarz_id()));
-                    param.put("uwagi", danaS.getUwagi());
-                    if(danaS.getPoprzedni_rekord_id() != null) {
-                        param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
-                    }else{param.put("poprzedni_rekord_id", "0");}
-                    if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
-                        param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
-                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
-                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
-                        param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
-                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
-                    param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
-                    param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
-                    param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
-
-                    return param;
-                }
-            };
-            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
-        }
-
-        /*broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-
-                ReadMessages();
-
             }
-        };*/
+        }else{
+            textView.append("Brak danych do wysłania, sprawdzam czy coś do pobrania "  + "\n");
+            Log.d("ile do synchronizacji3: ", String.valueOf(daneDoSynchronizacji.size()));
+            daneFirma danaS = new daneFirma();
 
-        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+            synchronizujFirme(danaS, tabela_nazwa, RidtextView, false, false);
+        }
     }
 
     protected void synchronizujStawki(int RidtextView) {
@@ -421,111 +508,381 @@ public class FragmentPodstawowy extends Fragment {
         List<daneStawka> daneDoSynchronizacji;
         daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
         TextView textView = (TextView) getActivity().findViewById(RidtextView);
-        for (daneStawka danaS: daneDoSynchronizacji) {
-            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                    Log.d("Odpowiedź", response);
-                    textView.append(response);
-                    textView.append("\n");
-                    if (response.contains("Successfully")){//.equals("Zsynchronizowano")){
-                        danaS.setSynchron(1);
-                        daneOSQL.updateDane(danaS);
-                        textView.append(danaS.getStawka() + " dodano synchronizację\n");
+        String tabela_nazwa = daneOSQL.getTableName();
+        textView.append("Synchronizujemy tabelę " + tabela_nazwa + "\n");
+        if (daneDoSynchronizacji.size() > 0){
+            for (daneStawka danaS: daneDoSynchronizacji) {
+                if (!(daneDoSynchronizacji.get(daneDoSynchronizacji.size()-1).equals(danaS))) {
+                    synchronizujStawke(danaS, tabela_nazwa, RidtextView, true, false);
+                }else{
+                    synchronizujStawke(danaS, tabela_nazwa, RidtextView, true, true);
+                }
+            }
+        }else{
+            textView.append("Brak danych do wysłania, sprawdzam czy coś do pobrania "  + "\n");
+            daneStawka danaS = new daneStawka();
+
+            synchronizujStawke(danaS, tabela_nazwa, RidtextView, false, false);
+        }
+    }
+
+    protected daneStawka getStawkaFronJson(JSONObject Jasonobject){
+        daneStawka danaUpdate = new daneStawka();
+        try{
+            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+            danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+            danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
+            danaUpdate.setKoniec(Jasonobject.getString("koniec"));
+            danaUpdate.setStawka(Jasonobject.getLong("stawka"));
+            danaUpdate.setPoczatek(Jasonobject.getString("poczatek"));
+            danaUpdate.setFirma_id(Jasonobject.getInt("firma_id"));
+            danaUpdate.setId(Jasonobject.getInt("id"));
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return danaUpdate;
+    }
+
+    protected void synchronizujStawke(daneStawka danaS, String tabela_nazwa, int RidtextView, boolean czyWysylamy, boolean czyOstatni) {
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                OSQLdaneStawka daneOSQL = new OSQLdaneStawka(getActivity());
+                //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                Log.d("Odpowiedź", response);
+                Log.d("Odpowiedź długość: ", String.valueOf(response.length()));
+                JSONObject Jasonobject = null;
+                String statusSynchronizacji = null;
+                try {
+                    Jasonobject = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
+                    Log.d("status", statusSynchronizacji);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (statusSynchronizacji != null){
+                    daneStawka danaUpdate = new daneStawka();
+
+                    switch (statusSynchronizacji){
+                        case "konflikt":
+                            //konflikt dancyh, dodajemy nowy rekord z wysłanymi danymi i nadpisujemy to id danymi z serwera
+                            //OSQLdaneFirma daneOSQL = new OSQLdaneFirma(getActivity());
+                            Long idnowego = daneOSQL.dodajDane(danaS);
+                            textView.append("id = " + danaS.getId() + " Konflikt: updatujemy rekord i przenosimy nasz na koniec\n");
+                            daneOSQL.updateDane(getStawkaFronJson(Jasonobject));
+                            break;
+                        case "insertsrv":
+                            textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
+                            try{
+                                danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "error":
+                            textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
+                            break;
+                        case "zgodne":
+                            textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
+                            break;
+                        case "updateserv":
+                            textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
+                            try{
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "updatekon":
+                            textView.append("id = " + danaS.getId() + " Nieaktualny rekord, zmieniam w bazie\n");
+                            daneOSQL.updateDane(getStawkaFronJson(Jasonobject));
+                            break;
+                        case "updateadd":
+                            danaUpdate = getStawkaFronJson(Jasonobject);
+                            textView.append("id = " + danaUpdate.getId() + " Nowy lub nieaktualny rekord rekord, zmieniam w bazie\n");
+                            daneOSQL.dodajZastapDane(danaUpdate);
+                            synchronizujStawki(RidtextView);
+                            break;
+                        case "koniec":
+                            textView.append("Brak danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            textView.append("Koniec synchronizacji tabeli  " + tabela_nazwa + "\n");
+                            synchronizujZlecenia(RidtextView);
+                            break;
+                        case "test1":
+                            textView.append("test danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            break;
+                        case "Token Error":
+                            textView.append("Problem z autoryzacją, zarejestruj urządzenie\n");
+                            wyslijToken();
+                            break;
+                    }
+                    if (czyOstatni){
+                        // tu upewniamy się czy wszystko zostało wysłane, bo przy dodawaniu jak na serwerze już istniało id to dodawaliśmy nowy rekord, którego nie uwzględniliśmy w for
+                        //teraz tylko wykombinować jak pobrać resztę nieposiadanych rekordów i pozmienianych na serwerze
+                        //chyba, że się zapętli :P
+                        synchronizujStawki(RidtextView);
                     }
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
-                    Log.d("Bład", error.toString());
-                    textView.append(error.toString());
-                    textView.append("\n");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                Log.d("Bład", error.toString());
+                textView.append(error.toString() + "\n");
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("tokenid", getActualTokenId());
+                //Log.d("Token", getActualTokenId());
+                param.put("tabela", tabela_nazwa);
+                //dodajemy flagę jaka to baza: 1 - produkcyjna; 0 - testowa
+                param.put("flagabazy", getActiveDataBase());
+                if (czyWysylamy) {
+                    Log.d("data utw: ", String.valueOf(danaS.getData_utworzenia()));
+                    Log.d("data synchro:  ", String.valueOf(danaS.getData_synchronizacji()));
+                    if ((danaS.getData_utworzenia() >= 0) && (danaS.getData_synchronizacji() <= 0)) {
+                        param.put("statusSynchronizacji", "add");
+                        Log.d("Wstawiam status synchro:", "add");
+                    } else if (danaS.getData_synchronizacji() > 0) {
+                        param.put("statusSynchronizacji", "update");
+                        Log.d("Wstawiam status synchro:", "update");
+                    }
 
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> param = new HashMap<String, String>();
-                    param.put("tokenid", getActualTokenId());
-                    param.put("tabela", "BZCZBD_Stawki");
                     param.put("_id", String.valueOf(danaS.getId()));
-
                     param.put("firma_id", String.valueOf(danaS.getFirma_id()));
                     param.put("stawka", String.valueOf(danaS.getStawka()));
                     param.put("poczatek", danaS.getPoczatek());
                     param.put("koniec", danaS.getKoniec());
 
                     param.put("uwagi", danaS.getUwagi());
-                    if(danaS.getPoprzedni_rekord_id() != null) {
+                    if (danaS.getPoprzedni_rekord_id() != null) {
                         param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
-                    }else{param.put("poprzedni_rekord_id", "0");}
+                    } else {
+                        param.put("poprzedni_rekord_id", "0");
+                    }
                     if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
                         param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
-                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
-                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                    } else {
+                        param.put("poprzedni_rekord_data_usuniecia", "0");
+                    }
+                    if (danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
                         param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
-                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
+                    } else {
+                        param.put("poprzedni_rekord_powod_usuniecia", "");
+                    }
                     param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
                     param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
                     param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
-                    return param;
+                }else{
+                    param.put("statusSynchronizacji", "give");
+                    Log.d("Wstawiam status synchro:", "give");
                 }
-            };
-            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
-        }
-
-        /*broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-
-                ReadMessages();
-
+                return param;
             }
-        };*/
-
-        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+        };
+        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
     }
 
     protected void synchronizujZlecenia(int RidtextView) {
         /*getActualToken(getActivity());*/
+
         getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneZlecenia.UI_SYNCHRONIZE_MESSAGE));
 
         OSQLdaneZlecenia daneOSQL = new OSQLdaneZlecenia(getActivity());
         List<daneZlecenia> daneDoSynchronizacji;
         daneDoSynchronizacji = daneOSQL.dajDoSynchronizacji();
         TextView textView = (TextView) getActivity().findViewById(RidtextView);
-        for (daneZlecenia danaS: daneDoSynchronizacji) {
-            StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                    Log.d("Odpowiedź", response);
-                    textView.append(response);
-                    textView.append("\n");
-                    if (response.contains("Successfully")){//.equals("Zsynchronizowano")){
-                        danaS.setSynchron(1);
-                        daneOSQL.updateDane(danaS);
-                        textView.append(danaS.getOpis() + " dodano synchronizację\n");
+
+        String tabela_nazwa = daneOSQL.getTableName();
+        textView.append("Synchronizujemy tabelę " + tabela_nazwa + "\n");
+        if (daneDoSynchronizacji.size() > 0){
+            for (daneZlecenia danaS: daneDoSynchronizacji) {
+                if (!(daneDoSynchronizacji.get(daneDoSynchronizacji.size()-1).equals(danaS))) {
+                    synchronizujZlecenie(danaS, tabela_nazwa, RidtextView, true, false);
+                }else{
+                    synchronizujZlecenie(danaS, tabela_nazwa, RidtextView, true, true);
+                }
+            }
+        }else{
+            textView.append("Brak danych do wysłania, sprawdzam czy coś do pobrania "  + "\n");
+            daneZlecenia danaS = new daneZlecenia();
+
+            synchronizujZlecenie(danaS, tabela_nazwa, RidtextView, false, false);
+        }
+    }
+
+    protected daneZlecenia getZlecenieFronJson(JSONObject Jasonobject){
+        daneZlecenia danaUpdate = new daneZlecenia();
+        try{
+            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+            danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+            danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
+            danaUpdate.setFirma_id(Jasonobject.getInt("firma_id"));
+            danaUpdate.setOpis(Jasonobject.getString("opis"));
+            danaUpdate.setCzas_rozpoczecia(Jasonobject.getLong("czas_rozpoczecia"));
+            danaUpdate.setCzas_zawieszenia(Jasonobject.getLong("czas_zawieszenia"));
+            danaUpdate.setCzas_zakonczenia(Jasonobject.getLong("czas_zakonczenia"));
+            danaUpdate.setStatus(Jasonobject.getString("status"));
+            danaUpdate.setRozliczona(Jasonobject.getString("rozliczona"));
+            danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
+            danaUpdate.setKalendarz_zadanie_id(Jasonobject.getLong("kalendarz_zadanie_id"));
+            danaUpdate.setId(Jasonobject.getInt("id"));
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return danaUpdate;
+    }
+
+    protected void synchronizujZlecenie(daneZlecenia danaS, String tabela_nazwa, int RidtextView, boolean czyWysylamy, boolean czyOstatni) {
+        TextView textView = (TextView) getActivity().findViewById(RidtextView);
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                OSQLdaneZlecenia daneOSQL = new OSQLdaneZlecenia(getActivity());
+                //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                Log.d("Odpowiedź", response);
+                Log.d("Odpowiedź długość: ", String.valueOf(response.length()));
+                JSONObject Jasonobject = null;
+                String statusSynchronizacji = null;
+                try {
+                    Jasonobject = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
+                    Log.d("status", statusSynchronizacji);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (statusSynchronizacji != null){
+                    daneZlecenia danaUpdate = new daneZlecenia();
+
+                    switch (statusSynchronizacji){
+                        case "konflikt":
+                            //konflikt dancyh, dodajemy nowy rekord z wysłanymi danymi i nadpisujemy to id danymi z serwera
+                            //OSQLdaneFirma daneOSQL = new OSQLdaneFirma(getActivity());
+                            Long idnowego = daneOSQL.dodajDane(danaS);
+                            textView.append("id = " + danaS.getId() + " Konflikt: updatujemy rekord i przenosimy nasz na koniec\n");
+                            daneOSQL.updateDane(getZlecenieFronJson(Jasonobject));
+                            break;
+                        case "insertsrv":
+                            textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
+                            try{
+                                danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "error":
+                            textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
+                            break;
+                        case "zgodne":
+                            textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
+                            break;
+                        case "updateserv":
+                            textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
+                            try{
+                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                                danaS.setSynchron(1);
+                                daneOSQL.updateDane(danaS);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case "updatekon":
+                            textView.append("id = " + danaS.getId() + " Nieaktualny rekord, zmieniam w bazie\n");
+                            daneOSQL.updateDane(getZlecenieFronJson(Jasonobject));
+                            break;
+                        case "updateadd":
+                            danaUpdate = getZlecenieFronJson(Jasonobject);
+                            textView.append("id = " + danaUpdate.getId() + " Nowy lub nieaktualny rekord rekord, zmieniam w bazie\n");
+                            daneOSQL.dodajZastapDane(danaUpdate);
+                            synchronizujZlecenia(RidtextView);
+                            break;
+                        case "koniec":
+                            textView.append("Brak danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            break;
+                        case "test1":
+                            textView.append("test danych do pobrania w tabeli " + tabela_nazwa + "\n");
+                            break;
+                        case "Token Error":
+                            textView.append("Problem z autoryzacją, zarejestruj urządzenie\n");
+                            wyslijToken();
+                            break;
+                    }
+                    if (czyOstatni){
+                        // tu upewniamy się czy wszystko zostało wysłane, bo przy dodawaniu jak na serwerze już istniało id to dodawaliśmy nowy rekord, którego nie uwzględniliśmy w for
+                        //teraz tylko wykombinować jak pobrać resztę nieposiadanych rekordów i pozmienianych na serwerze
+                        //chyba, że się zapętli :P
+                        synchronizujZlecenia(RidtextView);
                     }
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
-                    Log.d("Bład", error.toString());
-                    textView.append(error.toString());
-                    textView.append("\n");
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> param = new HashMap<String, String>();
-                    param.put("tokenid", getActualTokenId());
-                    param.put("tabela", "BZCZBD_Zlecenia");
-                    param.put("_id", String.valueOf(danaS.getId()));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
+                Log.d("Bład", error.toString());
+                textView.append(error.toString() + "\n");
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("tokenid", getActualTokenId());
+                //Log.d("Token", getActualTokenId());
+                param.put("tabela", tabela_nazwa);
+                //dodajemy flagę jaka to baza: 1 - produkcyjna; 0 - testowa
+                param.put("flagabazy", getActiveDataBase());
+                if (czyWysylamy) {
+                    Log.d("data utw: ", String.valueOf(danaS.getData_utworzenia()));
+                    Log.d("data synchro:  ", String.valueOf(danaS.getData_synchronizacji()));
+                    if ((danaS.getData_utworzenia() >= 0) && (danaS.getData_synchronizacji() <= 0)) {
+                        param.put("statusSynchronizacji", "add");
+                        Log.d("Wstawiam status synchro:", "add");
+                    } else if (danaS.getData_synchronizacji() > 0) {
+                        param.put("statusSynchronizacji", "update");
+                        Log.d("Wstawiam status synchro:", "update");
+                    }
 
+                    param.put("_id", String.valueOf(danaS.getId()));
                     param.put("firma_id", String.valueOf(danaS.getFirma_id()));
                     param.put("czas_rozpoczecia", String.valueOf(danaS.getCzas_zawieszenia()));
                     param.put("opis", danaS.getOpis());
@@ -535,39 +892,37 @@ public class FragmentPodstawowy extends Fragment {
                     }else{param.put("rozliczona","");}
                     param.put("czas_zakonczenia", String.valueOf(danaS.getCzas_zakonczenia()));
                     param.put("kalendarz_id", String.valueOf(danaS.getKalendarz_id()));
-                    param.put("kalendarz_id_long", String.valueOf(danaS.getKalendarz_id_long()));
+                    //param.put("kalendarz_id_long", String.valueOf(danaS.getKalendarz_id_long()));
                     param.put("kalendarz_zadanie_id", String.valueOf(danaS.getKalendarz_zadanie_id()));
                     param.put("czas_zawieszenia", String.valueOf(danaS.getCzas_zawieszenia()));
 
                     param.put("uwagi", danaS.getUwagi());
-                    if(danaS.getPoprzedni_rekord_id() != null) {
+                    if (danaS.getPoprzedni_rekord_id() != null) {
                         param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
-                    }else{param.put("poprzedni_rekord_id", "0");}
+                    } else {
+                        param.put("poprzedni_rekord_id", "0");
+                    }
                     if (danaS.getPoprzedni_rekord_data_usuniecia() != null) {
                         param.put("poprzedni_rekord_data_usuniecia", danaS.getPoprzedni_rekord_data_usuniecia());
-                    }else{ param.put("poprzedni_rekord_data_usuniecia", "0");}
-                    if(danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
+                    } else {
+                        param.put("poprzedni_rekord_data_usuniecia", "0");
+                    }
+                    if (danaS.getPoprzedni_rekord_powod_usuniecia() != null) {
                         param.put("poprzedni_rekord_powod_usuniecia", danaS.getPoprzedni_rekord_powod_usuniecia());
-                    }else{param.put("poprzedni_rekord_powod_usuniecia", "");}
+                    } else {
+                        param.put("poprzedni_rekord_powod_usuniecia", "");
+                    }
                     param.put("czy_widoczny", String.valueOf(danaS.getCzy_widoczny()));
                     param.put("data_utworzenia", String.valueOf(danaS.getData_utworzenia()));
                     param.put("data_synchronizacji", String.valueOf(danaS.getData_synchronizacji()));
-                    return param;
+                }else{
+                    param.put("statusSynchronizacji", "give");
+                    Log.d("Wstawiam status synchro:", "give");
                 }
-            };
-            SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
-        }
-
-        /*broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-
-                ReadMessages();
-
+                return param;
             }
-        };*/
-
-        //getActivity().registerReceiver(broadcastReceiver,new IntentFilter(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+        };
+        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
     }
 
     //ukrywamy floating button
