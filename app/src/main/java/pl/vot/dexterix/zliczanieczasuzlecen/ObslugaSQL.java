@@ -17,7 +17,7 @@ import java.util.List;
 public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
     public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
@@ -27,6 +27,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     protected static final String DICTIONARY_TABLE_NAME_2 = "BZCZBD_Zlecenia";
     protected static final String DICTIONARY_TABLE_NAME_3 = "BZCZBD_Settings";
     protected static final String DICTIONARY_TABLE_NAME_4 = "BZCZBD_Stawki";
+    protected static final String DICTIONARY_TABLE_NAME_5 = "BZCZBD_DaneSynchronizacja";
 
     //ElektronicznaKsiazkaAutaByDexFirmy
     private static final String[][] DICTIONARY_TABLE_1_ROWS = {{"nazwa", "numer", "nr_telefonu", "ulica_nr", "miasto", "typ", "kalendarz_id"},
@@ -49,7 +50,10 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             {"integer", "real", "TEXT", "TEXT"}};
     private static final String[][] DICTIONARY_TABLE_ROWS_4_FOREIGN = {{"firma_id"},
             {"BZCZBD_Firmy(_id)"}};
-
+    private static final String[][] DICTIONARY_TABLE_5_ROWS = {{"login", "haslo", "link", "kod_urzadzenia"},
+            {"text", "text", "text", "text"}};
+    private static final String[][] DICTIONARY_TABLE_ROWS_5_FOREIGN = {{},
+            {}};
 
     private static final String[][] DICTIONARY_TABLES ={{},{}};
 
@@ -70,6 +74,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_3);
         db.execSQL(tworzStringBazy(DICTIONARY_TABLE_4_ROWS, DICTIONARY_TABLE_ROWS_4_FOREIGN, DICTIONARY_TABLE_NAME_4));
         Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_4);
+        db.execSQL(tworzStringBazy(DICTIONARY_TABLE_5_ROWS, DICTIONARY_TABLE_ROWS_5_FOREIGN, DICTIONARY_TABLE_NAME_5));
+        Log.d("DebugCSQL:", "tworzenie baz: " + DICTIONARY_TABLE_NAME_5);
         Log.d("DebugCSQL:", "po tworzenie baz");
         //Database 11
         //ustawieniePoczatkowychWartosci(db);
@@ -208,6 +214,10 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_4 + " ADD COLUMN data_utworzenia TEXT");
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_4 + " ADD COLUMN data_synchronizacji TEXT");
 
+        }
+        if (oldVersion < 12) {
+            db.execSQL(tworzStringBazy(DICTIONARY_TABLE_5_ROWS, DICTIONARY_TABLE_ROWS_5_FOREIGN, DICTIONARY_TABLE_NAME_5));
+            Log.d("DebugCSQL:", "tworzenie upgrade baz: " + DICTIONARY_TABLE_NAME_5);
         }
         /*if (oldVersion < 5){
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_czas text");
@@ -368,6 +378,17 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         return DICTIONARY_TABLE_NAME;
     }
 
+    protected void openDataBase1(){
+        SQLiteDatabase db = getWritableDatabase();
+        //return db.getPath();
+    }
+
+    protected void zamknijBaze(String dbi){
+        //SQLiteDatabase db = null;
+        SQLiteDatabase db = getWritableDatabase();
+        db.close();
+    }//public void zamknijBaze(){
+
     protected long dodajZastapDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         Log.d("DebugCSQL:", nazwa_tabeli);
         long idRekordu =-1;
@@ -469,10 +490,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         //db.close();
     }//private void dodajDane(){
 
-    public void zamknijBaze(SQLiteDatabase db){
-        //SQLiteDatabase db = null;
-        db.close();
-    }//public void zamknijBaze(){
+
 
     public void kasujDane(int id, String nazwaTabeli) {
         Log.d("DebugCSQL:", "kasujDane");

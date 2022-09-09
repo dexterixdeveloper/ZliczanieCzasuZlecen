@@ -73,6 +73,21 @@ public class FragmentSettings extends FragmentPodstawowy{
 
 
         Button buttonGuzik = (Button) getActivity().findViewById(button);
+        buttonGuzik.setText("Backup bazy");
+        buttonGuzik.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String tagBackStack = "FragmentBackupBazy";
+                zmianaFragmentu(new FragmentBackupBazy(), tagBackStack);
+
+            }
+        });
+    }
+
+    private void addListenerOnButtonJakis1(int button) {
+
+
+        Button buttonGuzik = (Button) getActivity().findViewById(button);
         buttonGuzik.setText("Zeruj daty synchronizacji");
         buttonGuzik.setOnClickListener(new View.OnClickListener(){
             @Override

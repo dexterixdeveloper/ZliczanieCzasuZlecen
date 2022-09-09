@@ -317,6 +317,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_ustawienia_synchronizacji) {
+            String tagBackStack = "FragmentSynchronizacjaDane";
+            zmianaFragmentu(new FragmentSynchronizacjaDane(), tagBackStack, 1);
+            return true;
+        }
+
         if (id == R.id.action_about) {
             String tagBackStack = "FragmentAbout";
             zmianaFragmentu(new FragmentAbout(), tagBackStack, 1);

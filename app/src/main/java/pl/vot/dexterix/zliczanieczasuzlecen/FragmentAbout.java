@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 public class FragmentAbout extends FragmentPodstawowy{
     private TextView textViewChangeLog;
     private String version = "1.0.2021.12.20.2359 BETA";
+
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
@@ -30,6 +31,7 @@ public class FragmentAbout extends FragmentPodstawowy{
         textViewVersion.append(version);
 
     }
+
     private StringBuilder zmianyWprogramie(){
         String[][] zmiany = {
                 {"2021.12.02", "Dodanie wymagań po pierwszym uruchomieniu aplikacji"},
@@ -46,7 +48,9 @@ public class FragmentAbout extends FragmentPodstawowy{
                 {"2021.12.16", "Automatyczne dodawanie stawek przy tworzeniu nowej firmy"},
                 {"2021.12.20", "Naprawa wyświetlania dat przy poprawianiu zleceń"},
                 {"2022.01.31", "Wdrażanie synchronizacji danych z zewnętrznym serwerem"},
-                {"2022.02.24", "Wdrożenie synchronizacji danych z zewnętrznym serwerem 3 + N, N = {0, 1, 2, 3, ...} "}
+                {"2022.02.24", "Wdrożenie synchronizacji danych z zewnętrznym serwerem 3 + N, N = {0, 1, 2, 3, ...} "},
+                {"2022.04.22", "Naprawa synchronizacji zwrotnej, wyelimionwanie kilku błędów"},
+                {"2022.09.09", "Stworzenie interfejsu do grzebania w bazie"}
         };
         StringBuilder uzupelnijDane = new StringBuilder();
         uzupelnijDane.append("\n");

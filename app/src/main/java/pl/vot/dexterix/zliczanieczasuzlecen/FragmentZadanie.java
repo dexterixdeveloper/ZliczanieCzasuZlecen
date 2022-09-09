@@ -253,6 +253,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     //OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
                     danaKlasy.setFirma_nazwa(danaSpinnera.get(i)[1]);
                     danaKlasy.setKalendarz_id_long(Long.valueOf(danaSpinnera.get(i)[2]));
+
                 }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentZadanie.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);

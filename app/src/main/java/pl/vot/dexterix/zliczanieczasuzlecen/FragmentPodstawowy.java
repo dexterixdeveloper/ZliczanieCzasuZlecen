@@ -266,9 +266,28 @@ public class FragmentPodstawowy extends Fragment {
 
     private daneFirma getFirmaFromJson(JSONObject Jasonobject){
         daneFirma danaUpdate = new daneFirma();
-        try{
+        //try{
 
-            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+            danaUpdate.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));
+            danaUpdate.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.optInt("czy_widoczny", 0));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.optString("poprzedni_rekord_powod_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.optString("poprzedni_rekord_data_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.optInt("poprzedni_rekord_id", 0));
+            danaUpdate.setUwagi(Jasonobject.optString("uwagi", ""));
+            danaUpdate.setId(Jasonobject.optInt("id", 0));
+
+            danaUpdate.setKalendarz_id(Jasonobject.optInt("kalendarz_id", 0));
+            danaUpdate.setTyp(Jasonobject.optString("typ", ""));
+            danaUpdate.setMiasto(Jasonobject.optString("miasto", ""));
+            danaUpdate.setUlica_nr(Jasonobject.optString("ulica_nr", ""));
+            danaUpdate.setNr_telefonu(Jasonobject.optInt("nr_telefonu", 0));
+            danaUpdate.setNumer(Jasonobject.optString("numer", ""));
+            danaUpdate.setNazwa(Jasonobject.optString("nazwa", ""));
+
+
+            /*danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
             danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
             danaUpdate.setSynchron(1);
             danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
@@ -283,10 +302,10 @@ public class FragmentPodstawowy extends Fragment {
             danaUpdate.setNr_telefonu(Jasonobject.getInt("nr_telefonu"));
             danaUpdate.setNumer(Jasonobject.getString("numer"));
             danaUpdate.setNazwa(Jasonobject.getString("nazwa"));
-            danaUpdate.setId(Jasonobject.getInt("id"));
-        }catch (JSONException e) {
+            danaUpdate.setId(Jasonobject.getInt("id"));*/
+        /*}catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         return danaUpdate;
     }
 
@@ -308,13 +327,13 @@ public class FragmentPodstawowy extends Fragment {
                     e.printStackTrace();
                 }
 
-                try {
-                    statusSynchronizacji = Jasonobject.getString("statusSynchronizacji");
+                //try {
+                    statusSynchronizacji = Jasonobject.optString("statusSynchronizacji", null);
                     Log.d("status", statusSynchronizacji);
 
-                } catch (JSONException e) {
+                /*} catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 if (statusSynchronizacji != null){
                     daneFirma danaUpdate = new daneFirma();
@@ -338,39 +357,39 @@ public class FragmentPodstawowy extends Fragment {
                             break;
                         case "insertsrv":
                             textView.append("id = " + danaS.getId() + " Nowy rekord, dodaję na serwerze\n");
-                            try{
-                                danaS.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
-                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                            //try{
+                                danaS.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));
+                                danaS.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
                                 danaS.setSynchron(1);
 
                                 daneOSQL.updateDane(danaS);
-                            }catch (JSONException e) {
+                            /*}catch (JSONException e) {
                                 e.printStackTrace();
-                            }
+                            }*/
                             break;
                         case "error":
                             textView.append("id = " + danaS.getId() + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
                             break;
                         case "zgodne":
                             textView.append("id = " + danaS.getId() + " Rekord zgodny, brak potrzeby synchronizacji\n");
-                            try {
-                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
-                            } catch (JSONException e) {
+                            //try {
+                                danaS.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
+                            /*} catch (JSONException e) {
                                 e.printStackTrace();
-                            }
+                            }*/
                             danaS.setSynchron(1);
 
                             daneOSQL.updateDane(danaS);
                             break;
                         case "updateserv":
                             textView.append("id = " + danaS.getId() + " Zmieniony rekord, zmieniam na serwerze\n");
-                            try{
-                                danaS.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
+                            //try{
+                                danaS.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
                                 danaS.setSynchron(1);
                                 daneOSQL.updateDane(danaS);
-                            }catch (JSONException e) {
+                            /*}catch (JSONException e) {
                                 e.printStackTrace();
-                            }
+                            }*/
                             break;
                         case "updatekon":
                             textView.append("id = " + danaS.getId() + " Nieaktualny rekord, zmieniam w bazie\n");
@@ -528,8 +547,23 @@ public class FragmentPodstawowy extends Fragment {
 
     protected daneStawka getStawkaFronJson(JSONObject Jasonobject){
         daneStawka danaUpdate = new daneStawka();
-        try{
-            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+        //try{
+            danaUpdate.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));
+            danaUpdate.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.optInt("czy_widoczny", 0));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.optString("poprzedni_rekord_powod_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.optString("poprzedni_rekord_data_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.optInt("poprzedni_rekord_id", 0));
+            danaUpdate.setUwagi(Jasonobject.optString("uwagi", ""));
+            danaUpdate.setId(Jasonobject.optInt("id", 0));
+
+            danaUpdate.setKoniec(Jasonobject.optString("koniec",""));
+            danaUpdate.setStawka(Jasonobject.optLong("stawka",0));
+            danaUpdate.setPoczatek(Jasonobject.optString("poczatek", ""));
+            danaUpdate.setFirma_id(Jasonobject.optInt("firma_id", 0));
+
+            /*danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
             danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
             danaUpdate.setSynchron(1);
             danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
@@ -541,10 +575,10 @@ public class FragmentPodstawowy extends Fragment {
             danaUpdate.setStawka(Jasonobject.getLong("stawka"));
             danaUpdate.setPoczatek(Jasonobject.getString("poczatek"));
             danaUpdate.setFirma_id(Jasonobject.getInt("firma_id"));
-            danaUpdate.setId(Jasonobject.getInt("id"));
-        }catch (JSONException e) {
+            danaUpdate.setId(Jasonobject.getInt("id"));*/
+        /*}catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         return danaUpdate;
     }
 
@@ -736,14 +770,35 @@ public class FragmentPodstawowy extends Fragment {
 
     protected daneZlecenia getZlecenieFronJson(JSONObject Jasonobject){
         daneZlecenia danaUpdate = new daneZlecenia();
-        try{
-            danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
+        //try{
+            danaUpdate.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));
+            danaUpdate.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
+            danaUpdate.setSynchron(1);
+            danaUpdate.setCzy_widoczny(Jasonobject.optInt("czy_widoczny", 0));
+            danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.optString("poprzedni_rekord_powod_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.optString("poprzedni_rekord_data_usuniecia", ""));
+            danaUpdate.setPoprzedni_rekord_id(Jasonobject.optInt("poprzedni_rekord_id", 0));
+            danaUpdate.setUwagi(Jasonobject.optString("uwagi", ""));
+            danaUpdate.setId(Jasonobject.optInt("id", 0));
+
+            danaUpdate.setFirma_id(Jasonobject.optInt("firma_id", 0));
+            danaUpdate.setOpis(Jasonobject.optString("opis", ""));
+            danaUpdate.setCzas_rozpoczecia(Jasonobject.optLong("czas_rozpoczecia", 0));
+            danaUpdate.setCzas_zawieszenia(Jasonobject.optLong("czas_zawieszenia", 0));
+            danaUpdate.setCzas_zakonczenia(Jasonobject.optLong("czas_zakonczenia", 0));
+            danaUpdate.setStatus(Jasonobject.optString("status", ""));
+            danaUpdate.setRozliczona(Jasonobject.optString("rozliczona", ""));
+            danaUpdate.setKalendarz_id(Jasonobject.optInt("kalendarz_id", 0));
+            danaUpdate.setKalendarz_zadanie_id(Jasonobject.optLong("kalendarz_zadanie_id", 0));
+
+            /*danaUpdate.setData_utworzenia(Jasonobject.getLong("data_utworzenia"));
             danaUpdate.setData_synchronizacji(Jasonobject.getLong("data_synchronizacji"));
             danaUpdate.setSynchron(1);
             danaUpdate.setCzy_widoczny(Jasonobject.getInt("czy_widoczny"));
             danaUpdate.setPoprzedni_rekord_powod_usuniecia(Jasonobject.getString("poprzedni_rekord_powod_usuniecia"));
             danaUpdate.setPoprzedni_rekord_data_usuniecia(Jasonobject.getString("poprzedni_rekord_data_usuniecia"));
             danaUpdate.setPoprzedni_rekord_id(Jasonobject.getInt("poprzedni_rekord_id"));
+
             danaUpdate.setUwagi(Jasonobject.getString("uwagi"));
             danaUpdate.setFirma_id(Jasonobject.getInt("firma_id"));
             danaUpdate.setOpis(Jasonobject.getString("opis"));
@@ -754,10 +809,10 @@ public class FragmentPodstawowy extends Fragment {
             danaUpdate.setRozliczona(Jasonobject.getString("rozliczona"));
             danaUpdate.setKalendarz_id(Jasonobject.getInt("kalendarz_id"));
             danaUpdate.setKalendarz_zadanie_id(Jasonobject.getLong("kalendarz_zadanie_id"));
-            danaUpdate.setId(Jasonobject.getInt("id"));
-        }catch (JSONException e) {
+            danaUpdate.setId(Jasonobject.getInt("id"));*/
+        /*}catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         return danaUpdate;
     }
 
@@ -884,7 +939,7 @@ public class FragmentPodstawowy extends Fragment {
 
                     param.put("_id", String.valueOf(danaS.getId()));
                     param.put("firma_id", String.valueOf(danaS.getFirma_id()));
-                    param.put("czas_rozpoczecia", String.valueOf(danaS.getCzas_zawieszenia()));
+                    param.put("czas_rozpoczecia", String.valueOf(danaS.getCzas_rozpoczecia()));
                     param.put("opis", danaS.getOpis());
                     param.put("status", danaS.getStatus());
                     if (danaS.getRozliczona() != null) {
@@ -895,8 +950,9 @@ public class FragmentPodstawowy extends Fragment {
                     //param.put("kalendarz_id_long", String.valueOf(danaS.getKalendarz_id_long()));
                     param.put("kalendarz_zadanie_id", String.valueOf(danaS.getKalendarz_zadanie_id()));
                     param.put("czas_zawieszenia", String.valueOf(danaS.getCzas_zawieszenia()));
-
-                    param.put("uwagi", danaS.getUwagi());
+                    if (danaS.getUwagi() != null) {
+                        param.put("uwagi", danaS.getUwagi());
+                    }
                     if (danaS.getPoprzedni_rekord_id() != null) {
                         param.put("poprzedni_rekord_id", String.valueOf(danaS.getPoprzedni_rekord_id()));
                     } else {

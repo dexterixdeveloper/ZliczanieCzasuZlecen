@@ -1,8 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Zliczanie Czasu Zleceń by DeX</string>
-    <string name="app_name_short" translatable="false">ZCZbD</string>
     <string name="action_settings">Ustawienia</string>
-    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -15,7 +15,6 @@
     <string name="dialog_fire_missiles">Odpal rakiety</string>
     <string name="fire">Ognia!</string>
     <string name="cancel">Anuluj</string>
-    <string name="zapisany_kalendarz" translatable="false">0</string>
     <string name="zlecenia_archiwalne">Zlecenia Archiwalne</string>
     <string name="firmy">Firmy</string>
     <string name="zadania">Zadania</string>
@@ -31,13 +30,10 @@
     <string name="anuluj_zlecenia">Anuluj Zlecenia</string>
     <string name="zaznaczone">Zaznaczone</string>
     <string name="about">O...</string>
-    <string name="app_author" translatable="false">Autor: Marcin Łukasik (DeX) <br /> @: dexterix00@gmail.com</string>
-    <string name="app_version">Wersja aplikacji: </string>
-    <string name="app_changelog">Zmiany: <br/></string>
+    <string name="app_version">"Wersja aplikacji: "</string>
+    <string name="app_changelog">Zmiany: <br /></string>
     <string name="ustaw">Ustaw</string>
     <string name="wszystkie_firmy">Wszystkie Firmy</string>
-    <string name="FCM_Pref" translatable="false">pl.vot.dexterix.ZliczanieCzasuZlecen.fcm_pref</string>
-    <string name="FCM_TOKEN" translatable="false">FCM_TOKEN</string>
     <string name="ActiveDatabase">ActiveDatabase</string>
     <string name="ustawienia_synchronizacji">Ustawienia Synchronizacji</string>
     <string name="adres_e_mail">Adres E-mail</string>
@@ -45,6 +41,4 @@
     <string name="adres_serwera_to_co_po_https">Adres serwera, to co po https://</string>
     <string name="kod_urz_dzenia">Kod urządzenia</string>
     <string name="zapisz">Zapisz</string>
-    <string name="first_fragment_label">First Fragment</string>
-
 </resources>

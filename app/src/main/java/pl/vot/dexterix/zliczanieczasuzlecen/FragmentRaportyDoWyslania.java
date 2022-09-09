@@ -244,6 +244,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
             if (resultData != null) {
                 uriToFile = resultData.getData();
                 Log.i(TAG, "Uri: " + uriToFile.toString());
+
                 wykonajWyslijRaport(poczatek, koniec, czyWyslijRaport);
             }else{
                 Toast.makeText(getActivity(), "Nie wybrałeś pliku raportu!", Toast.LENGTH_SHORT).show();
@@ -275,29 +276,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                 //zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataPoczatkowa.getText())), aktualnaData.getDateFromString(String.valueOf(textInputEditTextDataKoncowa.getText())), danaKlasy);
                 zlecenia = daneZleceniaSQL.dajWszystkieDoRaportu("zak", poczatekRaportu, koniecRaportu, danaKlasy);
                 if (!zlecenia.isEmpty()) {//czy przypadkiem nie jest pusty raport
-                    //Log.d("FragmentRaportyDoWyslania: ", zlecenia.get(0).toStringForRaport());
 
-                    //zapisujemy dane
-
-                    /*File raportDir = FileUtils.createDirIfNotExist(getActivity().getExternalFilesDir(null) + "/raport");
-                    //File backupDir = FileUtils.createDirIfNotExist(  context.getApplicationInfo().dataDir + "/backup");
-                    Log.d("Path: ", getActivity().getExternalFilesDir(null) + "/raport");
-                    //Log.d("Path: ", context.getApplicationInfo().dataDir + "/backup");
-                    //Log.d("Path: ", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
-                    String fileName = createFileName();
-
-                    File raportFile = new File(raportDir, fileName);
-
-                    //File backupFile = new File(sciezkaB.getPath());
-
-                    //File backupFile = new File(sciezkaB);
-                    //backupFile = sciezkaB;
-                    try {
-                        boolean success = raportFile.createNewFile();
-                    } catch (IOException e) {
-                        Log.d("FragmentRaportyDoWyslania: ", "cos sie zjeblo");
-                        e.printStackTrace();
-                    }*/
                     //tworzymy plik raportu
 
                     if (czyWyslijRaport) {
@@ -388,6 +367,11 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                     OutputStreamWriter myOutWriter = new OutputStreamWriter(plik);
                     //data= zlecenia.get(0).toStringForRaportNaglowek(), plik);
                     myOutWriter.append(zlecenia.get(0).toStringForRaportNaglowek());*/
+                    //zapisujemy nagłówek
+                    if (wyslij) {//jeżeli to nie raporty wyliczeniowe
+                        Log.d("Raporty: ", String.valueOf(wyslij));
+                        alterDocument(uriToFile, zlecenia.get(0).toStringForRaportNaglowek());
+                    }
                     for (int i = 0; i < zlecenia.size(); i++) {
                         Log.d("W for", String.valueOf(i));
                         daneZlecenia zlecenie = new daneZlecenia();
