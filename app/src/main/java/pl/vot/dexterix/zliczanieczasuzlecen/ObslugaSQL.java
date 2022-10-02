@@ -18,7 +18,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
     private static final int DATABASE_VERSION = 12;
-    public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
+    //public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
     //DATABASE_VERSION = 1;
@@ -56,6 +56,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             {}};
 
     private static final String[][] DICTIONARY_TABLES ={{},{}};
+
 
     public ObslugaSQL(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -403,9 +404,12 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             if(!wartosci.containsKey("data_synchronizacji")) {
                 wartosci.put("data_synchronizacji", "0");
             }
-            idRekordu = db.insertWithOnConflict(nazwa_tabeli, null, wartosci, SQLiteDatabase.CONFLICT_REPLACE);
+            idRekordu = db.update(nazwa_tabeli,  wartosci, "_id = ?", new String[] {String.valueOf(wartosci.get("_id"))});
             //Log.d("Wstawianie ", String.valueOf(idRekordu));
+            if (idRekordu < 0 ){
 
+                idRekordu = db.insertWithOnConflict(nazwa_tabeli, null, wartosci, SQLiteDatabase.CONFLICT_IGNORE);
+            }
         } catch(SQLException excepion){
             Log.d("Wywalilo", nazwa_tabeli);
             Log.d("wyjatek", excepion.toString());
@@ -420,6 +424,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
 
     protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         Log.d("DebugCSQL:", nazwa_tabeli);
+        //usuwamy id, bo wstawiamy kollejny rekord
+        wartosci.remove("_id");
         long idRekordu =-1;
         SQLiteDatabase db = getWritableDatabase();
 
@@ -628,5 +634,38 @@ public class ObslugaSQL extends SQLiteOpenHelper {
                 c.close();
         }
         return tables;
+    }
+
+    protected daneKlasaPodstawowa cursorDaneW(Cursor kursor, daneKlasaPodstawowa dane_funkcji) {
+        //daneKlasaPodstawowa dane_funkcji = new daneKlasaPodstawowa();
+
+        if (kursor.getColumnIndex("_id") > -1) {
+            dane_funkcji.setId(kursor.getInt(kursor.getColumnIndex("_id")));
+        }
+        if (kursor.getColumnIndex("uwagi") > -1) {
+            dane_funkcji.setUwagi(kursor.getString(kursor.getColumnIndexOrThrow("uwagi")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_id") > -1) {
+            dane_funkcji.setPoprzedni_rekord_id(kursor.getInt(kursor.getColumnIndex("poprzedni_rekord_id")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_data_usuniecia") > -1) {
+            dane_funkcji.setPoprzedni_rekord_data_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_data_usuniecia")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia") > -1) {
+            dane_funkcji.setPoprzedni_rekord_powod_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia")));
+        }
+        if (kursor.getColumnIndex("czy_widoczny") > -1) {
+            dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
+        }
+        return dane_funkcji;
     }
 }

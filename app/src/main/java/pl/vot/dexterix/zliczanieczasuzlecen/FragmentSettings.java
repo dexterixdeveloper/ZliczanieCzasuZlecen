@@ -192,14 +192,24 @@ public class FragmentSettings extends FragmentPodstawowy{
 
     }
 
+    private void wyswietlCoToZaKlasa(Object o){
+        Log.d("Klasa:", o.getClass().getSimpleName());
+    }
+
     private void addListenerOnButtonSendBackup(int buttonSendBackup) {
         Button buttonBackupSendBackup = (Button) getActivity().findViewById(buttonSendBackup);
-        buttonBackupSendBackup.setText("Zeruj daty utworzenia");
+        buttonBackupSendBackup.setText("Sprawdz klase");
         buttonBackupSendBackup.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                daneFirma df = new daneFirma();
+                daneZlecenia dz = new daneZlecenia();
+                daneStawka ds = new daneStawka();
+                wyswietlCoToZaKlasa(df);
+                wyswietlCoToZaKlasa(dz);
+                wyswietlCoToZaKlasa(ds);
             //Toast.makeText(getActivity(), "Funkcjonalnośc jeszcze nie działa", Toast.LENGTH_SHORT).show();
-                Log.d("Zeruję daty utworzenia dla firm", "");
+                /*Log.d("Zeruję daty utworzenia dla firm", "");
                 OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
                 List<daneFirma> daneTestowe = new ArrayList<>();
                 daneTestowe = osql.dajWszystkie();
@@ -254,7 +264,7 @@ public class FragmentSettings extends FragmentPodstawowy{
                 Log.d("Daty utworzenia dla Zleceń ", " wyzerowane");
                 osqlZ = null;
                 daneTestoweZ = null;
-                daneTestoweZk = null;
+                daneTestoweZk = null;*/
             /*private File privateRootDir;
             // The path to the "backup" subdirectory
             private File backupDir;
@@ -548,7 +558,7 @@ public class FragmentSettings extends FragmentPodstawowy{
         for (daneZlecenia zlecenie : zlecenia){
             zlecenie.setCzy_widoczny(1);
             OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
-            osql.updateDane(zlecenie);
+            osql.updateDane(osql.contentValues(zlecenie), osql.getTableName());
         }
     }
 

@@ -126,16 +126,24 @@ public class BackupExportFromSQL extends FragmentPodstawowy{
             //StringBuilder wiersz = new StringBuilder();
             while(curCSV.moveToNext()) {
                 StringBuilder wiersz = new StringBuilder();
+                wiersz.append("\"");
                 wiersz.append(versionDB);
+                wiersz.append("\"");
                 wiersz.append(";");
+                wiersz.append("\"");
                 wiersz.append(table);
+                wiersz.append("\"");
                 //wiersz.append(";");
                 int columns = curCSV.getColumnCount();
                 for (int i = 0; i < columns; i++){
                     wiersz.append(";");
+                    wiersz.append("\"");
                     wiersz.append(curCSV.getColumnName(i));
-                    wiersz.append(";");
+                    wiersz.append("\"");
+                    wiersz.append(":");
+                    wiersz.append("\"");
                     wiersz.append(curCSV.getString(i));
+                    wiersz.append("\"");
                 }
                 wiersz.append("\n");
                 alterDocument(uri, wiersz.toString(), context);

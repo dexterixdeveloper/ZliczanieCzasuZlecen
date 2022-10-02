@@ -193,7 +193,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
                 danaKlasyPrzeniesiona.setStatus("zakwtle");
             }
             danaKlasyPrzeniesiona.setCzy_widoczny(0);
-            osql.updateDane(danaKlasyPrzeniesiona);
+            osql.updateDane(osql.contentValues(danaKlasyPrzeniesiona), osql.getTableName());
         }
         //aktualnaData.konwertujDateZeStringa(String.valueOf(textInputEditTextCzasRozpoczecia.getText()));
         danaKlasy.setCzas_rozpoczecia(aktualnaData.getDateFromString(String.valueOf(textInputEditTextCzasRozpoczecia.getText())));
@@ -223,7 +223,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
         }
         Log.d("dana klasy: ", danaKlasy.toString());
 
-        osql.updateDane(danaKlasy);
+        osql.updateDane(osql.contentValues(danaKlasy), osql.getTableName());
         //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
     }//private void zapiszDane(){
 }

@@ -3,14 +3,11 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-public class OSQLdaneFirma extends ObslugaSQL{
+public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDostepDoDanych {
     //DATABASE_VERSION = 8
     private static final String tag1 = "daneFirmaWhile";
     private static final String msg1 = "poDajWszystkieFirmy";
@@ -21,6 +18,11 @@ public class OSQLdaneFirma extends ObslugaSQL{
             {}};
     private static final String[][] DICTIONARY_TABLE_3_ROWS = {{"calendar_id", "accountName", "calendarDisplayName", "ownerAccount"},
             {"TEXT", "TEXT", "TEXT", "TEXT"}};
+
+    private String nazwaKlasyDanych = "daneFirma";
+    //private Object danaOSQL1 = new daneFirma();
+    //private Class danaOSQL = danaOSQL1.getClass();
+
     public OSQLdaneFirma(Context context) {
         super(context);
     }
@@ -35,18 +37,23 @@ public class OSQLdaneFirma extends ObslugaSQL{
         return dajDane(zapytanie);
     }*/
 
+    @Override
     public String getTableName(){
         return DICTIONARY_TABLE_NAME;
     }
 
+    @Override
     public List<daneFirma> dajWszystkie(){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
                 "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.uwagi AS uwagi, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
                 "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji," +
                 "a.synchron AS synchron FROM " + DICTIONARY_TABLE_NAME + " AS a ";
+
         return dajDane(zapytanie);
     }
+
+    @Override
     public List<daneFirma> dajDoSynchronizacji(){
             String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                     "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
@@ -59,6 +66,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
             return dajDane(zapytanie);
         }
 
+    @Override
     public daneFirma dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
@@ -75,6 +83,7 @@ public class OSQLdaneFirma extends ObslugaSQL{
         return dajDane1(zapytanie);
     }
 
+    @Override
     public List<daneFirma> dajWszystkieDoRecyclerView(){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
@@ -89,38 +98,19 @@ public class OSQLdaneFirma extends ObslugaSQL{
         return dajDane(zapytanie);
     }
 
+    @Override
     public void zerujDateSynchronizacji(){
         zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
     }
 
+    @Override
     public void zerujDateUtworzenia(){
         zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
     }
 
-    public void updateDane(daneFirma dane_funkcji) {
-        ContentValues wartosci = contentValues(dane_funkcji);
-
-        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
-
-    }
-
-    /*public void updateDane(daneFirma dane_funkcji) {
+    protected ContentValues contentValues(daneFirma dane_funkcji){
         ContentValues wartosci = new ContentValues();
-        wartosci.put("nazwa", dane_funkcji.getNazwa());
-        //wartosci.put("numer", dane_funkcji.getNumer());
-        wartosci.put("nr_telefonu", dane_funkcji.getNr_telefonu());
-        wartosci.put("ulica_nr", dane_funkcji.getUlicaNr());
-        wartosci.put("miasto", dane_funkcji.getMiasto());
-        //wartosci.put("siec_id", dane_funkcji.getSiec_id());
-        //wartosci.put("typ", dane_funkcji.getTyp());
-        wartosci.put("uwagi", dane_funkcji.getUwagi());
 
-        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
-
-    }*/
-
-    private ContentValues contentValues(daneFirma dane_funkcji){
-        ContentValues wartosci = new ContentValues();
         wartosci.put("nazwa", dane_funkcji.getNazwa());
         //Log.d("OSQLdaneFirma: Nazwa: ", dane_funkcji.getNazwa());
         wartosci.put("numer", dane_funkcji.getNumer());
@@ -133,43 +123,77 @@ public class OSQLdaneFirma extends ObslugaSQL{
         //Log.d("OSQLdaneFirma: Miasto: ", dane_funkcji.getMiasto());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id_str());
         //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(dane_funkcji.getKalendarz_id()));
-                //wartosci.put("siec_id", dane_funkcji.getSiec_id());
-        //wartosci.put("typ", dane_funkcji.getTyp());
-        wartosci.put("uwagi", dane_funkcji.getUwagi());
-        wartosci.put("poprzedni_rekord_id", dane_funkcji.getPoprzedni_rekord_id());
-        wartosci.put("poprzedni_rekord_data_usuniecia", dane_funkcji.getPoprzedni_rekord_data_usuniecia());
-        wartosci.put("poprzedni_rekord_powod_usuniecia", dane_funkcji.getPoprzedni_rekord_powod_usuniecia());
-        wartosci.put("synchron", dane_funkcji.getSynchron());
-        if(dane_funkcji.getData_synchronizacji() > 0){
-            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
-        }
-        if(dane_funkcji.getData_utworzenia() > 0){
-            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
-        }
-        //Log.d("OSQLdaneFirma: Uwagi: ", dane_funkcji.getUwagi());
-        return wartosci;
-    }
-
-    /*public void dodajDane(daneFirma dane_funkcji) {
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("nazwa", dane_funkcji.getNazwa());
-        //wartosci.put("numer", dane_funkcji.getNumer());
-        wartosci.put("nr_telefonu", dane_funkcji.getNr_telefonu());
-        wartosci.put("ulica_nr", dane_funkcji.getUlicaNr());
-        wartosci.put("miasto", dane_funkcji.getMiasto());
         //wartosci.put("siec_id", dane_funkcji.getSiec_id());
         //wartosci.put("typ", dane_funkcji.getTyp());
-        wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.putAll(contentValuesW(dane_funkcji));
+        return wartosci;
+    }
+    //kursor dla odczytu danych z bazy
 
-        Log.d("SQL: dDMT", wartosci.toString());
+    protected daneFirma cursorDane(Cursor kursor){
+        daneFirma dane_funkcji = new daneFirma();
+        dane_funkcji.addWspolne(kursor);
 
-        dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-        //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
-    }//public void dodajDaneFirmy(daneFirma dane_funkcji) {*/
+        /*if (kursor.getColumnIndex("siec_id") > -1) {
+            dane_funkcji.setSiec_id(kursor.getInt(kursor.getColumnIndex("siec_id")));
+        }*/
+        if (kursor.getColumnIndex("nazwa") > -1) {
+            dane_funkcji.setNazwa(kursor.getString(kursor.getColumnIndex("nazwa")));
+        }
+        if (kursor.getColumnIndex("numer") > -1) {
+            dane_funkcji.setNumer(kursor.getString(kursor.getColumnIndex("numer")));
+        }
+        if (kursor.getColumnIndex("nr_telefonu") > -1) {
+            dane_funkcji.setNr_telefonu(kursor.getInt(kursor.getColumnIndex("nr_telefonu")));
+        }
+        if (kursor.getColumnIndex("ulica_nr") > -1) {
+            dane_funkcji.setUlicaNr(kursor.getString(kursor.getColumnIndex("ulica_nr")));
+        }
+        if (kursor.getColumnIndex("miasto") > -1) {
+            dane_funkcji.setMiasto(kursor.getString(kursor.getColumnIndex("miasto")));
+        }
+        if (kursor.getColumnIndex("kalendarz_id") > -1) {
+            dane_funkcji.setKalendarz_id(kursor.getLong(kursor.getColumnIndex("kalendarz_id")));
+            //Log.d("OSQLdnaeFirma kalendarz_id :", kursor.getString(kursor.getColumnIndex("kalendarz_id")));
+        }
+        if (kursor.getColumnIndex("calendarDisplayName") > -1) {
+            dane_funkcji.setKalendarz_nazwa(kursor.getString(kursor.getColumnIndex("calendarDisplayName")));
+        }
 
-    public long dodajZastapDane(daneFirma dane_funkcji){
+        /*if (kursor.getColumnIndex("typ") > -1) {
+            dane_funkcji.setMiasto(kursor.getString(kursor.getColumnIndex("typ")));
+        }*/
 
-        ContentValues wartosci = contentValues(dane_funkcji);
+        //Log.d("dane firm", dane_funkcji.toString());
+        return dane_funkcji;
+    }//private daneFirma cursorDaneFirmy(Cursor kursor){
+
+    public ArrayList<String[]> podajNazwa(){
+        //ObslugaSQL chsql = new ObslugaSQL(kontekst);
+        String zapytanie = "SELECT _id, nazwa, kalendarz_id FROM " + DICTIONARY_TABLE_NAME;
+        List<daneFirma> daneWszystkich = dajDane(zapytanie);
+        //String[] wiersz = ("","");
+        ArrayList<String[]> lista = new ArrayList<>();
+        for (daneFirma dana : daneWszystkich) {
+            String[] wiersz = {String.valueOf(dana.getId()), dana.getNazwa(), String.valueOf(dana.getKalendarz_id())};
+            //Log.d("wiersz: ", String.valueOf(wiersz));
+            lista.add(wiersz);
+        }//for (daneAuta auta : daneWszystkichAut) {
+        return lista;
+    }//public List<String> podajNazwa(){
+
+    //odczyt danych z bazy SQL do kursora
+
+    /*@Override
+    public <daneFirma> void updateDane(daneFirma t) {
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) t);
+
+        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, ((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) t).getId());
+    }*/
+    /*@Override
+    public <daneFirma> long dodajZastapDane(daneFirma dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) dane_funkcji);
 
         //Log.d("SQL: dDMT", wartosci.toString());
 
@@ -178,23 +202,18 @@ public class OSQLdaneFirma extends ObslugaSQL{
         idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
-    }
+    }*/
 
-    public long dodajDane(daneFirma dane_funkcji) {
-        ContentValues wartosci = contentValues(dane_funkcji);
+    /*@Override
+    public <daneFirma> long dodajDane(daneFirma dane_funkcji) {
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) dane_funkcji);
 
-        //Log.d("SQL: dDMT", wartosci.toString());
-
-        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
-    }//public void dodajDaneFirmy(daneFirma dane_funkcji) {
-
-    //odczyt danych z bazy SQL do kursora
-
-    public daneFirma dajDane1(String zapytanie){
+    }//public void dodajDaneFirmy(daneFirma dane_funkcji) {*/
+    /*public daneFirma dajDane1(String zapytanie){
         //Pobiera dane okreslonego wiersza
         Log.d("DebugCSQL:", "dajWszystkieAuta");
         daneFirma dane_funkcji = new daneFirma();
@@ -234,102 +253,28 @@ public class OSQLdaneFirma extends ObslugaSQL{
         }
         db.close();
         return dane_funkcji;
-    }//public List<daneAuta> dajWszystkieAuta(){
+    }//public List<daneAuta> dajWszystkieAuta(){*/
 
-    private List<daneFirma> dajDane(String zapytanie){
+    /*private List<daneFirma> dajDane(String zapytanie){
         List<daneFirma> dane_funkcji = new LinkedList<>();
 
         //ObslugaSQL osql = new ObslugaSQL(context);
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor kursor = db.rawQuery(zapytanie, null);
-        kursor.moveToFirst();
-        while (!kursor.isAfterLast()){
-            daneFirma dana_funkcji = cursorDane(kursor);
+        if (kursor != null) {
+            kursor.moveToFirst();
+            while (!kursor.isAfterLast()) {
+                daneFirma dana_funkcji = cursorDane(kursor);
+                dane_funkcji.add(dana_funkcji);
+                kursor.moveToNext();
+            }
+        }else{
+            daneFirma dana_funkcji = new daneFirma();
             dane_funkcji.add(dana_funkcji);
-            kursor.moveToNext();
         }
         db.close();
         return dane_funkcji;
-    }//public List<daneFirma> dajWszystkieFirmy(){
-
-    //kursor dla odczytu danych z bazy
-    private daneFirma cursorDane(Cursor kursor){
-        daneFirma dane_funkcji = new daneFirma();
-
-        if (kursor.getColumnIndex("_id") > -1) {
-            dane_funkcji.setId(kursor.getInt(kursor.getColumnIndex("_id")));
-        }
-        /*if (kursor.getColumnIndex("siec_id") > -1) {
-            dane_funkcji.setSiec_id(kursor.getInt(kursor.getColumnIndex("siec_id")));
-        }*/
-        if (kursor.getColumnIndex("nazwa") > -1) {
-            dane_funkcji.setNazwa(kursor.getString(kursor.getColumnIndex("nazwa")));
-        }
-        if (kursor.getColumnIndex("numer") > -1) {
-            dane_funkcji.setNumer(kursor.getString(kursor.getColumnIndex("numer")));
-        }
-        if (kursor.getColumnIndex("nr_telefonu") > -1) {
-            dane_funkcji.setNr_telefonu(kursor.getInt(kursor.getColumnIndex("nr_telefonu")));
-        }
-        if (kursor.getColumnIndex("ulica_nr") > -1) {
-            dane_funkcji.setUlicaNr(kursor.getString(kursor.getColumnIndex("ulica_nr")));
-        }
-        if (kursor.getColumnIndex("miasto") > -1) {
-            dane_funkcji.setMiasto(kursor.getString(kursor.getColumnIndex("miasto")));
-        }
-        if (kursor.getColumnIndex("kalendarz_id") > -1) {
-            dane_funkcji.setKalendarz_id(kursor.getLong(kursor.getColumnIndex("kalendarz_id")));
-            //Log.d("OSQLdnaeFirma kalendarz_id :", kursor.getString(kursor.getColumnIndex("kalendarz_id")));
-        }
-        if (kursor.getColumnIndex("calendarDisplayName") > -1) {
-            dane_funkcji.setKalendarz_nazwa(kursor.getString(kursor.getColumnIndex("calendarDisplayName")));
-        }
-
-        /*if (kursor.getColumnIndex("typ") > -1) {
-            dane_funkcji.setMiasto(kursor.getString(kursor.getColumnIndex("typ")));
-        }*/
-
-        if (kursor.getColumnIndex("uwagi") > -1) {
-            dane_funkcji.setUwagi(kursor.getString(kursor.getColumnIndex("uwagi")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_id") > -1) {
-            dane_funkcji.setPoprzedni_rekord_id(kursor.getInt(kursor.getColumnIndex("poprzedni_rekord_id")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_data_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_data_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_data_usuniecia")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_powod_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia")));
-        }
-        if (kursor.getColumnIndex("czy_widoczny") > -1) {
-            dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
-        }
-        if (kursor.getColumnIndex("synchron") > -1) {
-            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
-        }
-        if (kursor.getColumnIndex("data_utworzenia") > -1) {
-            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
-        }
-        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
-            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
-        }
-        //Log.d("dane firm", dane_funkcji.toString());
-        return dane_funkcji;
-    }//private daneFirma cursorDaneFirmy(Cursor kursor){
-
-    public ArrayList<String[]> podajNazwa(){
-        //ObslugaSQL chsql = new ObslugaSQL(kontekst);
-        String zapytanie = "SELECT _id, nazwa, kalendarz_id FROM " + DICTIONARY_TABLE_NAME;
-        List<daneFirma> daneWszystkich = dajDane(zapytanie);
-        //String[] wiersz = ("","");
-        ArrayList<String[]> lista = new ArrayList<>();
-        for (daneFirma dana : daneWszystkich) {
-            String[] wiersz = {String.valueOf(dana.getId()), dana.getNazwa(), String.valueOf(dana.getKalendarz_id())};
-            //Log.d("wiersz: ", String.valueOf(wiersz));
-            lista.add(wiersz);
-        }//for (daneAuta auta : daneWszystkichAut) {
-        return lista;
-    }//public List<String> podajNazwa(){
+    }//public List<daneFirma> dajWszystkieFirmy(){*/
 
 }

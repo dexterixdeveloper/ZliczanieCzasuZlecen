@@ -235,7 +235,7 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
     }
 
     public String toStringForRaport() {
-        return  ";;;" +
+        return  ";;MŁ;" +
                 czas_rozpoczecia_string + ';' +
                 czas_zakonczenia_string + ';' +
                 firma_nazwa + ';' +
@@ -245,6 +245,6 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
                 uwagi;
     }
     public String toStringForRaportNaglowek() {
-        return "LP.;Data;Osoba;Czas Rozpoczęcia;Czas Zakonczeńia;Firma;Liczba h;Opis;Status;Uwagi;Stawka;Zarobek\n";
+        return "LP.;Data;Osoba;Czas Rozpoczęcia;Czas Zakończenia;Firma;Liczba h;Opis;Status;Uwagi;Stawka;Zarobek\n";
     }
 }

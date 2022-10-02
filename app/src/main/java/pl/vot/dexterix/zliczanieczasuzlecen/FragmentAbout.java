@@ -50,7 +50,10 @@ public class FragmentAbout extends FragmentPodstawowy{
                 {"2022.01.31", "Wdrażanie synchronizacji danych z zewnętrznym serwerem"},
                 {"2022.02.24", "Wdrożenie synchronizacji danych z zewnętrznym serwerem 3 + N, N = {0, 1, 2, 3, ...} "},
                 {"2022.04.22", "Naprawa synchronizacji zwrotnej, wyelimionwanie kilku błędów"},
-                {"2022.09.09", "Stworzenie interfejsu do grzebania w bazie"}
+                {"2022.09.09", "Stworzenie interfejsu do grzebania w bazie"},
+                {"2022.09.13", "Poprawa eksportu i wysyłki backupu bazy"},
+                {"2022.09.13", "Poprawa raportów wyliczeniowych"},
+                {"2022.09.13", "Poprawa nagłówka raportów"}
         };
         StringBuilder uzupelnijDane = new StringBuilder();
         uzupelnijDane.append("\n");

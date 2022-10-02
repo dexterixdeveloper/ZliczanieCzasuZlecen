@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -138,7 +137,7 @@ public class SQLSynchMyFireBaseMessagingService extends FirebaseMessagingService
 
 
                     Toast.makeText(getApplicationContext(),"New Message Recieved",Toast.LENGTH_LONG).show();
-                    sendBroadcast(new Intent(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
+                    //sendBroadcast(new Intent(OSQLdaneFirma.UI_SYNCHRONIZE_MESSAGE));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -175,7 +174,7 @@ public class SQLSynchMyFireBaseMessagingService extends FirebaseMessagingService
         firma.setCzy_widoczny(Integer.valueOf(data.getString("czy_widoczny")));
 
         OSQLdaneFirma da = new OSQLdaneFirma(this);
-        da.updateDane(firma);
+        da.updateDane(da.contentValues(firma), da.getTableName());
     }
     /*private void SaveMessage(String title,String message){
         messagesSQliteOpenHelper = new MessagesSQliteOpenHelper(getApplicationContext());

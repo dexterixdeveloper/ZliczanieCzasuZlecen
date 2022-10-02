@@ -179,9 +179,9 @@ public class FragmentStawka extends FragmentPodstawowy {
         daneData dataUtworzenia = new daneData();
         danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
         if (przeniesioneID > 0) {
-            osql.updateDane(danaKlasy);
+            osql.updateDane(osql.contentValues(danaKlasy), osql.getTableName());
         }else{
-            osql.dodajDane(danaKlasy);
+            osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
         }
         //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
     }//private void zapiszDane(){

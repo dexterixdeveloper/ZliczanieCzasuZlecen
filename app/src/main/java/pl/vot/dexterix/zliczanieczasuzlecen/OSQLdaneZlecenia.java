@@ -3,13 +3,10 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class OSQLdaneZlecenia extends ObslugaSQL {
+public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsDostepDoDanych {
     private static final String DICTIONARY_TABLE_NAME = "BZCZBD_Zlecenia";
     private static final String[][] DICTIONARY_TABLE_2_ROWS = {{"firma_id", "opis", "czas_rozpoczecia", "czas_zawieszenia", "czas_zakonczenia", "status", "rozliczona", "kalendarz_id", "kalendarz_zadanie_id"},
             {"integer", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "Integer", "TEXT"}};
@@ -22,18 +19,17 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         super(context);
     }
 
-    public void updateDane(daneZlecenia dane_funkcji){
-
-        ContentValues wartosci = contentValues(dane_funkcji);
-
-        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
-
+    @Override
+    public <T> List<T> dajWszystkieDoRecyclerView() {
+        return null;
     }
+
+    @Override
     public String getTableName(){
         return DICTIONARY_TABLE_NAME;
     }
 
-    private ContentValues contentValues(daneZlecenia dane_funkcji){
+    protected ContentValues contentValues(daneZlecenia dane_funkcji){
         ContentValues wartosci = new ContentValues();
         wartosci.put("firma_id", dane_funkcji.getFirma_id());
         wartosci.put("opis", dane_funkcji.getOpis());
@@ -42,26 +38,11 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         wartosci.put("czas_zakonczenia", dane_funkcji.getCzas_zakonczenia());
         wartosci.put("status", dane_funkcji.getStatus());
         wartosci.put("rozliczona", dane_funkcji.getRozliczona());
-        wartosci.put("uwagi", dane_funkcji.getUwagi());
-        wartosci.put("czy_widoczny", dane_funkcji.getCzy_widoczny());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id());
         wartosci.put("kalendarz_zadanie_id", dane_funkcji.getKalendarz_zadanie_id());
-        wartosci.put("synchron", dane_funkcji.getSynchron());
-        if(dane_funkcji.getData_synchronizacji() > 0){
-            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
-        }
-        if(dane_funkcji.getData_utworzenia() > 0){
-            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
-        }
+
+        wartosci.putAll(contentValuesW(dane_funkcji));
         return wartosci;
-    }
-
-    public long dodajDane(daneZlecenia dane_funkcji){
-
-        ContentValues wartosci = contentValues(dane_funkcji);
-        long idRekordu = -1;
-        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-        return idRekordu;
     }
 
     public List<daneZlecenia> dajWszystkieDoRecyclerView(String status, Long poczatek, Long koniec, int firmaId){
@@ -103,6 +84,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    @Override
     public daneZlecenia dajOkreslonyRekord(Integer _id){
         /*String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia, " +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.firma_id AS firma_id, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, z.calendar_id AS calendar_id "  +
@@ -113,6 +95,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane1(zapytanie);
     }
 
+    @Override
     public List<daneZlecenia> dajWszystkie(){
         /*String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
@@ -126,6 +109,7 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    @Override
     public List<daneZlecenia> dajDoSynchronizacji(){
         /*String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
@@ -142,122 +126,21 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
-    public daneZlecenia dajDane1(String zapytanie){
-        //Pobiera dane okreslonego wiersza
-        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
-        daneZlecenia dane_funkcji = new daneZlecenia();
-
-        SQLiteDatabase db = getReadableDatabase();
-
-        //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
-        Cursor kursor = db.rawQuery(zapytanie, null);
-        //Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
-        //daneAuta daneAuta = new daneAuta();
-        //Log.d("zawartoscKursora",String.valueOf(kursor));
-        //int ii =0;
-        if (kursor != null) {
-            kursor.moveToFirst();
-            while (!kursor.isAfterLast()) {
-                //Log.d(tag1,String.valueOf(kursor.getCount()));
-                dane_funkcji = cursorDane(kursor);
-
-                //Log.d("getColumnIndexOrThrow",String.valueOf(kursor.getColumnIndexOrThrow("_id")));
-
-                //dane_funkcji.add(dana_funkcji);
-                kursor.moveToNext();
-            }//while (!kursor.isAfterLast()) {
-            Log.d("DebugCSQL:", msg1);
-            //kursor.close();
-            //return auta;
-        }//if (kursor.getCount() > 0) {
-        else{
-            daneZlecenia dana_funkcji = new daneZlecenia();
-            dana_funkcji.onCreate();
-
-            //dane_funkcji.add(dana_funkcji);
-        }
-        db.close();
-        return dane_funkcji;
-    }//public List<daneAuta> dajWszystkieAuta(){
-
-    public List<daneZlecenia> dajDane(String zapytanie){
-        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
-        List<daneZlecenia> dane_funkcji = new ArrayList<>();
-
-        SQLiteDatabase db = getReadableDatabase();
-
-        //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
-        Cursor kursor = db.rawQuery(zapytanie, null);
-        //Log.d("dlugosc kursora: ", String.valueOf(kursor.getCount()));
-        //daneAuta daneAuta = new daneAuta();
-        //Log.d("zawartoscKursora",String.valueOf(kursor));
-        //int ii =0;
-        if (kursor != null) {
-            kursor.moveToFirst();
-            while (!kursor.isAfterLast()) {
-                //Log.d(tag1,String.valueOf(kursor.getCount()));
-                daneZlecenia dana_funkcji = cursorDane(kursor);
-                //daneAuta daneAuta = new daneAuta();
-                //Log.d("ileAut: ", String.valueOf(ii));
-                //ii++;
-                //daneAuta.setId(kursor.getInt(kursor.getColumnIndex("a._id")));
-
-                //Log.d("getColumnIndexOrThrow",String.valueOf(kursor.getColumnIndexOrThrow("_id")));
-
-                dane_funkcji.add(dana_funkcji);
-                kursor.moveToNext();
-            }//while (!kursor.isAfterLast()) {
-            Log.d("DebugCSQL:", msg1);
-            //kursor.close();
-            //return auta;
-        }//if (kursor.getCount() > 0) {
-        else{
-            daneZlecenia dana_funkcji = new daneZlecenia();
-            dana_funkcji.onCreate();
-            /*dana_funkcji.setId(0);
-            dana_funkcji.setCzas_rozpoczecia(0L);
-            dana_funkcji.setCzas_zawieszenia(0L);
-            dana_funkcji.setOpis("Brak danych, wprowadź.");
-            dana_funkcji.setFirma_id(0);
-            dana_funkcji.setFirma_nazwa("Brak danych, wprowadź.");
-            dana_funkcji.setCzas_zakonczenia(0L);
-            dana_funkcji.setStatus("Brak danych, wprowadź.");
-            dana_funkcji.setRozliczona("Brak danych, wprowadź.");*/
-
-            dane_funkcji.add(dana_funkcji);
-        }
-        db.close();
-        return dane_funkcji;
-    }//public List<daneAuta> dajWszystkieAuta(){
-
+    @Override
     public void zerujDateSynchronizacji(){
         zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
     }
 
+    @Override
     public void zerujDateUtworzenia(){
         zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
     }
 
-    public long dodajZastapDane(daneZlecenia dane_funkcji){
-
-        ContentValues wartosci = contentValues(dane_funkcji);
-
-        //Log.d("SQL: dDMT", wartosci.toString());
-
-        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-        long idRekordu = -1;
-        idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-        return idRekordu;
-        //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
-    }
-
     //kursor dla odczytu danych z bazy
-    private daneZlecenia cursorDane(Cursor kursor) {
+    protected daneZlecenia cursorDane(Cursor kursor) {
         daneZlecenia dane_funkcji = new daneZlecenia();
+        dane_funkcji.addWspolne(kursor);
         daneData potrzebnaData = new daneData();
-        if (kursor.getColumnIndex("_id") > -1) {
-            dane_funkcji.setId(kursor.getInt(kursor.getColumnIndex("_id")));
-        }
 
         if (kursor.getColumnIndex("czas_rozpoczecia") > -1) {
             dane_funkcji.setCzas_rozpoczecia(kursor.getLong(kursor.getColumnIndexOrThrow("czas_rozpoczecia")));
@@ -296,30 +179,6 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
             dane_funkcji.setKalendarz_zadanie_id(kursor.getLong(kursor.getColumnIndexOrThrow("kalendarz_zadanie_id")));
         }
 
-        if (kursor.getColumnIndex("uwagi") > -1) {
-            dane_funkcji.setUwagi(kursor.getString(kursor.getColumnIndexOrThrow("uwagi")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_id") > -1) {
-            dane_funkcji.setPoprzedni_rekord_id(kursor.getInt(kursor.getColumnIndex("poprzedni_rekord_id")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_data_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_data_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_data_usuniecia")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_powod_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia")));
-        }
-        if (kursor.getColumnIndex("czy_widoczny") > -1) {
-            dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
-        }
-        if (kursor.getColumnIndex("synchron") > -1) {
-            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
-        }
-        if (kursor.getColumnIndex("data_utworzenia") > -1) {
-            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
-        }
-        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
-            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
-        }
         return dane_funkcji;
     }//private daneFirma cursorDane(Cursor kursor){
 
@@ -331,6 +190,75 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         updateDaneHurtem(DICTIONARY_TABLE_NAME, wartosci, warunek, args);
     }
 
+     /*public <daneZlecenia> long dodajDane(daneZlecenia dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneZlecenia) dane_funkcji);
+        long idRekordu = -1;
+        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
+    }*/
+    /*public daneZlecenia dajDane1(String zapytanie){
+        //Pobiera dane okreslonego wiersza
+        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
+        daneZlecenia dane_funkcji = new daneZlecenia();
+
+        SQLiteDatabase db = getReadableDatabase();
+
+        //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
+        Cursor kursor = db.rawQuery(zapytanie, null);
+
+        if (kursor != null) {
+            kursor.moveToFirst();
+            while (!kursor.isAfterLast()) {
+                //Log.d(tag1,String.valueOf(kursor.getCount()));
+                dane_funkcji = cursorDane(kursor);
+
+                kursor.moveToNext();
+            }//while (!kursor.isAfterLast()) {
+            Log.d("DebugCSQL:", msg1);
+
+        }//if (kursor.getCount() > 0) {
+        else{
+            daneZlecenia dana_funkcji = new daneZlecenia();
+            dana_funkcji.onCreate();
+
+            //dane_funkcji.add(dana_funkcji);
+        }
+        db.close();
+        return dane_funkcji;
+    }//public List<daneAuta> dajWszystkieAuta(){*/
+
+    /*public List<daneZlecenia> dajDane(String zapytanie){
+        Log.d("DebugCSQL:", "dajWszystkieZlecenia");
+        List<daneZlecenia> dane_funkcji = new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+
+        //Cursor kursor = db.query(DICTIONARY_TABLE_NAME_2, kolumny, null, null, null, null, null);
+        Cursor kursor = db.rawQuery(zapytanie, null);
+
+        if (kursor != null) {
+            kursor.moveToFirst();
+            while (!kursor.isAfterLast()) {
+                //Log.d(tag1,String.valueOf(kursor.getCount()));
+                daneZlecenia dana_funkcji = cursorDane(kursor);
+
+                dane_funkcji.add(dana_funkcji);
+                kursor.moveToNext();
+            }//while (!kursor.isAfterLast()) {
+            Log.d("DebugCSQL:", msg1);
+            //kursor.close();
+            //return auta;
+        }//if (kursor.getCount() > 0) {
+        else{
+            daneZlecenia dana_funkcji = new daneZlecenia();
+            dana_funkcji.onCreate();
+
+            dane_funkcji.add(dana_funkcji);
+        }
+        db.close();
+        return dane_funkcji;
+    }//public List<daneAuta> dajWszystkieAuta(){*/
     /*public List<String> podajNazwa(){
         //ObslugaSQL chsql = new ObslugaSQL(kontekst);
         String zapytanie = "SELECT _id, nazwa FROM " + DICTIONARY_TABLE_NAME;
@@ -344,5 +272,26 @@ public class OSQLdaneZlecenia extends ObslugaSQL {
         }//for (daneAuta auta : daneWszystkichAut) {
         return lista;
     }//public List<String> podajNazwa(){*/
+
+    /*public <daneZlecenia> void updateDane(daneZlecenia dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneZlecenia) dane_funkcji);
+
+        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, ((pl.vot.dexterix.zliczanieczasuzlecen.daneZlecenia)dane_funkcji).getId());
+
+    }*/
+
+    /*public <daneZlecenia> long dodajZastapDane(daneZlecenia dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneZlecenia) dane_funkcji);
+
+        //Log.d("SQL: dDMT", wartosci.toString());
+
+        //dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        long idRekordu = -1;
+        idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
+        //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
+    }*/
 
 }

@@ -146,6 +146,24 @@ public class daneFirma extends daneKlasaPodstawowa{
 
     }
 
+    public String toString(){
+         return  "id: " + id +
+                 " N: " + nazwa +
+             " Nr: " + numer +
+             " Tel: " + nr_telefonu +
+             " A: " + ulica_nr +
+             " M: " + miasto +
+             "U: " + uwagi +
+             " K: " + kalendarz_nazwa +
+                 " uwagi " + uwagi +
+        " poprzedni_rekord_id " + poprzedni_rekord_id +
+        " poprzedni_rekord_data_usuniecia " + poprzedni_rekord_data_usuniecia +
+        " poprzedni_rekord_powod_usuniecia " + poprzedni_rekord_powod_usuniecia +
+        " czy_widoczny " + czy_widoczny +
+        " synchron " + synchron +
+        " data_utworzenia " + data_utworzenia +
+        " data_synchronizacji " + data_synchronizacji;
+    }
     /*public String getTyp() {
         return typ;
     }

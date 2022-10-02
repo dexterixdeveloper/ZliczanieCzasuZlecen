@@ -10,11 +10,15 @@ public class daneZlecenRaporty {
     @Override
     public String toString() {
         czasS = Float.valueOf(czas/1000);
-        return   firmaNazwa +
-                " | " + stawkaWysokosc +
-                " | " + String.format("%.2f", czasS/60/60) +
-                " | " + String.format("%.2f", czasS/60/60 * stawkaWysokosc) +
-                "\n";
+        if (czas > 0L) {
+            return firmaNazwa +
+                    " | " + stawkaWysokosc +
+                    " | " + String.format("%.2f", czasS / 60 / 60) +
+                    " | " + String.format("%.2f", czasS / 60 / 60 * stawkaWysokosc) +
+                    "\n";
+        }else{
+            return "";
+        }
     }
 
     public String getFirmaNazwa() {

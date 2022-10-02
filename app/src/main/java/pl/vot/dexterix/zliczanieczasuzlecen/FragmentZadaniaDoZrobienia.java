@@ -160,7 +160,7 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                                     //to może na razie bez zmiany danych
                                     //Log.d("Zlecenia1: ", adapter.getSelected().get(i).toString());
                                     //OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
-                                    daneZleceniaSQL.updateDane(danaSelected);
+                                    daneZleceniaSQL.updateDane(daneZleceniaSQL.contentValues(danaSelected), daneZleceniaSQL.getTableName());
                                     //Log.d("albo albo ", String.valueOf(daneZleceniaSQL.dajOkreslonyRekord(adapter.getSelected().get(i).getId())));
                                     //adapter.getSelected().remove(i);
                                     //usuwamy z listy jako obiekt

@@ -3,13 +3,10 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import java.util.LinkedList;
 import java.util.List;
 
-public class OSQLdaneStawka extends ObslugaSQL {
+public class OSQLdaneStawka extends ObslugaSQLPodstawowa implements InterfejsDostepDoDanych{
 
     private static final String DICTIONARY_TABLE_NAME = "BZCZBD_Stawki";
     private static final String[][] DICTIONARY_TABLE_4_ROWS = {{"firma_id", "stawka", "poczatek", "koniec"},
@@ -17,6 +14,7 @@ public class OSQLdaneStawka extends ObslugaSQL {
     private static final String[][] DICTIONARY_TABLE_ROWS_4_FOREIGN = {{"firma_id"},
             {"BZCZBD_Firmy(_id)"}};
 
+    @Override
     public String getTableName(){
         return DICTIONARY_TABLE_NAME;
     }
@@ -25,15 +23,7 @@ public class OSQLdaneStawka extends ObslugaSQL {
         super(context);
     }
 
-    public long dodajDane(daneStawka dane_funkcji){
-
-        ContentValues wartosci = contentValues(dane_funkcji);
-
-        long idRekordu = -1;
-        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
-        return idRekordu;
-    }
-
+    @Override
     public List<daneStawka> dajWszystkieDoRecyclerView(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
                 "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
@@ -41,6 +31,7 @@ public class OSQLdaneStawka extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    @Override
     public List<daneStawka> dajWszystkie(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
                 "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
@@ -50,6 +41,7 @@ public class OSQLdaneStawka extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    @Override
     public List<daneStawka> dajDoSynchronizacji(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
                 "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
@@ -61,6 +53,7 @@ public class OSQLdaneStawka extends ObslugaSQL {
         return dajDane(zapytanie);
     }
 
+    @Override
     public daneStawka dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
                 "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
@@ -69,7 +62,71 @@ public class OSQLdaneStawka extends ObslugaSQL {
         return dajDane1(zapytanie);
     }
 
-    public List<daneStawka> dajDane(String zapytanie){
+
+
+    @Override
+    public void zerujDateSynchronizacji(){
+        zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
+    }
+
+    @Override
+    public void zerujDateUtworzenia(){
+        zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
+    }
+
+    protected ContentValues contentValues(daneStawka dane_funkcji){
+        ContentValues wartosci = new ContentValues();
+        wartosci.put("firma_id", dane_funkcji.getFirma_id());
+        wartosci.put("stawka", dane_funkcji.getStawka());
+        wartosci.put("poczatek", dane_funkcji.getPoczatek());
+        wartosci.put("koniec", dane_funkcji.getKoniec());
+
+        wartosci.putAll(contentValuesW(dane_funkcji));
+        return wartosci;
+    }
+
+    //kursor dla odczytu danych z bazy
+    protected daneStawka cursorDane(Cursor kursor) {
+        daneStawka dane_funkcji = new daneStawka();
+        dane_funkcji.addWspolne(kursor);
+
+        if (kursor.getColumnIndex("firma_id") > -1) {
+            dane_funkcji.setFirma_id(kursor.getInt(kursor.getColumnIndexOrThrow("firma_id")));
+        }
+
+        if (kursor.getColumnIndex("firma_nazwa") > -1) {
+            dane_funkcji.setFirma_nazwa(kursor.getString(kursor.getColumnIndexOrThrow("firma_nazwa")));
+        }
+        if (kursor.getColumnIndex("stawka") > -1) {
+            dane_funkcji.setStawka(kursor.getFloat(kursor.getColumnIndexOrThrow("stawka")));
+        }
+        if (kursor.getColumnIndex("poczatek") > -1) {
+            dane_funkcji.setPoczatek(kursor.getString(kursor.getColumnIndexOrThrow("poczatek")));
+        }
+        if (kursor.getColumnIndex("koniec") > -1) {
+            dane_funkcji.setKoniec(kursor.getString(kursor.getColumnIndexOrThrow("koniec")));
+        }
+
+        return dane_funkcji;
+    }//private daneFirma cursorDane(Cursor kursor){
+
+    protected void updateDaneHurtemIdFirmy(Integer stare_id, Integer nowe_id) {
+        ContentValues wartosci = new ContentValues();
+        wartosci.put("firma_id", nowe_id);
+        String[] args = {String.valueOf(stare_id)};
+        String warunek = "firma_id = ?";
+        updateDaneHurtem(DICTIONARY_TABLE_NAME, wartosci, warunek, args);
+    }
+
+     /*public <daneStawka> long dodajDane(daneStawka dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneStawka) dane_funkcji);
+
+        long idRekordu = -1;
+        idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
+        return idRekordu;
+    }*/
+    /*public List<daneStawka> dajDane(String zapytanie){
         Log.d("DebugCSQL:", "dajWszystkieZlecenia");
         List<daneStawka> dane_funkcji = new LinkedList<>();
 
@@ -94,9 +151,9 @@ public class OSQLdaneStawka extends ObslugaSQL {
         }
         db.close();
         return dane_funkcji;
-    }//public List<daneAuta> dajWszystkieAuta(){
+    }//public List<daneAuta> dajWszystkieAuta(){*/
 
-    public daneStawka dajDane1(String zapytanie){
+    /*public daneStawka dajDane1(String zapytanie){
         //Pobiera dane okreslonego wiersza
         Log.d("DebugCSQL:", "dajWszystkieAuta");
         daneStawka dane_funkcji = new daneStawka();
@@ -119,18 +176,19 @@ public class OSQLdaneStawka extends ObslugaSQL {
         }
         db.close();
         return dane_funkcji;
-    }//public List<daneAuta> dajWszystkieAuta(){
+    }//public List<daneAuta> dajWszystkieAuta(){*/
 
-    public void updateDane(daneStawka dane_funkcji) {
-        ContentValues wartosci = contentValues(dane_funkcji);
+    /*public <daneStawka> void updateDane(daneStawka dane_funkcji) {
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneStawka) dane_funkcji);
 
-        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, dane_funkcji.getId());
+        updateDaneOSQL(DICTIONARY_TABLE_NAME, wartosci, ((pl.vot.dexterix.zliczanieczasuzlecen.daneStawka) dane_funkcji).getId());
 
-    }
+    }*/
 
-    public long dodajZastapDane(daneStawka dane_funkcji){
 
-        ContentValues wartosci = contentValues(dane_funkcji);
+    /*public <daneStawka> long dodajZastapDane(daneStawka dane_funkcji){
+
+        ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneStawka) dane_funkcji);
 
         //Log.d("SQL: dDMT", wartosci.toString());
 
@@ -139,90 +197,5 @@ public class OSQLdaneStawka extends ObslugaSQL {
         idRekordu = dodajZastapDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
         //dodajDane(DICTIONARY_TABLE_NAME_12, wartosci);
-    }
-
-    public void zerujDateSynchronizacji(){
-        zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
-    }
-
-    public void zerujDateUtworzenia(){
-        zerujDateUtworzenia(DICTIONARY_TABLE_NAME);
-    }
-
-    private ContentValues contentValues(daneStawka dane_funkcji){
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("firma_id", dane_funkcji.getFirma_id());
-        wartosci.put("stawka", dane_funkcji.getStawka());
-        wartosci.put("poczatek", dane_funkcji.getPoczatek());
-        wartosci.put("koniec", dane_funkcji.getKoniec());
-        wartosci.put("uwagi", dane_funkcji.getUwagi());
-        wartosci.put("synchron", dane_funkcji.getSynchron());
-        if(dane_funkcji.getData_synchronizacji() > 0){
-            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
-        }
-        if(dane_funkcji.getData_utworzenia() > 0){
-            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
-        }
-        return wartosci;
-    }
-
-    //kursor dla odczytu danych z bazy
-    private daneStawka cursorDane(Cursor kursor) {
-        daneStawka dane_funkcji = new daneStawka();
-
-        if (kursor.getColumnIndex("_id") > -1) {
-            dane_funkcji.setId(kursor.getInt(kursor.getColumnIndex("_id")));
-        }
-
-        if (kursor.getColumnIndex("firma_id") > -1) {
-            dane_funkcji.setFirma_id(kursor.getInt(kursor.getColumnIndexOrThrow("firma_id")));
-        }
-
-        if (kursor.getColumnIndex("firma_nazwa") > -1) {
-            dane_funkcji.setFirma_nazwa(kursor.getString(kursor.getColumnIndexOrThrow("firma_nazwa")));
-        }
-        if (kursor.getColumnIndex("stawka") > -1) {
-            dane_funkcji.setStawka(kursor.getFloat(kursor.getColumnIndexOrThrow("stawka")));
-        }
-        if (kursor.getColumnIndex("poczatek") > -1) {
-            dane_funkcji.setPoczatek(kursor.getString(kursor.getColumnIndexOrThrow("poczatek")));
-        }
-        if (kursor.getColumnIndex("koniec") > -1) {
-            dane_funkcji.setKoniec(kursor.getString(kursor.getColumnIndexOrThrow("koniec")));
-        }
-
-        if (kursor.getColumnIndex("uwagi") > -1) {
-            dane_funkcji.setUwagi(kursor.getString(kursor.getColumnIndexOrThrow("uwagi")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_id") > -1) {
-            dane_funkcji.setPoprzedni_rekord_id(kursor.getInt(kursor.getColumnIndex("poprzedni_rekord_id")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_data_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_data_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_data_usuniecia")));
-        }
-        if (kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia") > -1) {
-            dane_funkcji.setPoprzedni_rekord_powod_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia")));
-        }
-        if (kursor.getColumnIndex("czy_widoczny") > -1) {
-            dane_funkcji.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
-        }
-        if (kursor.getColumnIndex("synchron") > -1) {
-            dane_funkcji.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
-        }
-        if (kursor.getColumnIndex("data_utworzenia") > -1) {
-            dane_funkcji.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
-        }
-        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
-            dane_funkcji.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
-        }
-        return dane_funkcji;
-    }//private daneFirma cursorDane(Cursor kursor){
-
-    protected void updateDaneHurtemIdFirmy(Integer stare_id, Integer nowe_id) {
-        ContentValues wartosci = new ContentValues();
-        wartosci.put("firma_id", nowe_id);
-        String[] args = {String.valueOf(stare_id)};
-        String warunek = "firma_id = ?";
-        updateDaneHurtem(DICTIONARY_TABLE_NAME, wartosci, warunek, args);
-    }
+    }*/
 }

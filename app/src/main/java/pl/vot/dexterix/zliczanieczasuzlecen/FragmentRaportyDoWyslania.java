@@ -303,7 +303,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                         stawka.onCreate();
                         for (daneFirma firma : firmy) {
                             stawka.setFirma_id(firma.getId());
-                            daneStawkiSQL.dodajDane(stawka);
+                            daneStawkiSQL.dodajDane(daneStawkiSQL.contentValues(stawka), daneStawkiSQL.getTableName());
                         }
                         //w takim razie musimy jeszcze raz odpalić stawki
                         stawki = daneStawkiSQL.dajWszystkie();

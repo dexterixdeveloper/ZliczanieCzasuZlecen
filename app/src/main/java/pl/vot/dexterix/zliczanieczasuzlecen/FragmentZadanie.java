@@ -338,7 +338,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     danaKlasyPrzeniesiona.setStatus("zakwtle");
                 }
                 danaKlasyPrzeniesiona.setCzy_widoczny(0);
-                osql.updateDane(danaKlasyPrzeniesiona);
+                osql.updateDane(osql.contentValues(danaKlasyPrzeniesiona), osql.getTableName());
             }
 
             danaKlasy.setCzy_widoczny(1);
@@ -351,7 +351,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     if (przeniesioneID > 0) {
                         danaKlasy.setStatus("zak");
                         zapiszDanaZakonczone();
-                        osql.dodajDane(danaKlasy);
+                        osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
                     }
 
                     danaKlasy.setStatus("zaw");
@@ -369,7 +369,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
             Log.d("dana klasy: ", danaKlasy.toString());
 
             long idRekordu = -1;
-            idRekordu = osql.dodajDane(danaKlasy);
+            idRekordu = osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
 
             if (danaKlasy.getStatus().equals("wtle")){
                 //MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext(), "FragmantZadanie");

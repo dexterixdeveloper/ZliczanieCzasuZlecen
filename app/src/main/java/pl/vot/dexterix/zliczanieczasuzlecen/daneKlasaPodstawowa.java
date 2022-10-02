@@ -1,5 +1,7 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.database.Cursor;
+
 public class daneKlasaPodstawowa {
     protected Integer id;
     protected String uwagi;
@@ -81,5 +83,36 @@ public class daneKlasaPodstawowa {
 
     public void setCzy_widoczny(Integer czy_widoczny) {
         this.czy_widoczny = czy_widoczny;
+    }
+
+    public void addWspolne(Cursor kursor){
+
+        if (kursor.getColumnIndex("_id") > -1) {
+            this.setId(kursor.getInt(kursor.getColumnIndex("_id")));
+        }
+        if (kursor.getColumnIndex("uwagi") > -1) {
+            this.setUwagi(kursor.getString(kursor.getColumnIndexOrThrow("uwagi")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_id") > -1) {
+            this.setPoprzedni_rekord_id(kursor.getInt(kursor.getColumnIndex("poprzedni_rekord_id")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_data_usuniecia") > -1) {
+            this.setPoprzedni_rekord_data_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_data_usuniecia")));
+        }
+        if (kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia") > -1) {
+            this.setPoprzedni_rekord_powod_usuniecia(kursor.getString(kursor.getColumnIndex("poprzedni_rekord_powod_usuniecia")));
+        }
+        if (kursor.getColumnIndex("czy_widoczny") > -1) {
+            this.setCzy_widoczny(kursor.getInt(kursor.getColumnIndex("czy_widoczny")));
+        }
+        if (kursor.getColumnIndex("synchron") > -1) {
+            this.setSynchron(kursor.getInt(kursor.getColumnIndex("synchron")));
+        }
+        if (kursor.getColumnIndex("data_utworzenia") > -1) {
+            this.setData_utworzenia(kursor.getLong(kursor.getColumnIndex("data_utworzenia")));
+        }
+        if (kursor.getColumnIndex("data_synchronizacji") > -1) {
+            this.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
+        }
     }
 }
