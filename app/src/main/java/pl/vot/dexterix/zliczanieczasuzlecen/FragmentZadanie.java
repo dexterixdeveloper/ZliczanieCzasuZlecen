@@ -57,7 +57,7 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
         //inicjujemy dane w klasie
         danaKlasy.onCreate();
-
+        ukryjFloatingButton();
             //Odpalamy okienko opis:
         textInputEditTextOpis = (TextInputEditText) view.findViewById(R.id.textInputEditTextOpis);
         textInputEditTextUwagi = (TextInputEditText) view.findViewById(R.id.textInputEditTextUwagi);

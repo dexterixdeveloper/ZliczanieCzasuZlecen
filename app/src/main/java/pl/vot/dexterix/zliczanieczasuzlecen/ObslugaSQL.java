@@ -29,6 +29,9 @@ public class ObslugaSQL extends SQLiteOpenHelper {
     protected static final String DICTIONARY_TABLE_NAME_4 = "BZCZBD_Stawki";
     protected static final String DICTIONARY_TABLE_NAME_5 = "BZCZBD_DaneSynchronizacja";
 
+    private static final String[][] DICTIONARY_TABLE_ROWS_WSPOLNE = {{"_id", "uwagi", "poprzedni_rekord_id", "poprzedni_rekord_data_usuniecia", "poprzedni_rekord_powod_usuniecia", "czy_widoczny", "synchron", "data_utworzenia", "data_synchronizacji"},
+            {"Integer", "text", "integer", "text", "text", "integer", "integer", "text", "text"}};
+
     //ElektronicznaKsiazkaAutaByDexFirmy
     private static final String[][] DICTIONARY_TABLE_1_ROWS = {{"nazwa", "numer", "nr_telefonu", "ulica_nr", "miasto", "typ", "kalendarz_id"},
             {"text", "text", "text", "text", "text", "text", "Text"}};
@@ -379,6 +382,16 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         return DICTIONARY_TABLE_NAME;
     }
 
+    protected List<String> getTabliceDoSynchronizacji(){
+        //zwracamy listę tabel do synchronizacji w określonej kolejności
+        List<String> tablica = new ArrayList<>();
+        tablica.add(DICTIONARY_TABLE_NAME_1);
+        tablica.add(DICTIONARY_TABLE_NAME_4);
+        tablica.add(DICTIONARY_TABLE_NAME_2);
+        return tablica;
+
+    }
+
     protected void openDataBase1(){
         SQLiteDatabase db = getWritableDatabase();
         //return db.getPath();
@@ -496,7 +509,50 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         //db.close();
     }//private void dodajDane(){
 
+    private String[][] getTablePolaW(String[][] tab1, String[][] tab2){
 
+        int dlugosc = tab1[1].length + tab2[1].length;
+        String [][] tabString = new String[2][dlugosc];
+
+        //dodajemy do nowej tablicy elementy z 1
+        for (int i = 0; i < tab1[1].length; i++){
+            tabString[0][i] = tab1[0][i];
+            //Log.d("Tab 1 " + i, tab1[0][i]);
+            tabString[1][i] = tab1[1][i];
+            //Log.d("Tab 1 " + i, tab1[1][i]);
+        }
+
+        //dodajemy do nowej tablicy elementy z 2, więc musimy dodać długość 1
+        for (int i = 0; i < tab2[1].length; i++){
+            tabString[0][i + tab1[1].length] = tab2[0][i];
+            //Log.d("Tab 2 " + i, tab2[0][i]);
+            tabString[1][i + tab1[1].length] = tab2[1][i];
+            //Log.d("Tab 2 " + i, tab2[1][i]);
+        }
+        dlugosc = 0;
+        return tabString;
+
+    }
+
+    protected String[][] getTablePola(String tabela){
+        String[][] pola;
+        int dlugosc = 0;
+        switch (tabela) {
+            case DICTIONARY_TABLE_NAME_1:
+                pola = getTablePolaW(DICTIONARY_TABLE_1_ROWS, DICTIONARY_TABLE_ROWS_WSPOLNE);
+                break;
+            case DICTIONARY_TABLE_NAME_4:
+                pola = getTablePolaW(DICTIONARY_TABLE_4_ROWS, DICTIONARY_TABLE_ROWS_WSPOLNE);
+                break;
+            case DICTIONARY_TABLE_NAME_2:
+                pola = getTablePolaW(DICTIONARY_TABLE_2_ROWS, DICTIONARY_TABLE_ROWS_WSPOLNE);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + tabela);
+        }
+        
+        return pola;
+    }
 
     public void kasujDane(int id, String nazwaTabeli) {
         Log.d("DebugCSQL:", "kasujDane");

@@ -1,5 +1,10 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class daneFirma extends daneKlasaPodstawowa{
     private String nazwa;
     private String numer;
@@ -144,6 +149,37 @@ public class daneFirma extends daneKlasaPodstawowa{
                 "U: " + uwagi +
                 " K: " + kalendarz_nazwa;
 
+    }
+
+    public void setFromJSON(JSONObject Jasonobject) {
+        setFromJSONw(Jasonobject);
+
+        this.setKalendarz_id(Jasonobject.optInt("kalendarz_id", 0));
+        this.setTyp(Jasonobject.optString("typ", ""));
+        this.setMiasto(Jasonobject.optString("miasto", ""));
+        this.setUlica_nr(Jasonobject.optString("ulica_nr", ""));
+        this.setNr_telefonu(Jasonobject.optInt("nr_telefonu", 0));
+        this.setNumer(Jasonobject.optString("numer", ""));
+        this.setNazwa(Jasonobject.optString("nazwa", ""));
+    }
+
+    public Map<String, String> getMap() {
+        Map<String, String> param = new HashMap<String, String>();
+
+        param.put("nazwa", this.getNazwa());
+        if (this.getNumer() != null) {
+            param.put("numer", this.getNumer());
+        } else {
+            param.put("numer", "0");
+        }
+        param.put("nr_telefonu", String.valueOf(this.getNr_telefonu()));
+        param.put("ulica_nr", this.getUlica_nr());
+        param.put("miasto", this.getMiasto());
+        param.put("typ", this.getTyp());
+        param.put("kalendarz_id", String.valueOf(this.getKalendarz_id()));
+
+        param.putAll(getMapW());
+        return param;
     }
 
     public String toString(){

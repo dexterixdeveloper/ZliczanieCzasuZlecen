@@ -1,6 +1,10 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by dexterix on 2015-04-16.
@@ -21,7 +25,7 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
     private Integer kalendarz_id;
     private long kalendarz_id_long;
     private Long kalendarz_zadanie_id;
-    private boolean isChecked = false;
+    private boolean isChecked;
 
     public boolean isChecked() {
         return isChecked;
@@ -234,12 +238,46 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
 
     }
 
+    public Map<String, String> getMap() {
+        Map<String, String> param = new HashMap<>();
+
+        param.put("firma_id", String.valueOf(this.getFirma_id()));
+        param.put("czas_rozpoczecia", String.valueOf(this.getCzas_rozpoczecia()));
+        param.put("opis", this.getOpis());
+        param.put("status", this.getStatus());
+        if (this.getRozliczona() != null) {
+            param.put("rozliczona", this.getRozliczona());
+        }else{param.put("rozliczona","");}
+        param.put("czas_zakonczenia", String.valueOf(this.getCzas_zakonczenia()));
+        param.put("kalendarz_id", String.valueOf(this.getKalendarz_id()));
+        //param.put("kalendarz_id_long", String.valueOf(danaS.getKalendarz_id_long()));
+        param.put("kalendarz_zadanie_id", String.valueOf(this.getKalendarz_zadanie_id()));
+        param.put("czas_zawieszenia", String.valueOf(this.getCzas_zawieszenia()));
+
+        param.putAll(getMapW());
+        return param;
+    }
+
+    public void setFromJSON(JSONObject Jasonobject) {
+        setFromJSONw(Jasonobject);
+
+        this.setFirma_id(Jasonobject.optInt("firma_id", 0));
+        this.setOpis(Jasonobject.optString("opis", ""));
+        this.setCzas_rozpoczecia(Jasonobject.optLong("czas_rozpoczecia", 0));
+        this.setCzas_zawieszenia(Jasonobject.optLong("czas_zawieszenia", 0));
+        this.setCzas_zakonczenia(Jasonobject.optLong("czas_zakonczenia", 0));
+        this.setStatus(Jasonobject.optString("status", ""));
+        this.setRozliczona(Jasonobject.optString("rozliczona", ""));
+        this.setKalendarz_id(Jasonobject.optInt("kalendarz_id", 0));
+        this.setKalendarz_zadanie_id(Jasonobject.optLong("kalendarz_zadanie_id", 0));
+    }
+
     public String toStringForRaport() {
         return  ";;MŁ;" +
                 czas_rozpoczecia_string + ';' +
                 czas_zakonczenia_string + ';' +
                 firma_nazwa + ';' +
-                String.valueOf(czas_zakonczenia - czas_rozpoczecia) + ';' +
+                (czas_zakonczenia - czas_rozpoczecia) + ';' +
                 opis + ';' +
                 status + ';' +
                 uwagi;

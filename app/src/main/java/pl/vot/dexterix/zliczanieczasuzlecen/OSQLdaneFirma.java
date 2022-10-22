@@ -37,6 +37,10 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
         return dajDane(zapytanie);
     }*/
 
+    public Class<daneFirma> wykopTablice(){
+        return daneFirma.class;
+    }
+
     @Override
     public String getTableName(){
         return DICTIONARY_TABLE_NAME;

@@ -9,7 +9,7 @@ import android.util.Log;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class ObslugaSQLPodstawowa extends ObslugaSQL {
+public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements InterfejsDostepDoDanych {
 
     public ObslugaSQLPodstawowa(Context context) {
         super(context);
@@ -22,6 +22,7 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor kursor = db.rawQuery(zapytanie, null);
+
         if (kursor != null) {
             kursor.moveToFirst();
             while (!kursor.isAfterLast()) {
@@ -91,6 +92,37 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL {
         //ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) t);
 
         updateDaneOSQL(nazwa_tabeli, wartosci, Integer.valueOf((Integer) wartosci.get("_id")));
+    }
+
+    protected ContentValues contentValuesW(daneKlasaPodstawowa dane_funkcji){
+        ContentValues wartosci = new ContentValues();
+
+        wartosci.put("_id", dane_funkcji.getId());
+
+        wartosci.put("uwagi", dane_funkcji.getUwagi());
+        wartosci.put("poprzedni_rekord_id", dane_funkcji.getPoprzedni_rekord_id());
+        wartosci.put("poprzedni_rekord_data_usuniecia", dane_funkcji.getPoprzedni_rekord_data_usuniecia());
+        wartosci.put("poprzedni_rekord_powod_usuniecia", dane_funkcji.getPoprzedni_rekord_powod_usuniecia());
+        wartosci.put("synchron", dane_funkcji.getSynchron());
+        wartosci.put("czy_widoczny", dane_funkcji.getCzy_widoczny());
+        if(dane_funkcji.getData_synchronizacji() > 0){
+            wartosci.put("data_synchronizacji", dane_funkcji.getData_synchronizacji());
+        }else{
+            wartosci.put("data_synchronizacji", 0);
+        }
+        if(dane_funkcji.getData_utworzenia() > 0){
+            wartosci.put("data_utworzenia", dane_funkcji.getData_utworzenia());
+        }else{
+            wartosci.put("data_utworzenia", 0);
+        }
+        //Log.d("OSQLdaneFirma: Uwagi: ", dane_funkcji.getUwagi());
+        return wartosci;
+    }
+
+    protected <T> ContentValues setContentValues(T dane_funkcji){
+        ContentValues wartosci = new ContentValues();
+
+        return wartosci;
     }
 
 }

@@ -1,5 +1,10 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class daneStawka extends daneKlasaPodstawowa{
 
     private String firma_nazwa;
@@ -71,6 +76,27 @@ public class daneStawka extends daneKlasaPodstawowa{
 
     public String toStringDoRecyclerView() {
         return "W: " + getStawka() + "od" + getPoczatek();
+    }
+
+    public Map<String, String> getMap() {
+        Map<String, String> param = new HashMap<>();
+
+        param.put("firma_id", String.valueOf(this.getFirma_id()));
+        param.put("stawka", String.valueOf(this.getStawka()));
+        param.put("poczatek", this.getPoczatek());
+        param.put("koniec", this.getKoniec());
+
+        param.putAll(getMapW());
+        return param;
+    }
+
+    public void setFromJSON(JSONObject Jasonobject) {
+        setFromJSONw(Jasonobject);
+
+        this.setKoniec(Jasonobject.optString("koniec",""));
+        this.setStawka(Jasonobject.optLong("stawka",0));
+        this.setPoczatek(Jasonobject.optString("poczatek", ""));
+        this.setFirma_id(Jasonobject.optInt("firma_id", 0));
     }
 
     @Override

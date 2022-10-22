@@ -3,6 +3,7 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.List;
 
@@ -40,8 +41,15 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
         wartosci.put("rozliczona", dane_funkcji.getRozliczona());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id());
         wartosci.put("kalendarz_zadanie_id", dane_funkcji.getKalendarz_zadanie_id());
-
+        Log.d("dana klasy osql: ", dane_funkcji.toString());
         wartosci.putAll(contentValuesW(dane_funkcji));
+        return wartosci;
+    }
+
+    protected ContentValues setContentValues(daneZlecenia dane_funkcji){
+        ContentValues wartosci = new ContentValues();
+        wartosci.putAll(contentValuesW(dane_funkcji));
+        wartosci.putAll(contentValues(dane_funkcji));
         return wartosci;
     }
 

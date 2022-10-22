@@ -51,7 +51,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
 
         //inicjujemy dane w klasie
         danaKlasy.onCreate();
-
+        ukryjFloatingButton();
             //Odpalamy okienko opis:
         textInputEditTextOpis = (TextInputEditText) view.findViewById(R.id.textInputEditTextOpis);
         textInputEditTextUwagi = (TextInputEditText) view.findViewById(R.id.textInputEditTextUwagi);
@@ -142,12 +142,12 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
-                if (!(poszukiwanie==getString(dodaj)) && !(poszukiwanie==getString(wybierz))){
+                if (!(poszukiwanie.equals(getString(dodaj))) && !(poszukiwanie.equals(getString(wybierz)))){
                     danaKlasy.setFirma_id(Integer.valueOf(danaSpinnera.get(i)[0]));
                     //OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
                     danaKlasy.setFirma_nazwa(danaSpinnera.get(i)[1]);
                     danaKlasy.setKalendarz_id_long(Long.valueOf(danaSpinnera.get(i)[2]));
-                }else if (poszukiwanie==getString(dodaj)){
+                }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentZadanieArchiwalne.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
                     /*Intent intent = new Intent(ActivityZadanie.this, ActivityPrzegladyOkresoweDodajStacjaKontroliSieci.class);

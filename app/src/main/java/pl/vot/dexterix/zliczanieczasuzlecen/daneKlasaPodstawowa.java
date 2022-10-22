@@ -2,7 +2,12 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.database.Cursor;
 
-public class daneKlasaPodstawowa {
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class daneKlasaPodstawowa implements InterfejsDane{
     protected Integer id;
     protected String uwagi;
     protected Integer poprzedni_rekord_id;
@@ -85,6 +90,22 @@ public class daneKlasaPodstawowa {
         this.czy_widoczny = czy_widoczny;
     }
 
+    public void setFromJSONw(JSONObject Jasonobject){
+        this.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));
+        this.setData_synchronizacji(Jasonobject.optLong("data_synchronizacji", 0));
+        this.setSynchron(1);
+        this.setCzy_widoczny(Jasonobject.optInt("czy_widoczny", 0));
+        this.setPoprzedni_rekord_powod_usuniecia(Jasonobject.optString("poprzedni_rekord_powod_usuniecia", ""));
+        this.setPoprzedni_rekord_data_usuniecia(Jasonobject.optString("poprzedni_rekord_data_usuniecia", ""));
+        this.setPoprzedni_rekord_id(Jasonobject.optInt("poprzedni_rekord_id", 0));
+        this.setUwagi(Jasonobject.optString("uwagi", ""));
+        this.setId(Jasonobject.optInt("id", 0));
+    }
+
+    public void setFromJSON(JSONObject Jasonobject) {
+
+    }
+
     public void addWspolne(Cursor kursor){
 
         if (kursor.getColumnIndex("_id") > -1) {
@@ -114,5 +135,37 @@ public class daneKlasaPodstawowa {
         if (kursor.getColumnIndex("data_synchronizacji") > -1) {
             this.setData_synchronizacji(kursor.getLong(kursor.getColumnIndex("data_synchronizacji")));
         }
+    }
+
+    @Override
+    public Map<String, String> getMap() {
+        return null;
+    }
+
+    protected Map<String, String> getMapW() {
+        Map<String, String> param = new HashMap<String, String>();
+
+            param.put("_id", String.valueOf(this.getId()));
+            param.put("uwagi", this.getUwagi());
+            if (this.getPoprzedni_rekord_id() != null) {
+                param.put("poprzedni_rekord_id", String.valueOf(this.getPoprzedni_rekord_id()));
+            } else {
+                param.put("poprzedni_rekord_id", "0");
+            }
+            if (this.getPoprzedni_rekord_data_usuniecia() != null) {
+                param.put("poprzedni_rekord_data_usuniecia", this.getPoprzedni_rekord_data_usuniecia());
+            } else {
+                param.put("poprzedni_rekord_data_usuniecia", "0");
+            }
+            if (this.getPoprzedni_rekord_powod_usuniecia() != null) {
+                param.put("poprzedni_rekord_powod_usuniecia", this.getPoprzedni_rekord_powod_usuniecia());
+            } else {
+                param.put("poprzedni_rekord_powod_usuniecia", "");
+            }
+            param.put("czy_widoczny", String.valueOf(this.getCzy_widoczny()));
+            param.put("data_utworzenia", String.valueOf(this.getData_utworzenia()));
+            param.put("data_synchronizacji", String.valueOf(this.getData_synchronizacji()));
+
+        return param;
     }
 }

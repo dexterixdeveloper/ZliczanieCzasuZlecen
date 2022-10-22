@@ -58,7 +58,7 @@ public class FragmentFirma extends FragmentPodstawowy {
         //sprawdzamy czy mamy zapisane kalendarze w bazie
         OSQLdaneKalendarzy osqlk = new OSQLdaneKalendarzy(getActivity());
         List<daneKalendarza> kalendarze_w_bazie = osqlk.dajWszystkie();
-
+        ukryjFloatingButton();
         dodajDoSpinnerWybierzKalendarz(R.string.wybierz, 0L);
 
         //Fragment z1 = getVisibleFragment();
@@ -162,7 +162,7 @@ public class FragmentFirma extends FragmentPodstawowy {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
-                if (!(poszukiwanie==getString(wybierz))){
+                if (!(poszukiwanie.equals(getString(wybierz)))){
                     //int kalendarz = Integer.valueOf(poszukiwanie.substring(0,String.valueOf(poszukiwanie).indexOf(" ")));
 
                     danaKlasy.setKalendarz_id(Long.valueOf(danaSpinnera.get(i)[0]));
@@ -194,7 +194,7 @@ public class FragmentFirma extends FragmentPodstawowy {
         Log.d("FragmentFirma: set Miasto: ", danaKlasy.getMiasto());
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
         danaKlasy.setNr_telefonu(Integer.valueOf(String.valueOf(textInputEditTextNrTelefonu.getText())));
-
+        danaKlasy.setCzy_widoczny(1);
         if (danaKlasy.getNazwa().equals("")){
             daneDoUzupelnienia++;
             uzupelnijDane.append("-Nazwa Firmy\n");

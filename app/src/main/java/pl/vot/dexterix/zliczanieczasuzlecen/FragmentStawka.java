@@ -107,10 +107,10 @@ public class FragmentStawka extends FragmentPodstawowy {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
-                if (!(poszukiwanie==getString(dodaj)) && !(poszukiwanie==getString(wybierz))){
+                if (!(poszukiwanie.equals(getString(dodaj))) && !(poszukiwanie.equals(getString(wybierz)))){
                     danaKlasy.setFirma_id(Integer.valueOf(danaSpinnera.get(i)[0]));
                     danaKlasy.setFirma_nazwa(danaSpinnera.get(i)[1]);
-                }else if (poszukiwanie==getString(dodaj)){
+                }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentStawka.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
                 }
@@ -138,6 +138,8 @@ public class FragmentStawka extends FragmentPodstawowy {
         danaKlasy.setPoczatek(String.valueOf(textInputEditTextPoczatek.getText()));
         danaKlasy.setKoniec(String.valueOf(textInputEditTextKoniec.getText()));
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
+
+        danaKlasy.setCzy_widoczny(1);
 
         if (danaKlasy.getFirma_id() <= 0) {
             daneDoUzupelnienia++;
