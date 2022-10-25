@@ -34,6 +34,7 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements Interfe
             T dana_funkcji = null;// = new <T>();
             dane_funkcji.add(dana_funkcji);
         }
+        kursor.close();
         db.close();
         return dane_funkcji;
     }//public List<daneFirma> dajWszystkieFirmy(){
@@ -70,6 +71,7 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements Interfe
             dane_funkcji = null;
 
         }
+        kursor.close();
         db.close();
         return dane_funkcji;
     }//public List<daneAuta> dajWszystkieAuta(){

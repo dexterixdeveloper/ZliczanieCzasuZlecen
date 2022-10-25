@@ -9,7 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dexterix on 2015-04-10.
@@ -295,6 +298,7 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             Log.d("DebugCSQL:", "Wystapil problem przy usuwaniu danych w " + nazwa_tabeli);
             Log.d("wyjatek", excepion.toString());
         }
+        db.close();
     }//private void usunDaneZTabeli(String nazwa_tabeli){
 
     /*public void wstawDanePobraneZCSV(String nazwa_tabeli, ContentValues wartosci){
@@ -403,6 +407,48 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         db.close();
     }//public void zamknijBaze(){
 
+    protected int getIloscRekordowDoSynchronizacji(String tabela){
+        int i = 0;
+        SQLiteDatabase db = getReadableDatabase();
+        String[] whereArgs = new String[]{"0", "1"};
+        String[] columns = new String[]{"_id"};
+        Cursor c = db.query(tabela, columns, "data_synchronizacji = ? OR data_synchronizacji = ?", whereArgs, null, null,null);
+        i = c.getCount();
+        c.close();
+        db.close();
+        return i;
+    }
+
+    protected List<Map> getDaneDoSynchronizacjiMap(String tabela){
+        List<Map> dane = new LinkedList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        //String zapytanie = "SELECT * FROM " + table + " WHERE data_synchronizacji IN ('0', '1')";
+        String[] whereArgs = new String[]{"0", "1"};
+        Cursor cs = db.query(tabela, getTablePola(tabela)[0], "data_synchronizacji = ? OR data_synchronizacji = ?", whereArgs, null, null, "_id", "1");
+        //cs = db.query()
+        Log.d("dlugosć cs: ", String.valueOf(cs.getCount()));
+        int columns = cs.getColumnCount();
+        String[] nazwyKolumn = cs.getColumnNames();
+
+        cs.moveToFirst();
+        while(!cs.isAfterLast()){
+            Map<String, String> dana = new HashMap<String, String>();
+            for (int j = 0; j < columns; j++) {
+                if (!cs.isNull(j)) {
+
+                    dana.put(nazwyKolumn[j], cs.getString(j));
+
+                }
+            }
+            dane.add(dana);
+            dana = null;
+            cs.moveToNext();
+        }
+        cs.close();
+        db.close();
+        return dane;
+    }
+
     protected long dodajZastapDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         Log.d("DebugCSQL:", nazwa_tabeli);
         long idRekordu =-1;
@@ -435,7 +481,12 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         return idRekordu;
     }
 
+    protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci, boolean czyZamykac){
+        return 0;
+    }
+
     protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
+        boolean czyZamykamy = true;
         Log.d("DebugCSQL:", nazwa_tabeli);
         //usuwamy id, bo wstawiamy kollejny rekord
         wartosci.remove("_id");
@@ -447,6 +498,10 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             if(!wartosci.containsKey("data_utworzenia")) {
                 //db.insert(nazwa_tabeli, null, wartosci);
                 wartosci.put("data_utworzenia", aktualnaData.getAktualnaData());
+            }
+            if(wartosci.containsKey("CzyZamykac")){
+                czyZamykamy = wartosci.getAsBoolean("CzyZamykac");
+                wartosci.remove("CzyZamykac");
             }
             if(!wartosci.containsKey("data_synchronizacji")) {
                 wartosci.put("data_synchronizacji", "0");
@@ -462,7 +517,9 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             //CheckLista.
         }
         Log.d("DebugCSQL:", "koniec wstawiania danych do tabeli: " + nazwa_tabeli);
-        db.close();
+        if(czyZamykamy) {
+            db.close();
+        }
         return idRekordu;
     }//private void dodajDane(){
 
@@ -565,7 +622,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
 
     public Cursor rawQuery(String zapytanie, String[] argumenty){
         Cursor c = null;
-        SQLiteDatabase db = getWritableDatabase();
+        //SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         c = db.rawQuery(zapytanie, argumenty);
         return c;
     }

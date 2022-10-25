@@ -45,7 +45,7 @@ public class FragmentSettings extends FragmentPodstawowy{
         addListenerOnbuttonBackup(R.id.buttonBackup);
         addListenerOnButtonJakis(R.id.buttonRestore);
         addListenerOnButtonRestore(R.id.button3);
-        addListenerOnButtonSendBackup(R.id.buttonSendBackup);
+        addListenerOnButtonJakis1(R.id.buttonSendBackup);
         addListenerOnButtonSendRaporty(R.id.buttonSendReports);
         addListenerOnSwitch(R.id.toggleButtonBaza);
     }
