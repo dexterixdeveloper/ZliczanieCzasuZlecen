@@ -1,5 +1,7 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.ContentValues;
+
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -199,6 +201,27 @@ public class daneFirma extends daneKlasaPodstawowa{
         " synchron " + synchron +
         " data_utworzenia " + data_utworzenia +
         " data_synchronizacji " + data_synchronizacji;
+    }
+
+    public ContentValues getContentValues1(){
+        ContentValues wartosci = new ContentValues();
+
+        wartosci.put("nazwa", this.getNazwa());
+        //Log.d("OSQLdaneFirma: Nazwa: ", dane_funkcji.getNazwa());
+        wartosci.put("numer", this.getNumer());
+        wartosci.put("nr_telefonu", this.getNr_telefonu());
+        //Log.d("OSQLdaneFirma: Numer Telefonu", String.valueOf(this.getNr_telefonu()));
+        wartosci.put("ulica_nr", this.getUlicaNr());
+        //Log.d("OSQLdaneFirma: UlicaNr: ", this.getUlicaNr());
+        wartosci.put("miasto", this.getMiasto());
+        wartosci.put("typ", this.getTyp());
+        //Log.d("OSQLdaneFirma: Miasto: ", this.getMiasto());
+        wartosci.put("kalendarz_id", this.getKalendarz_id_str());
+        //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(this.getKalendarz_id()));
+        //wartosci.put("siec_id", this.getSiec_id());
+        //wartosci.put("typ", this.getTyp());
+        wartosci.putAll(contentValuesW());
+        return wartosci;
     }
     /*public String getTyp() {
         return typ;

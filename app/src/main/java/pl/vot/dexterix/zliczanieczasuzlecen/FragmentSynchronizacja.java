@@ -21,9 +21,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,12 +31,14 @@ import java.util.Map;
 
 public class FragmentSynchronizacja extends FragmentPodstawowy {
 
-    protected String TOKEN_ID_URL = "https://dexterix.vot.pl/zliczazle/sendtokenid.php";
+    //protected String TOKEN_ID_URL = "https://dexterix.vot.pl/zliczazle/sendtokenid.php";
     protected BroadcastReceiver broadcastReceiver;
-    protected String SYNCHRONIZE_URL = "https://dexterix.vot.pl/zliczazle/synchronizemessages.php";
+    //protected String SYNCHRONIZE_URL = "https://dexterix.vot.pl/zliczazle/synchronizemessages.php";
+    protected String synchronize_url = "https://";
 
     public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
 
+    private daneSynchronizacja daneDostepowe = new daneSynchronizacja();
     private boolean czyKoniec = false;
     private int aktualnaTabela = 0;
 
@@ -53,6 +52,9 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
 
     private void setCzyKoniec(boolean x){
         this.czyKoniec = x;
+    }
+    private boolean getCzyKoniec(){
+        return this.czyKoniec;
     }
 
     @Override
@@ -69,11 +71,11 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
         super.onViewCreated(view, savedInstanceState);
         //Fragment z1 = getVisibleFragment();
         Log.d("Token", "przed daj");
-        Log.d("Token", getActualTokenId());
+        //Log.d("Token", getActualTokenId());
         Log.d("Token", "po daj");
         ukryjFloatingButton();
-        addListenerOnButtonSynchronizujWszystko();
 
+        setDaneDostepowe();
     }
 
     private void addListenerOnButtonSynchronizujWszystko() {
@@ -86,87 +88,25 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
         });
     }
 
-    public void getActualToken(Context context){
-        final String[] token = new String[1];
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("Pobieramy token", "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
+    private void setDaneDostepowe(){
+        OSQLdaneSynchronizacja ds = new OSQLdaneSynchronizacja(getActivity());
+        daneDostepowe = ds.dajOkreslonyRekord(1);
+        TextView textView = (TextView) getActivity().findViewById(R.id.textViewSynchronizacja);
+        Log.d("daneSynchronizacja: ", daneDostepowe.toString());
+        if (daneDostepowe.getLink().length() > 0){
+            addListenerOnButtonSynchronizujWszystko();
 
-                        // Get new FCM registration token
-                        token[0] = task.getResult();
-
-                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(getResources().getString(R.string.FCM_TOKEN), token[0]);
-                        editor.apply();
-                        Toast.makeText(context, token[0], Toast.LENGTH_SHORT).show();
-                        //return token;
-                    }
-                });
-
+        }else{
+            textView.append("Musisz wprowadzić parametry synchronizacji:\n Link\n itd...\nNa ten moment synchronizacja niemożliwa");
+        }
+        synchronize_url = new StringBuilder(synchronize_url).append(daneDostepowe.getLink()).toString();
     }
 
     protected String getActiveDataBase(){
         //pobieramy bazę z zapisania
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.ActiveDatabase), Context.MODE_PRIVATE);
         String pref = sharedPreferences.getString(getResources().getString(R.string.ActiveDatabase),"1");
-        //Log.d("Token get acktu", token_id);
-
         return pref;
-    }
-
-    private void wyslijToken() {
-        getActualToken(getActivity());
-        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(FragmentSynchronizacja.UI_SYNCHRONIZE_MESSAGE));
-        //ReadMessages();
-
-        final String tokenek = getActualTokenId();
-        //Log.d("token", tokenek);
-        Log.d("###############","############");
-        StringRequest SendTokenID = new StringRequest(Request.Method.POST, TOKEN_ID_URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                //synchronizujFirmy(R.id.textViewSynchroFirmy);
-                Log.d("Odpowiedź", response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_LONG).show();
-                Log.d("Bład", error.toString());
-
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> param = new HashMap<String, String>();
-
-                param.put("tokenid",tokenek );
-                return param;
-            }
-        };
-        SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
-
-        getActivity().registerReceiver(broadcastReceiver,new IntentFilter(FragmentSynchronizacja.UI_SYNCHRONIZE_MESSAGE));
-    }
-
-    protected String getActualTokenId(){
-        //pobieramy token z zapisania
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
-        String token_id= sharedPreferences.getString(getResources().getString(R.string.FCM_TOKEN),"");
-        //Log.d("Token get acktu", token_id);
-        if (token_id.equals("")){
-            getActualToken(getActivity());
-            sharedPreferences = getActivity().getSharedPreferences(getResources().getString(R.string.FCM_Pref), Context.MODE_PRIVATE);
-            token_id= sharedPreferences.getString(getResources().getString(R.string.FCM_TOKEN),"");
-        }
-        return token_id;
     }
 
     protected void synchronizujDane(int RidtextView){
@@ -178,21 +118,16 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
 
         //Tabele do synchronizacji
         List<String> tablice = daneOSQL.getTabliceDoSynchronizacji();
-        //List<String> tablice = Arrays.asList(new String[]{"BZCZBD_Firmy"});
-        //Cursor cursorSynchronizacja = null;
-        if (getAktualnaTabela() < tablice.size()) {
+        if (getAktualnaTabela() < tablice.size() && !getCzyKoniec()) {
             String table = tablice.get(getAktualnaTabela());
 
             try {
                 //for (String table : tablice){
                 Log.d("tabela: ", table);
-                String zapytanie = "SELECT * FROM " + table + " WHERE data_synchronizacji IN ('0', '1')";
+                String zapytanie = new StringBuilder().append("SELECT * FROM ").append(table).append(" WHERE data_synchronizacji IN ('0', '1')").toString();
                 String zapytanieU = "UPDATE " + table + " SET data_synchronizacji = '2' WHERE _id = ";
                 //cursorSynchronizacja = daneOSQL.rawQuery(zapytanie, null);
                 List<Map> dane = daneOSQL.getDaneDoSynchronizacjiMap(table);
-                //String[] nazwyKolumn = cursorSynchronizacja.getColumnNames();
-                //int columns = cursorSynchronizacja.getColumnCount();
-                //String[] columnArr = new String[columns];
                 String tabela_nazwa = table;
                 textView.append("Synchronizujemy tabelę " + tabela_nazwa + "\n");
                 int iloscRekordowDoSynchroZTelefonu = daneOSQL.getIloscRekordowDoSynchronizacji(table);
@@ -202,63 +137,25 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                     int i = 0;
                     int dlugosscNaPoczatku = 0;
                     Map<String, String> dana = new HashMap<String, String>();
-                    //while (!dane.isEmpty()) {
-                    //Log.d("ile i: ", String.valueOf(i));
-                    //Log.d("ile do synchronizacji1: ", String.valueOf(dane.size()));
                     dana = dane.get(0);
                     dlugosscNaPoczatku = dane.size();
-                    /*Map<String, String> dane = new HashMap<String, String>();
-                    for (int j = 0; j < columns; j++) {
-                        if (!cursorSynchronizacja.isNull(j)) {
-                            //cursorSynchronizacja.getColumnCount();
-                            //Log.d("ja i mój jj: ", String.valueOf(j));
-                            //Log.d("kolumna: ", cursorSynchronizacja.getColumnName(j));
-
-                            //Log.d("ile kolumn: ", String.valueOf(cursorSynchronizacja.getColumnCount()));
-                            //Log.d(nazwyKolumn[j], cursorSynchronizacja.getString(j));
-                            dane.put(nazwyKolumn[j], cursorSynchronizacja.getString(j));
-
-                            //Log.d(nazwyKolumn[j], cursorSynchronizacja.getString(j));
-                        }
-                    }*/
                     Log.d("dane: ", dana.toString());
                     synchronizujDana(dana, tabela_nazwa, RidtextView, true, false, i);
                     Log.d("a dla jaj: ", String.valueOf(dana.get("data_utworzenia")));//.getString(cursorSynchronizacja.getColumnIndex("data_utworzenia"))));
-                    //cursorSynchronizacja = null;
-                    //cursorSynchronizacja.close();
-                    //Log.d("KursorSynschro długość 1", String.valueOf(dane.size()));
-                    //cursorSynchronizacja.getInt(cursorSynchronizacja.getColumnIndex("_id"));
-                    //ustawiamy dane synchronizacji na 2 dla aktualnego rekordu, zobaczmy co odwali kursor
-                    //ContentValues cv1 = new ContentValues();
-                    //cv1.put("data_synchronizacji", "2");
-                    //daneOSQL.updateDaneOSQL(table, cv1, Integer.valueOf(dana.get("_id")));//.getInt(cursorSynchronizacja.getColumnIndex("_id")));
-                    //cv1 = null;
-                    //dane = daneOSQL.getDaneDoSynchronizacjiMap(table);
-                    //cursorSynchronizacja = daneOSQL.rawQuery(zapytanie, null);
-                    //Log.d("KursorSynschro długość 2", String.valueOf(dane.size()));
-                    //cursorSynchronizacja.moveToFirst();
                     dana = null;
                     i++;
-                        /*if (i > 10) {
-                            //break;
-                        }*/
-                    //}
-                    //zatem to co miałem do synchro poszło, teraz te konflikty
-                    //cursorSynchronizacja = null;
+
                 } else {
                     textView.append("Brak danych do wysłania, sprawdzam czy coś do pobrania " + "\n");
                     Log.d("Fragment Synchronizacja: ", "Pobieramy dane");
-                    //if (i > 10){break;}
-                    //i = 0;
-                    //while (!czyKoniec) {
+                    if (!getCzyKoniec()) {
                         Map<String, String> danePobierane = new HashMap<String, String>();
                         synchronizujDana(danePobierane, tabela_nazwa, RidtextView, false, false, 1);
-                        //i++;
-                    //}
+                    }
+
                     textView.append("Brak danych do pobrania w tabeli " + table + "\n");
                 }
-                //cursorSynchronizacja = null;
-                //}
+
             } catch (Exception sqlEx) {
                 Log.e("wyjebalo: ", sqlEx.getMessage(), sqlEx);
             }
@@ -290,7 +187,7 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
         ObslugaSQL daneOSQL = new ObslugaSQL(getActivity());
         int columns = danaS.size();
         String[][] nazwyKolumnWBazie = daneOSQL.getTablePola(tabela_nazwa);
-        StringRequest SendTokenID = new StringRequest(Request.Method.POST, SYNCHRONIZE_URL, new Response.Listener<String>() {
+        StringRequest SendTokenID = new StringRequest(Request.Method.POST, synchronize_url, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -331,6 +228,7 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                             //trzeb by hurtem to poprawić
                             if (tabela_nazwa.equals("BZCZBD_Firmy")) {
                                 OSQLdaneZlecenia updateZlecenia = new OSQLdaneZlecenia(getActivity());
+                                //no nie do końa jednak możemy hurtem, a co z poprzednimi rekordami?
                                 updateZlecenia.updateDaneHurtemIdFirmy(cv.getAsInteger("_id"), Math.toIntExact(idnowego));
                                 //updateZlecenia = null;//robimy pusty
                                 updateZlecenia.close();
@@ -353,8 +251,6 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                             textView.append("id = " + danaS.get("_id") + " Wystąpił nieoczekiwany błąd. Spróbuj później\n");
                             break;
                         case "zgodne":
-                            //textView.append("id = " + danaS.getInt(danaS.getColumnIndex("_id")) + " Rekord zgodny, brak potrzeby synchronizacji\n");
-
                             nazwyKolumn = new String[]{"data_synchronizacji", "_id"};
                             daneZserwera = getContentValuesFromJson(Jasonobject, nazwyKolumn);
                             textView.append("id = " + daneZserwera.getAsInteger("_id") + " Rekord zgodny, brak potrzeby synchronizacji\n");
@@ -380,7 +276,7 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                             textView.append("Brak danych do pobrania w tabeli " + tabela_nazwa + "\n");
                             textView.append("Koniec synchronizacji tabeli  " + tabela_nazwa + "\n");
                             Log.d("Synchro", "Koniec synchronizacji");
-                            setCzyKoniec(true);
+                            //setCzyKoniec(true);
                             setAktualnaTabela(getAktualnaTabela() + 1);
                             break;
                         case "test1":
@@ -388,8 +284,25 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                             break;
                         case "Token Error":
                             textView.append("Problem z autoryzacją, zarejestruj urządzenie\n");
-                            wyslijToken();
+                            //wyslijToken();
                             break;
+                        case "connect_error_brak_autoryzacji":
+                            textView.append("Problem z połączeniem - brak autoryzacji\n");
+                            String statusAutoryzacji = Jasonobject.optString("status_autoryzacji", null);
+                            String statusAutoryzacjiS = "";
+                            switch (statusAutoryzacji){
+                                case "device_add_not_auth":
+                                    statusAutoryzacjiS = "Jest to nowe urządzenie, skonfiguruj i aktywuj je przez stronę";
+                                    break;
+                                case "device_not_auth":
+                                    statusAutoryzacjiS = "Urządzenie nie zostało aktywowane przez stronę, zrób to";
+                            }
+                            Log.d("w kulki leci", "w kulki leci");
+                            textView.append(statusAutoryzacjiS);
+                            textView.append("\n");
+                            setCzyKoniec(true);
+                            break;
+
                     }
                     daneOSQL.close();
                     synchronizujDane(RidtextView);
@@ -410,7 +323,9 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<String, String>();
-                param.put("tokenid", getActualTokenId());
+                //usuwamy token
+                //param.put("tokenid", getActualTokenId());
+                param.putAll(daneDostepowe.getDanaMap());
                 param.put("tabela", tabela_nazwa);
                 //dodajemy flagę jaka to baza: 1 - produkcyjna; 0 - testowa
                 param.put("flagabazy", getActiveDataBase());
@@ -419,8 +334,6 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                     Log.d("data utw: ", String.valueOf(danaS.get("data_utworzenia")));
                     Log.d("data synchro:  ", String.valueOf(danaS.get("data_synchronizacji")));
                     int columns = danaS.size();//.getColumnCount();
-                    //Log.d("columns FS: ", String.valueOf(columns));
-                    //Log.d("danas.getcount", String.valueOf(danaS.size()));
 
                     param.putAll(danaS);
 
@@ -442,9 +355,6 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
                 return param;
             }
         };
-
-        //Log.d("sendtokenid: ", String.valueOf(SendTokenID));
-        //textView.append(String.valueOf(SendTokenID));
         SQLSynchMySingleton.getmInstance(getActivity()).addToRequestQueue(SendTokenID);
     }//Tutajj*/
 

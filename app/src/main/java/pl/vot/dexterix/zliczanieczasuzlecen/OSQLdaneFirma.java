@@ -58,19 +58,6 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
     }
 
     @Override
-    public List<daneFirma> dajDoSynchronizacji(){
-            String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
-                    "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
-                    "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.uwagi AS uwagi, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
-                    "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, " +
-                    "a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji FROM " + DICTIONARY_TABLE_NAME + " AS a " +
-                    "WHERE a.data_synchronizacji IN ('0', '1')";
-                    //< 2 bo 0 oznacza nie zsynchronizowany rekord, 1 zaktualizowany rekord, a jakakolwiek liczba oznacza datę synchronizacji
-            //a.synchron = 0 OR
-            return dajDane(zapytanie);
-        }
-
-    @Override
     public daneFirma dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
                 "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +

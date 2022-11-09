@@ -118,23 +118,6 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
     }
 
     @Override
-    public List<daneZlecenia> dajDoSynchronizacji(){
-        /*String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
-                "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
-                "z.calendar_id AS calendar_id, " +
-                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
-                "a.czy_widoczny AS czy_widoczny FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id LEFT JOIN " + DICTIONARY_TABLE_NAME_3 + " AS z ON a.kalendarz_id = z._id";*/
-        String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
-                "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
-                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
-                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id " +// WHERE a.synchron = 0 OR a.synchron IS NULL";
-                "WHERE a.data_synchronizacji IN ('0', '1')";
-                //< 2 bo 0 oznacza nie zsynchronizowany rekord, 1 zaktualizowany rekord, a jakakolwiek liczba oznacza datę synchronizacji
-        return dajDane(zapytanie);
-    }
-
-    @Override
     public void zerujDateSynchronizacji(){
         zerujDateSynchronizacji(DICTIONARY_TABLE_NAME);
     }
@@ -149,7 +132,10 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
         daneZlecenia dane_funkcji = new daneZlecenia();
         dane_funkcji.addWspolne(kursor);
         daneData potrzebnaData = new daneData();
+        int ileKolumn = kursor.getColumnCount();
+        for (int i = 0; i < ileKolumn; i++){
 
+        }
         if (kursor.getColumnIndex("czas_rozpoczecia") > -1) {
             dane_funkcji.setCzas_rozpoczecia(kursor.getLong(kursor.getColumnIndexOrThrow("czas_rozpoczecia")));
             dane_funkcji.setCzas_rozpoczecia_string(potrzebnaData.getDataMilisecondsToString(dane_funkcji.getCzas_rozpoczecia()));

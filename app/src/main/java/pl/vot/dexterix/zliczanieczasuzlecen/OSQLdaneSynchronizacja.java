@@ -25,6 +25,7 @@ public class OSQLdaneSynchronizacja extends ObslugaSQL {
     public long dodajDane(daneSynchronizacja dane_funkcji){
 
         ContentValues wartosci = contentValues(dane_funkcji);
+
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(DICTIONARY_TABLE_NAME, wartosci);
         return idRekordu;
@@ -99,6 +100,7 @@ public class OSQLdaneSynchronizacja extends ObslugaSQL {
         }//if (kursor.getCount() > 0) {
         else{
             dane_funkcji = new daneSynchronizacja();
+            dane_funkcji.onCreate();
         }
         db.close();
         return dane_funkcji;

@@ -9,7 +9,7 @@ public interface InterfejsDostepDoDanych {
     void zerujDateSynchronizacji();
     void zerujDateUtworzenia();
     //<T> void updateDane(T t);
-    <T> List<T> dajDoSynchronizacji();
+    //<T> List<T> dajDoSynchronizacji();
     <T> T dajOkreslonyRekord(Integer _id);
     <T> List<T> dajWszystkieDoRecyclerView();
     //<T> long dodajZastapDane(T t);

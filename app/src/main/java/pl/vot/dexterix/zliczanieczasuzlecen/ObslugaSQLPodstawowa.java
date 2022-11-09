@@ -77,6 +77,7 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements Interfe
     }//public List<daneAuta> dajWszystkieAuta(){
 
     protected long dodajDane(ContentValues wartosci, String nazwa_tabeli) {
+
         long idRekordu = -1;
         idRekordu = dodajDaneOSQL(nazwa_tabeli, wartosci);
         return idRekordu;

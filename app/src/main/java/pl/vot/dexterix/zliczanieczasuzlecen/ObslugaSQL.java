@@ -481,10 +481,6 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         return idRekordu;
     }
 
-    protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci, boolean czyZamykac){
-        return 0;
-    }
-
     protected long dodajDaneOSQL(String nazwa_tabeli, ContentValues wartosci){
         boolean czyZamykamy = true;
         Log.d("DebugCSQL:", nazwa_tabeli);
@@ -550,22 +546,6 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         db.close();
     }//private void updateDaneOSQL(){
 
-    protected void dodajDaneW(String nazwa_tabeli, ContentValues wartosci, SQLiteDatabase db){
-        Log.d("DebugCSQL:", nazwa_tabeli);
-
-        //SQLiteDatabase db = getWritableDatabase();
-
-        try {
-            db.insertOrThrow(nazwa_tabeli, null, wartosci);
-        } catch(SQLException excepion){
-            //tutaj trzeba coś dopisać
-            //CheckLista.wyswietlToast("Błąd insertu!!!");
-            //CheckLista.
-        }
-        Log.d("DebugCSQL:", "koniec wstawiania danych do tabeli: " + nazwa_tabeli);
-        //db.close();
-    }//private void dodajDane(){
-
     private String[][] getTablePolaW(String[][] tab1, String[][] tab2){
 
         int dlugosc = tab1[1].length + tab2[1].length;
@@ -609,15 +589,6 @@ public class ObslugaSQL extends SQLiteOpenHelper {
         }
         
         return pola;
-    }
-
-    public void kasujDane(int id, String nazwaTabeli) {
-        Log.d("DebugCSQL:", "kasujDane");
-        SQLiteDatabase db = getWritableDatabase();
-        String[] argumenty = {"" + id};
-        db.delete(nazwaTabeli, "_id=?", argumenty);
-        Log.d("DebugCSQL:", "po kasujDane");
-        db.close();
     }
 
     public Cursor rawQuery(String zapytanie, String[] argumenty){
@@ -687,67 +658,12 @@ public class ObslugaSQL extends SQLiteOpenHelper {
 
     }
 
-    public void zrobKopieBazy(String  sciezka, Context context){
-        SQLiteDatabase db = getReadableDatabase();
-        db.execSQL(DATABASE_NAME + " .dump");
-        db.close();
-    }//public void zrobKopieBazy(){
-
-    //podpierdolone z https://stackoverflow.com/questions/31367270/exporting-sqlite-database-to-csv-file-in-android
-    public List<String> getTablesOnDataBase(){
-        Cursor c = null;
-        List<String> tables = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-        try{
-            c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
-            if (c.moveToFirst()) {
-                while ( !c.isAfterLast() ) {
-                    tables.add(c.getString(0));
-                    c.moveToNext();
-                }
-            }
-        }
-        catch(Exception throwable){
-            Log.e("ExportPodajTabele", "Could not get the table names from db", throwable);
-        }
-        finally{
-            if(c!=null)
-                c.close();
-        }
-        db.close();
-        return tables;
-    }
-
     public String getVersion() {
         return String.valueOf(DATABASE_VERSION);
     }
 
     public SQLiteDatabase getDB(){
         return getReadableDatabase();
-    }
-
-    public static List<String> getTablesOnDataBase(SQLiteDatabase db){
-        Cursor c = null;
-        List<String> tables = new ArrayList<>();
-        try{
-            c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
-            if (c.moveToFirst()) {
-                while ( !c.isAfterLast() ) {
-                    if (c.getString(0) != "android_metadata" & c.getString(0) != "sqlite_sequence" ) {//zabezpieczamy sie przed zapisaniem tabel systemowych
-                        tables.add(c.getString(0));
-                        c.moveToNext();
-                    }
-                }
-            }
-        }
-        catch(Exception throwable){
-            Log.e("TAG", "Could not get the table names from db", throwable);
-        }
-        finally{
-            if(c!=null)
-                c.close();
-        }
-        return tables;
     }
 
     protected daneKlasaPodstawowa cursorDaneW(Cursor kursor, daneKlasaPodstawowa dane_funkcji) {

@@ -42,18 +42,6 @@ public class OSQLdaneStawka extends ObslugaSQLPodstawowa implements InterfejsDos
     }
 
     @Override
-    public List<daneStawka> dajDoSynchronizacji(){
-        String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
-                "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
-                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
-                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id " +// WHERE a.synchron = 0 OR a.synchron IS NULL";
-                "WHERE a.data_synchronizacji IN ('0', '1')";
-                //< 2 bo 0 oznacza nie zsynchronizowany rekord, 1 zaktualizowany rekord, a jakakolwiek liczba oznacza datę synchronizacji
-        return dajDane(zapytanie);
-    }
-
-    @Override
     public daneStawka dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
                 "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
@@ -61,8 +49,6 @@ public class OSQLdaneStawka extends ObslugaSQLPodstawowa implements InterfejsDos
 
         return dajDane1(zapytanie);
     }
-
-
 
     @Override
     public void zerujDateSynchronizacji(){

@@ -16,6 +16,7 @@ import com.google.android.material.textfield.TextInputEditText;
 public class FragmentSynchronizacjaDane extends FragmentPodstawowy {
 
     private daneSynchronizacja danaKlasy;
+    private daneSynchronizacja danaKlasyStara;
     private TextInputEditText textInputEditTextAdres;
     private TextInputEditText textInputEditTextHaslo;
     private TextInputEditText textInputEditTextAdresSerwera;
@@ -41,6 +42,7 @@ public class FragmentSynchronizacjaDane extends FragmentPodstawowy {
 
         OSQLdaneSynchronizacja osql = new OSQLdaneSynchronizacja(getActivity());
         danaKlasy = osql.dajOkreslonyRekord(1);//pobiermy 1 rekord, czyli aktualny jakby co
+        danaKlasyStara = danaKlasy;
         Log.d("FragmentSynchronizacjaDane:  ", String.valueOf(1));
 
         //ustawiamy parametry klasy
@@ -100,7 +102,12 @@ public class FragmentSynchronizacjaDane extends FragmentPodstawowy {
     private void zapiszDane() {
         OSQLdaneSynchronizacja osql = new OSQLdaneSynchronizacja(getActivity());
         long idRekordu = -1;
-        idRekordu = osql.dodajDane(danaKlasy);
+        danaKlasyStara.setCzy_widoczny(0);
+        idRekordu = osql.dodajDane(danaKlasyStara);
+        danaKlasy.setPoprzedni_rekord_id((int) idRekordu);
+        danaKlasy.setPoprzedni_rekord_powod_usuniecia("Update");
+        osql.updateDane(danaKlasy);
+
     }
 
 

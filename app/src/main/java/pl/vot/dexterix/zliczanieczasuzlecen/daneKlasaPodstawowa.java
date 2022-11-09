@@ -1,5 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 
 import org.json.JSONObject;
@@ -167,5 +168,31 @@ public class daneKlasaPodstawowa implements InterfejsDane{
             param.put("data_synchronizacji", String.valueOf(this.getData_synchronizacji()));
 
         return param;
+    }
+
+    protected ContentValues contentValuesW(){
+
+            ContentValues wartosci = new ContentValues();
+
+            wartosci.put("_id", this.getId());
+
+            wartosci.put("uwagi", this.getUwagi());
+            wartosci.put("poprzedni_rekord_id", this.getPoprzedni_rekord_id());
+            wartosci.put("poprzedni_rekord_data_usuniecia", this.getPoprzedni_rekord_data_usuniecia());
+            wartosci.put("poprzedni_rekord_powod_usuniecia", this.getPoprzedni_rekord_powod_usuniecia());
+            wartosci.put("synchron", this.getSynchron());
+            wartosci.put("czy_widoczny", this.getCzy_widoczny());
+            if(this.getData_synchronizacji() > 0){
+                wartosci.put("data_synchronizacji", this.getData_synchronizacji());
+            }else{
+                wartosci.put("data_synchronizacji", 0);
+            }
+            if(this.getData_utworzenia() > 0){
+                wartosci.put("data_utworzenia", this.getData_utworzenia());
+            }else{
+                wartosci.put("data_utworzenia", 0);
+            }
+            //Log.d("OSQLdaneFirma: Uwagi: ", this.getUwagi());
+            return wartosci;
     }
 }
