@@ -10,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.List;
 
 public class FragmentStawki extends FragmentPodstawowy {
@@ -30,23 +28,16 @@ public class FragmentStawki extends FragmentPodstawowy {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Fragment z1 = getVisibleFragment();
-        clickOnFloatingButton();
+        clickOnFloatingButton(new FragmentStawka(), "FragmentStawka");
         wypelnijRecyclerView();
 
     }
     private void wypelnijRecyclerView(){
-        //setContentView(R.layout.fragment_zadania_recycler);
-
         // Lookup the recyclerview in activity layout
         RecyclerView rvContacts = (RecyclerView) getActivity().findViewById(R.id.recyclerViewStawki);
-
         //FragmentRecycler adapter = ...;
-
-
-        // Initialize contacts
         OSQLdaneStawka daneOSQL = new OSQLdaneStawka(getActivity());
         danaKlasy = daneOSQL.dajWszystkieDoRecyclerView();
-
         // Create adapter passing in the sample user data
         FragmentRecyclerStawki adapter = new FragmentRecyclerStawki(danaKlasy);
         adapter.setOnItemClickListener(new FragmentRecyclerStawki.OnItemClickListener() {
@@ -66,18 +57,5 @@ public class FragmentStawki extends FragmentPodstawowy {
         // Set layout manager to position the items
         rvContacts.setLayoutManager(new LinearLayoutManager(getActivity()));
         // That's all!
-    }
-
-    private void clickOnFloatingButton() {
-        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
-        fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fab.setVisibility(View.INVISIBLE);
-                zmianaFragmentu(new FragmentStawka(), "FragmentStawka");
-            }
-        });
-
     }
 }

@@ -2,6 +2,7 @@ package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -90,6 +91,33 @@ public class daneKlasaPodstawowa implements InterfejsDane{
     public void setCzy_widoczny(Integer czy_widoczny) {
         this.czy_widoczny = czy_widoczny;
     }
+
+    public daneKlasaPodstawowa(){
+        this.uwagi = "";
+        Log.d("uwagi: ", getUwagi());
+        this.poprzedni_rekord_data_usuniecia = "0";
+        this.id = 0;
+        this.poprzedni_rekord_id = 0;
+        this.poprzedni_rekord_powod_usuniecia = "0";
+        this.czy_widoczny = 1;
+        this.synchron = 0;
+        this.data_synchronizacji = 0;
+        this.data_utworzenia = 0;
+    }
+
+    protected void ustawDanePoczatkoweKlasyW(){
+        this.uwagi = "uwagi345";
+        Log.d("uwagi: ", getUwagi());
+        this.poprzedni_rekord_data_usuniecia = "0";
+        this.id = 0;
+        this.poprzedni_rekord_id = 0;
+        this.poprzedni_rekord_powod_usuniecia = "0";
+        this.czy_widoczny = 1;
+        this.synchron = 0;
+        this.data_synchronizacji = 0;
+        this.data_utworzenia = 0;
+    }
+
 
     public void setFromJSONw(JSONObject Jasonobject){
         this.setData_utworzenia(Jasonobject.optLong("data_utworzenia", 0));

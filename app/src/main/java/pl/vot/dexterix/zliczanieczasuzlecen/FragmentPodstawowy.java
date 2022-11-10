@@ -164,6 +164,19 @@ public class FragmentPodstawowy extends Fragment {
         fab.setVisibility(View.INVISIBLE);
     }
 
+    protected void clickOnFloatingButton(Fragment f, String tag) {
+        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fab.setVisibility(View.INVISIBLE);
+                zmianaFragmentu(f, tag);
+            }
+        });
+
+    }
+
     //wysyłanie plików na dropbox, mail, itd
     protected void sendFiles(){
         //przygotowujemy formatkę do dzielenia

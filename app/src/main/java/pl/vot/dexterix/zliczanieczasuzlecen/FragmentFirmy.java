@@ -1,7 +1,6 @@
 package pl.vot.dexterix.zliczanieczasuzlecen;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -32,7 +29,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
             super.onViewCreated(view, savedInstanceState);
             //Fragment z1 = getVisibleFragment();
 
-            clickOnFloatingButton();
+            clickOnFloatingButton(new FragmentFirma(), "FragmentFirma");
             wypelnijRecyclerView();
             //synchronizujSQL();
 
@@ -57,14 +54,20 @@ public class FragmentFirmy extends FragmentPodstawowy {
             for (int i = 0; i < danaKlasy.size(); i++) {
                 for (int j = 0; j < daneKalendarzy.size(); j++) {
                     Long z = (danaKlasy.get(i).getKalendarz_id());
-                    if (z.equals(daneKalendarzy.get(j).getCalendar_id())) {
-                        danaKlasy.get(i).setKalendarz_nazwa(daneKalendarzy.get(j).getCalendarDisplayName());
+                    if (danaKlasy.get(i).getKalendarz_id() > 0) {
+                        if (z.equals(daneKalendarzy.get(j).getCalendar_id())) {
+                            //Log.d("Kalendarz: ", daneKalendarzy.get(j).getCalendar_id().toString());
+                            ///Log.d("Kalendarz: ", daneKalendarzy.get(j).getCalendarDisplayName().toString());
+                            danaKlasy.get(i).setKalendarz_nazwa(daneKalendarzy.get(j).getCalendarDisplayName());
+                        }
+                    }else{
+                        danaKlasy.get(i).setKalendarz_nazwa("Brak Kalendarza");
                     }
                 }
 
             }
             //i tu malutki problem, bo przecież firmy nie mają przypisanych kalendarzy
-            List<daneFirma> danaKlasyBezKalendarzy;
+            /*List<daneFirma> danaKlasyBezKalendarzy;
             //musimy wyświtlić firmy nawet bez kalendarzy
             danaKlasyBezKalendarzy = daneOSQL.dajWszystkieDoRecyclerViewBezKalendarzy();
             if (danaKlasy.size() < danaKlasyBezKalendarzy.size()) {
@@ -84,7 +87,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
 
                 danaKlasy.addAll(danaKlasyBezKalendarzy);
 
-            }
+            }*/
             // Create adapter passing in the sample user data
             FragmentRecyclerFirmy adapter = new FragmentRecyclerFirmy(danaKlasy);
             adapter.setOnItemClickListener(new FragmentRecyclerFirmy.OnItemClickListener() {
@@ -106,7 +109,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
             // That's all!
         }
 
-    private void clickOnFloatingButton() {
+    /*private void clickOnFloatingButton() {
         FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
         fab.setVisibility(View.VISIBLE);
            fab.setOnClickListener(new View.OnClickListener() {
@@ -116,8 +119,7 @@ public class FragmentFirmy extends FragmentPodstawowy {
                     zmianaFragmentu(new FragmentFirma(), "FragmentFirma");
                 }
             });
-
-        }
+        }*/
 
     /*private void synchronizujSQL() {
         getActualToken(getActivity());

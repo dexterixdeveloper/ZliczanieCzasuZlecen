@@ -68,10 +68,15 @@ public class daneStawka extends daneKlasaPodstawowa{
         this.setKoniec("24:00");
         this.setFirma_id(0);
         this.setFirma_nazwa("");
-        this.setUwagi("");
-        this.setSynchron(0);
-        this.setData_synchronizacji(0);
-        this.setData_utworzenia(0);
+    }
+
+    public daneStawka(){
+        this.setId(0);
+        this.setStawka(0.00f);
+        this.setPoczatek("00:00");
+        this.setKoniec("24:00");
+        this.setFirma_id(0);
+        this.setFirma_nazwa("");
     }
 
     public String toStringDoRecyclerView() {

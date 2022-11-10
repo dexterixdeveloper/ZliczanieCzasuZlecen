@@ -137,13 +137,9 @@ public class FragmentZadaniaArchiwalne extends FragmentPodstawowy {
         Log.d("Spinner", "2)");
         ArrayList<String[]> danaSpinnera;
         danaSpinnera = dA.podajNazwa();
-        //danaSpinnera.add("0 Dodaj");
-        //danaSpinnera.add(0, getString(dodaj));
         //dodajemy sobie na poczatku wyraz wybierz
         String[] staleSpinnera = {String.valueOf(0), "Wszystkie", "0"};
         danaSpinnera.add(0, staleSpinnera);
-        //Spinner spinner = (Spinner) findViewById(rSpinner);
-        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
         SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
         spinner.setAdapter(adapter);
         if (wybor > 0 ) {

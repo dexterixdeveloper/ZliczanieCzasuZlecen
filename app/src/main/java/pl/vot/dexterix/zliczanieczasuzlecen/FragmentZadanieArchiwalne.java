@@ -47,7 +47,6 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //odpalamy klasę odpowiedzialną za datę:\
 
         //inicjujemy dane w klasie
         danaKlasy.onCreate();
@@ -58,16 +57,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
         textInputEditTextCzasRozpoczecia = (TextInputEditText) view.findViewById(R.id.textInputEditTextCzasRozpoczecia);
         textInputEditTextCzasZakonczenia = (TextInputEditText) view.findViewById(R.id.textInputEditTextCzasZakonczenia);
 
-        //obsluga pobrania czasu i daty
-
-        //obsluga pobrania czasu i daty END
-        //textInputEditTextUwagi.setText(String.valueOf(przeniesioneID));
-
-
         obsluzGuzikZakoncz(getView());
-
-        //Powiadomienietakietamdocommita
-        //pokazPowiadomienie();
 
         Spinner spinner = (Spinner) view.findViewById(R.id.spinnerWybierzFirme);
         dodajDoSpinnerWybierzFirme(spinner, R.string.dodaj, R.string.wybierz, 0);
@@ -95,10 +85,8 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
         DialogFragment newFragment = new FragmentPobierzCzas();
         DialogFragment fragmentDoZamiany = new FragmentPobierzCzas();
         zmianaFragmentu(fragmentDoZamiany, "FragmentPobierzCzas");
-        //Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();
-        //newFragment.show(getSupportFragmentManager(), "timePicker");
-    }
 
+    }
 
     //to daje nam możliwość przekazania danych do tego fragmentu
     public static FragmentZadanieArchiwalne newInstance(int someInt) {
@@ -125,13 +113,9 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
         Log.d("Spinner", "2)");
         ArrayList<String[]> danaSpinnera;
         danaSpinnera = dA.podajNazwa();
-        //danaSpinnera.add("0 Dodaj");
-        //danaSpinnera.add(0, getString(dodaj));
         //dodajemy sobie na poczatku wyraz wybierz
         String[] staleSpinnera = {String.valueOf(0), getString(wybierz), "0"};
         danaSpinnera.add(0, staleSpinnera);
-        //Spinner spinner = (Spinner) findViewById(rSpinner);
-        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
         SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
         spinner.setAdapter(adapter);
         if (wybor > 0 ) {
@@ -150,8 +134,6 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
                 }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentZadanieArchiwalne.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
-                    /*Intent intent = new Intent(ActivityZadanie.this, ActivityPrzegladyOkresoweDodajStacjaKontroliSieci.class);
-                    startActivityForResult(intent, REQUEST_CODE);*/
                 }
             }
 
@@ -195,9 +177,8 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
             danaKlasyPrzeniesiona.setCzy_widoczny(0);
             osql.updateDane(osql.contentValues(danaKlasyPrzeniesiona), osql.getTableName());
         }
-        //aktualnaData.konwertujDateZeStringa(String.valueOf(textInputEditTextCzasRozpoczecia.getText()));
+
         danaKlasy.setCzas_rozpoczecia(aktualnaData.getDateFromString(String.valueOf(textInputEditTextCzasRozpoczecia.getText())));
-        //aktualnaData.konwertujDateZeStringa(String.valueOf(textInputEditTextCzasZakonczenia.getText()));
         danaKlasy.setCzas_zakonczenia(aktualnaData.getDateFromString(String.valueOf(textInputEditTextCzasZakonczenia.getText())));
         danaKlasy.setOpis(String.valueOf(textInputEditTextOpis.getText()));
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
@@ -222,8 +203,7 @@ public class FragmentZadanieArchiwalne extends FragmentPodstawowy {
             Log.d("FragmentZadanie id zadania: ", String.valueOf(danaKlasy.getKalendarz_zadanie_id()));
         }
         Log.d("dana klasy: ", danaKlasy.toString());
-
         osql.updateDane(osql.contentValues(danaKlasy), osql.getTableName());
-        //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
+
     }//private void zapiszDane(){
 }

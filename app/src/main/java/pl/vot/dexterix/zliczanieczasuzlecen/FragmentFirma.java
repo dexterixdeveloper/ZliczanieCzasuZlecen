@@ -70,11 +70,11 @@ public class FragmentFirma extends FragmentPodstawowy {
             OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
             danaKlasy = osql.dajOkreslonyRekord(przeniesioneID);
             Log.d("FragmentFirma:  ", String.valueOf(przeniesioneID));
-            if (danaKlasy instanceof daneFirma){//.getNazwa().isEmpty()){
+            /*if (danaKlasy instanceof daneFirma){//.getNazwa().isEmpty()){
                 //tu podobna sytuacja, nie ma kalendarza wiec sie niew wyswietli
                 Log.d("FragmentFirma1:  ", String.valueOf(przeniesioneID));
                 danaKlasy = osql.dajOkreslonyRekordBezKalendarza(przeniesioneID);
-            }
+            }*/
             //ustawiamy parametry klasy
             textInputEditTextUwagi.setText(String.valueOf(danaKlasy.getUwagi()));
             textInputEditTextNazwa.setText(String.valueOf(danaKlasy.getNazwa()));
@@ -83,8 +83,6 @@ public class FragmentFirma extends FragmentPodstawowy {
             textInputEditTextNrTelefonu.setText(String.valueOf(danaKlasy.getNr_telefonu()));
             dodajDoSpinnerWybierzKalendarz(R.string.wybierz, danaKlasy.getKalendarz_id());
             Log.d("danePojedyncze", danaKlasy.toStringDoRecyclerView());
-
-
         }
 
     }
@@ -116,34 +114,13 @@ public class FragmentFirma extends FragmentPodstawowy {
 
     public void dodajDoSpinnerWybierzKalendarz(final Integer wybierz, long wybor) {
         Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinnerWybierzKalendarz);
-        //OSQLdaneFirma dA = new OSQLdaneFirma(getActivity());
         Log.d("Spinner", "2)");
-        //List<daneKalendarza> danaSpinneraKlasa = new LinkedList<>();//;//List<daneKalendarza> wybierzKalendarzDoZapisu()
-        //pobieramy kalendarze z telefonu
-        //danaSpinneraKlasa = wybierzKalendarzDoZapisu();
         //pobieramy kalendarze z bazy
         OSQLdaneKalendarzy osql = new OSQLdaneKalendarzy(getActivity());
-        ArrayList<String[]> danaSpinnera = osql.podajNazwa();//dajWszystkieDoRecyclerView();//dajWszystkie();
-
-        //List<String> danaSpinnera =null;
-        /*for (int i = 0; i < danaSpinneraKlasa.size(); i++){
-            String dana_for ="";
-            dana_for = String.valueOf(i) + " " + danaSpinneraKlasa.get(i).getCalendarDisplayName();
-            danaSpinnera.add(dana_for);
-        }*/
-
-        //danaSpinneraKlasa.
-        //danaSpinnera = danaSpinneraKlasa.
-        //danaSpinnera.add("0 Dodaj");
-        //danaSpinnera.add(0, getString(dodaj));
+        ArrayList<String[]> danaSpinnera = osql.podajNazwa();
         String[] staleSpinnera = {String.valueOf(0), getString(wybierz)};
         danaSpinnera.add(0, staleSpinnera);
-        //Spinner spinner = (Spinner) findViewById(rSpinner);
-        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
-        //adapter stary
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, danaSpinnera);
         SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
-        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         Log.d("FragmentFirma: " + "wybor: ", String.valueOf(wybor));
         if (wybor > 0L ) {
@@ -156,28 +133,25 @@ public class FragmentFirma extends FragmentPodstawowy {
                 }
             }
         }
-        //List<daneKalendarza> finalDanaSpinnera = danaSpinnera;
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
                 Log.d("poszukiwanie: ", poszukiwanie);
                 if (!(poszukiwanie.equals(getString(wybierz)))){
-                    //int kalendarz = Integer.valueOf(poszukiwanie.substring(0,String.valueOf(poszukiwanie).indexOf(" ")));
 
                     danaKlasy.setKalendarz_id(Long.valueOf(danaSpinnera.get(i)[0]));
                     Log.d("ID Kalendarza ", String.valueOf(danaKlasy.getKalendarz_id()));
 
                     danaKlasy.setKalendarz_nazwa(danaSpinnera.get(i)[1]);
                     Log.d("ID Kalendarza ", danaKlasy.getKalendarz_nazwa());
-                    //danaKlasy.setKalendarz_nazwa(poszukiwanie.substring(0,String.valueOf(poszukiwanie).indexOf(" ")));
-
                 }
 
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
     }//public void dodajDoSpinnerEksploatacjaDodajCzynnosc(Integer rSpinner) {
@@ -200,14 +174,18 @@ public class FragmentFirma extends FragmentPodstawowy {
             uzupelnijDane.append("-Nazwa Firmy\n");
         }
         if (danaKlasy.getKalendarz_id() < 1){
-            daneDoUzupelnienia++;
-            uzupelnijDane.append("-Kalendarz\n");
+            danaKlasy.setKalendarz_id(0);
+            //danaKlasy.setKalendarz_nazwa("Kalendarz nie wybrany");
+            //daneDoUzupelnienia++;
+            uzupelnijDane.append("-Kalendarz, ale nie musisz;)\n");
         }
 
         if (daneDoUzupelnienia > 0) {
             Toast.makeText(context, uzupelnijDane, Toast.LENGTH_SHORT).show();
             Log.d("do uzupelnienia", "Nazwa Firmy");
         }else{
+            Log.d("Kalendarzid: ", String.valueOf(danaKlasy.getKalendarz_id()));
+            Log.d("Kalendarznazwa: ", String.valueOf(danaKlasy.getKalendarz_nazwa()));
             zapiszDane();
             cofnijDoPoprzedniegoFragmentu();
         }

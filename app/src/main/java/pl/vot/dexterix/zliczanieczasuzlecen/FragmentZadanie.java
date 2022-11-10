@@ -48,27 +48,20 @@ public class FragmentZadanie extends FragmentPodstawowy {
         }
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_zadanie, container, false);
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //odpalamy klasę odpowiedzialną za datę:\
-
         //inicjujemy dane w klasie
         danaKlasy.onCreate();
         ukryjFloatingButton();
             //Odpalamy okienko opis:
         textInputEditTextOpis = (TextInputEditText) view.findViewById(R.id.textInputEditTextOpis);
         textInputEditTextUwagi = (TextInputEditText) view.findViewById(R.id.textInputEditTextUwagi);
-        //textInputEditTextUwagi.setText(String.valueOf(przeniesioneID));
-
         obsluzGuzikZawies(getView());
         obsluzGuzikWTlo(getView());
         obsluzGuzikZakoncz(getView());
         obsluzGuzikZacznij(getView());
-        //Powiadomienie
-        //pokazPowiadomienie();
 
         dodajDoSpinnerWybierzFirme(R.id.spinnerWybierzFirme, R.string.dodaj, R.string.wybierz, 0);
 
@@ -124,11 +117,6 @@ public class FragmentZadanie extends FragmentPodstawowy {
             public void onClick(View view) {
                 aktualnaData.podajDate();
                 danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy("gora"));
-
-                //odczytujemy kalendarz
-
-                //zapiszDane("zak");
-                //cofnijDoPoprzedniegoFragmentu();
                 zapiszDaneICofnijDoPoprzedniegofragmentu("zak");
             }
         });
@@ -140,11 +128,6 @@ public class FragmentZadanie extends FragmentPodstawowy {
             public void onClick(View view) {
                 aktualnaData.podajDate();
                 danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy("gora"));
-                //danaKlasy.setCzy_widoczny(1);
-                //zapiszDane("zak");
-                //zapiszDane("zaw");
-                //cofnijDoPoprzedniegoFragmentu();
-
                 zapiszDaneICofnijDoPoprzedniegofragmentu("zaw");
 
             }
@@ -160,17 +143,8 @@ public class FragmentZadanie extends FragmentPodstawowy {
                     aktualnaData.podajDate();
                     danaKlasy.setCzas_rozpoczecia(aktualnaData.getDataMilisekundy("dol"));
                 }
-                //aktualnaData.podajDate();
-                //danaKlasy.setCzas_zakonczenia(aktualnaData.getDataMilisekundy());
-                //danaKlasy.setCzy_widoczny(1);
-                //pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), 2);
-                //uruchomAlramZadania();
-                //Intent zadanieServiceWtle = new Intent(getContext(), NotificationService.class);
-                //startForegroundService(getContext(), zadanieServiceWtle ) ;
-                //startForegroundService( new Intent( getContext(), NotificationService.class )) ;
                 zapiszDaneICofnijDoPoprzedniegofragmentu("wtle");
-                //zapiszDane("wtle");
-                //cofnijDoPoprzedniegoFragmentu();
+
             }
         });
     }
@@ -192,11 +166,6 @@ public class FragmentZadanie extends FragmentPodstawowy {
         alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() +
                         czestotliwoscAlarmu * 60 * 1000, czestotliwoscAlarmu * 60 * 1000, alarmIntent);
-
-// setRepeating() lets you specify a precise custom interval--in this case,
-// 20 minutes.
-        //alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-         //       1000 * 60 * 20, alarmIntent);
 
     }
 
@@ -231,13 +200,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
         Log.d("Spinner", "2)");
         ArrayList<String[]> danaSpinnera;
         danaSpinnera = dA.podajNazwa();
-        //danaSpinnera.add("0 Dodaj");
-        //danaSpinnera.add(0, getString(dodaj));
         //dodajemy sobie na poczatku wyraz wybierz
         String[] staleSpinnera = {String.valueOf(0), getString(wybierz), "0"};
         danaSpinnera.add(0, staleSpinnera);
-        //Spinner spinner = (Spinner) findViewById(rSpinner);
-        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
         SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
         spinner.setAdapter(adapter);
         if (wybor > 0 ) {
@@ -250,15 +215,12 @@ public class FragmentZadanie extends FragmentPodstawowy {
                 Log.d("poszukiwanie: ", poszukiwanie);
                 if (!(poszukiwanie.equals(getString(dodaj))) && !(poszukiwanie.equals(getString(wybierz)))){
                     danaKlasy.setFirma_id(Integer.valueOf(danaSpinnera.get(i)[0]));
-                    //OSQLdaneFirma firma = new OSQLdaneFirma(getActivity());
                     danaKlasy.setFirma_nazwa(danaSpinnera.get(i)[1]);
                     danaKlasy.setKalendarz_id_long(Long.valueOf(danaSpinnera.get(i)[2]));
 
                 }else if (poszukiwanie.equals(getString(dodaj))){
                     NavHostFragment.findNavController(FragmentZadanie.this)
                             .navigate(R.id.action_FragmentZadanie_to_FragmentFirma);
-                    /*Intent intent = new Intent(ActivityZadanie.this, ActivityPrzegladyOkresoweDodajStacjaKontroliSieci.class);
-                    startActivityForResult(intent, REQUEST_CODE);*/
                 }
             }
 
@@ -271,7 +233,6 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
     private long addEventToCalendar(long calID, long startMillis, long endMillis, String tytul){
         //Dodawanie zadań do kalendarza
-
         ContentResolver cr = getActivity().getContentResolver();
         ContentValues values = new ContentValues();
         values.put(CalendarContract.Events.DTSTART, startMillis);
@@ -281,13 +242,9 @@ public class FragmentZadanie extends FragmentPodstawowy {
         values.put(CalendarContract.Events.CALENDAR_ID, calID);
         values.put(CalendarContract.Events.EVENT_TIMEZONE, "Europe/Warsaw");//TODO: to trzeba zmienić za pomocą getAvailableIDs() https://developer.android.com/guide/topics/providers/calendar-provider
         Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-
         // get the event ID that is the last element in the Uri
          long eventID = Long.parseLong(uri.getLastPathSegment());
-        //
-        // ... do something with event ID
-        //
-        //
+
         return eventID;
     }
 
@@ -324,61 +281,61 @@ public class FragmentZadanie extends FragmentPodstawowy {
 
         daneData dataUtworzenia = new daneData();
         danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());
-            danaKlasy.setStatus(sStatus);
-            OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
-            if (przeniesioneID > 0) {
-                danaKlasyPrzeniesiona.setData_utworzenia(dataUtworzenia.getAktualnaData());
-                if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
-                    Log.d("Status,", danaKlasyPrzeniesiona.getStatus());
-                    Log.d("Wtle", "jka?");
-                    //zamykamy poprzendie zlecenie
-                    danaKlasyPrzeniesiona.setStatus("zak");
+        danaKlasy.setStatus(sStatus);
+        OSQLdaneZlecenia osql = new OSQLdaneZlecenia(getActivity());
+        if (przeniesioneID > 0) {
+            danaKlasyPrzeniesiona.setData_utworzenia(dataUtworzenia.getAktualnaData());
+            if (!danaKlasyPrzeniesiona.getStatus().equals("wtle")) {//o ile to nie dane zlecenia w tle
+                Log.d("Status,", danaKlasyPrzeniesiona.getStatus());
+                Log.d("Wtle", "jka?");
+                //zamykamy poprzendie zlecenie
+                danaKlasyPrzeniesiona.setStatus("zak");
 
-                }else{
-                    danaKlasyPrzeniesiona.setStatus("zakwtle");
+            }else{
+                danaKlasyPrzeniesiona.setStatus("zakwtle");
+            }
+            danaKlasyPrzeniesiona.setCzy_widoczny(0);
+            osql.updateDane(osql.contentValues(danaKlasyPrzeniesiona), osql.getTableName());
+        }
+
+        danaKlasy.setCzy_widoczny(1);
+        if (danaKlasy.getCzas_rozpoczecia().equals(0L)) {
+            danaKlasy.setCzas_rozpoczecia(danaKlasy.getCzas_zakonczenia());
+            danaKlasy.setStatus("dw");
+        }
+        if (sStatus.equals("zaw")){
+            if(danaKlasy.getCzas_zakonczenia()>danaKlasy.getCzas_rozpoczecia()){
+                if (przeniesioneID > 0) {
+                    danaKlasy.setStatus("zak");
+                    zapiszDanaZakonczone();
+                    osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
                 }
-                danaKlasyPrzeniesiona.setCzy_widoczny(0);
-                osql.updateDane(osql.contentValues(danaKlasyPrzeniesiona), osql.getTableName());
-            }
 
-            danaKlasy.setCzy_widoczny(1);
-            if (danaKlasy.getCzas_rozpoczecia().equals(0L)) {
-                danaKlasy.setCzas_rozpoczecia(danaKlasy.getCzas_zakonczenia());
-                danaKlasy.setStatus("dw");
-            }
-            if (sStatus.equals("zaw")){
-                if(danaKlasy.getCzas_zakonczenia()>danaKlasy.getCzas_rozpoczecia()){
-                    if (przeniesioneID > 0) {
-                        danaKlasy.setStatus("zak");
-                        zapiszDanaZakonczone();
-                        osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
-                    }
-
-                    danaKlasy.setStatus("zaw");
-                    if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zawieś i błąd
-                        cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
-                    }
-                }
-            }
-            if (danaKlasy.getStatus().equals("zak")) {
-                zapiszDanaZakonczone();
-                if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zakończ i błąd
+                danaKlasy.setStatus("zaw");
+                if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zawieś i błąd
                     cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
                 }
             }
-            Log.d("dana klasy: ", danaKlasy.toString());
-
-            long idRekordu = -1;
-            idRekordu = osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
-
-            if (danaKlasy.getStatus().equals("wtle")){
-                //MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext(), "FragmantZadanie");
-                Log.d("FragmentZadanie: Opis: ", danaKlasy.getOpis());
-                uruchomAlramZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu));
+        }
+        if (danaKlasy.getStatus().equals("zak")) {
+            zapiszDanaZakonczone();
+            if (danaKlasy.getId() > 0) {//to powinno pomóc na zacznij -> zakończ i błąd
+                cancelAlarmZadania(danaKlasyDlaAlarmu.getFirma_nazwa(), danaKlasyDlaAlarmu.getOpis(), danaKlasyDlaAlarmu.getCzas_rozpoczecia_string(), danaKlasyDlaAlarmu.getId());
             }
+        }
+        Log.d("dana klasy: ", danaKlasy.toString());
+
+        long idRekordu = -1;
+        idRekordu = osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
+
+        if (danaKlasy.getStatus().equals("wtle")){
+            //MainActivity.pokazPowiadomienie(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu), getContext(), "FragmantZadanie");
+            Log.d("FragmentZadanie: Opis: ", danaKlasy.getOpis());
+            uruchomAlramZadania(danaKlasy.getFirma_nazwa(), danaKlasy.getOpis(), danaKlasy.getCzas_rozpoczecia_string(), Math.toIntExact(idRekordu));
+        }
 
             //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
-        }//private void zapiszDane(){
+    }//private void zapiszDane(){
 
     private void zapiszDanaZakonczone(){
         //SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);

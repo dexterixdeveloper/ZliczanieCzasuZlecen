@@ -48,9 +48,7 @@ public class daneSynchronizacja extends daneKlasaPodstawowa{
         this.setUwagi("");
         this.setLink("");
         this.setKod_urzadzenia("");
-        this.setSynchron(0);
-        this.setData_synchronizacji(0);
-        this.setData_utworzenia(0);
+
     }
     //tak ma kurwa być jak na dole
     public daneSynchronizacja(){
@@ -60,9 +58,7 @@ public class daneSynchronizacja extends daneKlasaPodstawowa{
         this.setUwagi("");
         this.setLink("");
         this.setKod_urzadzenia("");
-        this.setSynchron(0);
-        this.setData_synchronizacji(0);
-        this.setData_utworzenia(0);
+
     }
 
     public Map<String, String> getDanaMap(){

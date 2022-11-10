@@ -15,6 +15,10 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements Interfe
         super(context);
     }
 
+    protected String wspolnaCzescZapytania = "a.poprzedni_rekord_id AS poprzedni_rekord_id, a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
+            "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny, a.data_utworzenia AS data_utworzenia, a.data_synchronizacji AS data_synchronizacji," +
+            "a.synchron AS synchron ";
+
      protected <T> List<T> dajDane(String zapytanie){
         List<T> dane_funkcji = new LinkedList<>();
 
@@ -92,8 +96,34 @@ public abstract class ObslugaSQLPodstawowa extends ObslugaSQL implements Interfe
     }
 
     protected void updateDane(ContentValues wartosci, String nazwa_tabeli) {
-        //ContentValues wartosci = contentValues((pl.vot.dexterix.zliczanieczasuzlecen.daneFirma) t);
-
+        //zapisujemy stary rekord
+        SQLiteDatabase db = getWritableDatabase();
+        String[] selectionArgs = new String[]{String.valueOf(wartosci.get("_id"))} ;
+        Cursor kursor = db.query(nazwa_tabeli, null, "_id=?", selectionArgs, null, null, null);
+        kursor.moveToFirst();
+        String[] nazwyKolumn = kursor.getColumnNames();
+        ContentValues cv = new ContentValues();
+        for (String kolumna: nazwyKolumn){
+            cv.put(kolumna, kursor.getString(kursor.getColumnIndex(kolumna)));
+        }
+        cv.remove("_id");
+        cv.put("czy_widoczny", 0);
+        cv.put("data_synchronizacji", 0);
+        long k = dodajDane(cv, nazwa_tabeli);
+        selectionArgs  = null;
+        nazwyKolumn = null;
+        cv.clear();
+        cv = null;
+        kursor.close();
+        db.close();
+        //zapisujemy stary rekord -END
+        wartosci.put("poprzedni_rekord_id", k);
+        wartosci.put("poprzedni_rekord_powod_usuniecia", "Update");
+        daneData aktualnaData = new daneData();
+        wartosci.put("poprzedni_rekord_data_usuniecia", aktualnaData.getAktualnaData());
+        if (wartosci.getAsInteger("data_synchronizacji") > 1) {
+            wartosci.put("data_synchronizacji", 1);
+        }
         updateDaneOSQL(nazwa_tabeli, wartosci, Integer.valueOf((Integer) wartosci.get("_id")));
     }
 

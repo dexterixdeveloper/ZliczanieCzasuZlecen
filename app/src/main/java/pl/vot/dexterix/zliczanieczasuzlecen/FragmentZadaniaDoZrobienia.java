@@ -15,8 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,15 +59,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         }
 
         changeTitle("Do zrobienia");
-        //robimy sobie mały test
-        /*int name = 18;
-
-        Bundle bundleDane = new Bundle();
-        bundleDane.putInt("id", name);
-        FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
-        zmianaFragmentu(fragmentDoZamiany, "FragmentZadanie");
-        Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();*/
-        //robimy sobie mały test-END
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_zadania_do_zrobienia, container, false);
@@ -79,10 +68,9 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        clickOnFloatingButton();
+        clickOnFloatingButton(new FragmentZadanie(), "FragmentZadanie");
         dodajSpinnerOkresCzasu(R.id.spinnerWybierzPrzedzialCzasu, 0);
         dodajSpinnerWybierzFirme(R.id.spinner2WybierzFirme, 0);
-        //wypelnijRecyclerView();
 
     }
 
@@ -99,20 +87,14 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
 
     private void wypelnijRecyclerView(){
         //setContentView(R.layout.fragment_zadania_recycler);
-
         // Lookup the recyclerview in activity layout
         RecyclerView recyclerViewZlecenia = (RecyclerView) getActivity().findViewById(R.id.recyclerViewZlecenia);
-
         //FragmentRecycler adapter = ...;
-
-       
         // Initialize contacts
         OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
         zlecenia = daneZleceniaSQL.dajWszystkieDoRecyclerViewNZ("zaw", dataPoczatkowa, dataKoncowa, firmaId);
-
         // Create adapter passing in the sample user data
         FragmentRecyclerZlecenia adapter = new FragmentRecyclerZlecenia(getContext(), zlecenia);
-
         adapter.setOnItemClickListener(new FragmentRecyclerZlecenia.OnItemClickListener() {
 
             @Override
@@ -126,8 +108,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                 Toast.makeText(getActivity(), name + " was clicked!", Toast.LENGTH_SHORT).show();
             }
         });
-
-
 
         // Attach the adapter to the recyclerview to populate items
         recyclerViewZlecenia.setAdapter(adapter);
@@ -146,65 +126,18 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                             if (adapter.getSelected().size() > 0) {
                                 StringBuilder stringBuilder = new StringBuilder();
                                 stringBuilder.append("\n");
-
-                                //for (int i = 0; i < adapter.getSelected().size(); i++) {
                                 //to jest for each
                                 for (daneZlecenia danaSelected : adapter.getSelected()){
                                     //Log.d("Wartosc i", String.valueOf(i));
                                     Log.d("Eartść size ()", String.valueOf(adapter.getSelected().size()));
                                     stringBuilder.append(danaSelected.getOpis());
                                     stringBuilder.append("\n");
-
                                     danaSelected.setStatus("anuluj");
                                     danaSelected.setCzy_widoczny(0);
-                                    //to może na razie bez zmiany danych
-                                    //Log.d("Zlecenia1: ", adapter.getSelected().get(i).toString());
-                                    //OSQLdaneZlecenia daneZleceniaSQL = new OSQLdaneZlecenia(getActivity());
                                     daneZleceniaSQL.updateDane(daneZleceniaSQL.contentValues(danaSelected), daneZleceniaSQL.getTableName());
-                                    //Log.d("albo albo ", String.valueOf(daneZleceniaSQL.dajOkreslonyRekord(adapter.getSelected().get(i).getId())));
-                                    //adapter.getSelected().remove(i);
                                     //usuwamy z listy jako obiekt
                                     zlecenia.remove(danaSelected);
-                                    /*for (daneZlecenia dane : zlecenia){
-                                        if(dane.getId() == danaSelected.getId()){
-                                            zlecenia.remove(dane);
-                                        }
-                                    }*/
-                                    /*for (int j = 0; j < zlecenia.size(); j++){
-                                        Log.d("Zlecenia GetID przed if", String.valueOf(zlecenia.get(j).getId()));
-                                        if (adapter.getSelected().get(i).getId() == zlecenia.get(j).getId()){
-                                            Log.d("Adapter get id", String.valueOf(adapter.getSelected().get(i).getId()));
-                                            Log.d("Zlecenia GetID", String.valueOf(zlecenia.get(j).getId()));
-                                            //adapter.getSelected().get(i).setChecked(false);
-                                            //adapter.getSelected().remove(i);
-
-                                            zlecenia.remove(j);
-                                            Log.d("Usunieto", String.valueOf(j));
-                                            //przerywamy pętlę bo już i tak nie znajdziemy kolejnego id zlecenia takiego samego
-                                            break;
-                                        }
-                                    }*/
-
                                 }
-
-                                //no niestety musi być 2 fofr, bo inaczej nic mi nie przychodzi do głowy, żeby lista się wyczyściła
-                                //zróbmy od dupy strony: znajdzmy te ze statusem anuluj
-                                    /*for (int j = 0; j < zlecenia.size(); j++) {
-                                        Log.d("Zlecenia GetID przed if", String.valueOf(zlecenia.get(j).getId()));
-                                        if (zlecenia.get(j).getStatus().equals("anuluj")) {
-                                            //Log.d("Adapter get id", String.valueOf(adapter.getSelected().get(i).getId()));
-                                            Log.d("Zlecenia GetID", String.valueOf(zlecenia.get(j).getId()));
-                                            //adapter.getSelected().get(i).setChecked(false);
-                                            //adapter.getSelected().remove(i);
-                                            //adapter.notifyItemRemoved(j);
-                                            zlecenia.remove(j);
-                                            Log.d("Usunieto", String.valueOf(j));
-                                            //przerywamy pętlę bo już i tak nie znajdziemy kolejnego id zlecenia takiego samego
-                                            break;
-                                        }
-                                    }*/
-
-
                                 adapter.notifyDataSetChanged();
                                 //Droga jest zamknięta
                                 //Zbudowali ją Ci którzy są umarli
@@ -219,7 +152,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                     });
                 }else{
                     Button buttonAnulujZlecenia = getActivity().findViewById(R.id.buttonAnulujZlecenia);
-                    //Log.d("Visible", String.valueOf(adapter.getSelected().size()));
                     buttonAnulujZlecenia.setVisibility(View.GONE);
                 }
                 return false;
@@ -241,35 +173,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         // That's all!
         //pokazujemy powiadomienie
         //pokazPowiadomienie("Zadań zawieszonych: " + zlecenia.size(), "", "", 0, getContext());
-    }
-
-    /*private void clickOnButtonAnulujZlecenia(){
-        Button buttonAnulujZlecenia = getActivity().findViewById(R.id.buttonAnulujZlecenia);
-        buttonAnulujZlecenia.setOnClickListener(new View.OnClickListener() {
-            if (adapter.getSelected().size() > 0) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < adapter.getSelected().size(); i++) {
-                    stringBuilder.append(adapter.getSelected().get(i).getName());
-                    stringBuilder.append("\n");
-                }
-                Log.d("Zaznaczenie", stringBuilder.toString().trim());
-            } else {
-                Log.d("Zaznaczenie","No Selection");
-            }
-        });
-    }*/
-
-    private void clickOnFloatingButton() {
-        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButtonDodaj);
-        fab.setVisibility(View.VISIBLE);
-
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        fab.setVisibility(View.INVISIBLE);
-                        zmianaFragmentu(new FragmentZadanie(), "FragmentZadanie");
-                    }
-                });
     }
 
     private void dodajSpinnerOkresCzasu(int rIdSpinner, Integer wybor) {
@@ -320,8 +223,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                     default:
 
                         break;
-
-                    //wykonajWyslijRaport(poczatek, koniec);
                 }
                 wypelnijRecyclerView();
             }
@@ -340,13 +241,9 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
         Log.d("Spinner", "2)");
         ArrayList<String[]> danaSpinnera;
         danaSpinnera = dA.podajNazwa();
-        //danaSpinnera.add("0 Dodaj");
-        //danaSpinnera.add(0, getString(dodaj));
         //dodajemy sobie na poczatku wyraz wybierz
         String[] staleSpinnera = {String.valueOf(0), "Wszystkie", "0"};
         danaSpinnera.add(0, staleSpinnera);
-        //Spinner spinner = (Spinner) findViewById(rSpinner);
-        //RFWSpinner.przygotujSpinner(danaSpinnera,this,spinner);
         SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
         spinner.setAdapter(adapter);
         if (wybor > 0 ) {
@@ -365,8 +262,6 @@ public class FragmentZadaniaDoZrobienia  extends FragmentPodstawowy {
                 }
                 wypelnijRecyclerView();
             }
-
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 

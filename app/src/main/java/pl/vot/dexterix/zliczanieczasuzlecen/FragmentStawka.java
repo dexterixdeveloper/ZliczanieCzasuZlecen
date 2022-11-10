@@ -134,7 +134,6 @@ public class FragmentStawka extends FragmentPodstawowy {
         }else{
             danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
         }
-        //danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
         danaKlasy.setPoczatek(String.valueOf(textInputEditTextPoczatek.getText()));
         danaKlasy.setKoniec(String.valueOf(textInputEditTextKoniec.getText()));
         danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));
@@ -170,11 +169,6 @@ public class FragmentStawka extends FragmentPodstawowy {
 
     private void zapiszDane(){
 
-        /*danaKlasy.setStawka(Float.valueOf(String.valueOf(textInputEditTextStawka.getText())));
-        danaKlasy.setPoczatek(String.valueOf(textInputEditTextPoczatek.getText()));
-        danaKlasy.setKoniec(String.valueOf(textInputEditTextKoniec.getText()));
-        danaKlasy.setUwagi(String.valueOf(textInputEditTextUwagi.getText()));*/
-
         Log.d("dana klasy: ", danaKlasy.toString());
         OSQLdaneStawka osql = new OSQLdaneStawka(getActivity());
 
@@ -185,6 +179,5 @@ public class FragmentStawka extends FragmentPodstawowy {
         }else{
             osql.dodajDane(osql.contentValues(danaKlasy), osql.getTableName());
         }
-        //setPrzebieg(Integer.parseInt(String.valueOf(textInputEditTextPrzebiegTankowania.getText())));
     }//private void zapiszDane(){
 }

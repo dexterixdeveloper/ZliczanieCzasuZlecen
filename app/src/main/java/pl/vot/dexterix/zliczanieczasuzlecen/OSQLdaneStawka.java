@@ -26,17 +26,16 @@ public class OSQLdaneStawka extends ObslugaSQLPodstawowa implements InterfejsDos
     @Override
     public List<daneStawka> dajWszystkieDoRecyclerView(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
-                "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id";
+                "a.firma_id AS firma_id, b.nazwa AS firma_nazwa " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id WHERE a.czy_widoczny > 0";
         return dajDane(zapytanie);
     }
 
     @Override
     public List<daneStawka> dajWszystkie(){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
-                "a.firma_id AS firma_id, a.uwagi AS uwagi, a.synchron AS synchron, b.nazwa AS firma_nazwa, a.poprzedni_rekord_id AS poprzedni_rekord_id, " +
-                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, " +
-                "a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, a.czy_widoczny AS czy_widoczny " +
+                "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa, " +
+                wspolnaCzescZapytania +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id";
         return dajDane(zapytanie);
     }
@@ -44,7 +43,8 @@ public class OSQLdaneStawka extends ObslugaSQLPodstawowa implements InterfejsDos
     @Override
     public daneStawka dajOkreslonyRekord(Integer _id){
         String zapytanie = "SELECT a._id AS _id, a.stawka AS stawka, a.poczatek AS poczatek, a.koniec AS koniec, " +
-                "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa " +
+                "a.firma_id AS firma_id, a.uwagi AS uwagi, b.nazwa AS firma_nazwa, " +
+                wspolnaCzescZapytania +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS b ON a.firma_id = b._id WHERE a._id = " + _id;
 
         return dajDane1(zapytanie);

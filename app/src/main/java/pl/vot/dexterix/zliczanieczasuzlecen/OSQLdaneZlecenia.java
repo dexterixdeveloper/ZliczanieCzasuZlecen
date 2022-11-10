@@ -56,7 +56,7 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
     public List<daneZlecenia> dajWszystkieDoRecyclerView(String status, Long poczatek, Long koniec, int firmaId){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny = 1";
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny > 0";
         if (koniec > poczatek){
             zapytanie = zapytanie + " AND a.czas_rozpoczecia >= '" + poczatek + "' AND a.czas_zakonczenia <= '" + koniec + "'";
         }
@@ -70,7 +70,7 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
     public List<daneZlecenia> dajWszystkieDoRaportu(String status, Long czasRozpoczecia, Long czasZakonczenia, int firma_id){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.firma_id AS firma_id " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny = 1 " +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status = '" + status + "' AND a.czy_widoczny > 0 " +
                 "AND czas_rozpoczecia >= " + czasRozpoczecia + " AND czas_rozpoczecia <= " + czasZakonczenia;
         if (firma_id > -1){
             zapytanie = zapytanie.concat(" AND p._id = " + firma_id);
@@ -81,7 +81,7 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
     public List<daneZlecenia> dajWszystkieDoRecyclerViewNZ(String status, Long poczatek, Long koniec, int firmaId){
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.status AS status, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.firma_id AS firma_id " +
-                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status != 'zak' AND a.status != 'zakwtle' AND a.status != 'anuluj' AND a.czy_widoczny = 1";
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a INNER JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a.status != 'zak' AND a.status != 'zakwtle' AND a.status != 'anuluj' AND a.czy_widoczny > 0";
         if (koniec > poczatek){
             zapytanie = zapytanie + " AND a.czas_rozpoczecia >= '" + poczatek + "' AND a.czas_zakonczenia <= '" + koniec + "'";
         }
@@ -98,7 +98,8 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
                 "a.status AS status, p.nazwa AS firma_nazwa, a.firma_id AS firma_id, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, z.calendar_id AS calendar_id "  +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id LEFT JOIN " + DICTIONARY_TABLE_NAME_3 + " AS z ON a.kalendarz_id = z._id WHERE a._id = " + _id;*/
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia, a.czas_zakonczenia AS czas_zakonczenia, " +
-                "a.status AS status, p.nazwa AS firma_nazwa, a.firma_id AS firma_id, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id "  +
+                "a.status AS status, p.nazwa AS firma_nazwa, a.firma_id AS firma_id, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, "  +
+                wspolnaCzescZapytania +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id WHERE a._id = " + _id;
         return dajDane1(zapytanie);
     }
@@ -112,8 +113,8 @@ public class OSQLdaneZlecenia extends ObslugaSQLPodstawowa implements InterfejsD
                 "a.czy_widoczny AS czy_widoczny FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id LEFT JOIN " + DICTIONARY_TABLE_NAME_3 + " AS z ON a.kalendarz_id = z._id";*/
         String zapytanie = "SELECT a._id AS _id, a.opis AS opis, a.czas_rozpoczecia AS czas_rozpoczecia,  a.czas_zakonczenia AS czas_zakonczenia," +
                 "a.firma_id AS firma_id, a.status AS status, a.rozliczona AS rozliczona, p.nazwa AS firma_nazwa, a.uwagi AS uwagi, a.kalendarz_id AS kalendarz_id, a.kalendarz_zadanie_id AS kalendarz_zadanie_id, " +
-                "a.poprzedni_rekord_data_usuniecia AS poprzedni_rekord_data_usuniecia, a.poprzedni_rekord_powod_usuniecia AS poprzedni_rekord_powod_usuniecia, " +
-                "a.czy_widoczny AS czy_widoczny, a.synchron AS synchron FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id";
+                wspolnaCzescZapytania +
+                "FROM " + DICTIONARY_TABLE_NAME + " AS a LEFT JOIN " + DICTIONARY_TABLE_NAME_1 + " AS p ON a.firma_id = p._id";
         return dajDane(zapytanie);
     }
 

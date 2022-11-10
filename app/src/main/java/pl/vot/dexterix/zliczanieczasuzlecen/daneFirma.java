@@ -32,17 +32,10 @@ public class daneFirma extends daneKlasaPodstawowa{
         //this.siec_id = null;
         //this.siec_nazwa = null;
         this.typ = "";
-        this.uwagi = "";
+
         this.kalendarz_id = 0L;
         this.kalendarz_nazwa = null;
-        this.poprzedni_rekord_data_usuniecia = "0";
-        this.id = 0;
-        this.poprzedni_rekord_id = 0;
-        this.poprzedni_rekord_powod_usuniecia = "0";
-        this.czy_widoczny = 1;
-        this.synchron = 0;
-        this.data_synchronizacji = 0;
-        this.data_utworzenia = 0;
+
     }
 
     public String getTyp() {
@@ -136,9 +129,10 @@ public class daneFirma extends daneKlasaPodstawowa{
     }
 
     public String toStringDoRecyclerView() {
-        return  "N: " + nazwa +
-                 " U: " + uwagi +
-                " K: " + kalendarz_id;
+        return  "id = " + id +
+                "\nN: " + nazwa +
+                 "\nU: " + uwagi;
+                //" K: " + kalendarz_id;
 
     }
 

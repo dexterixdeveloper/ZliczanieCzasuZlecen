@@ -204,12 +204,6 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
         this.kalendarz_id_long = 0L;
         this.kalendarz_zadanie_id = 0L;
         this.isChecked = false;
-        this.id = 0;
-        this.poprzedni_rekord_data_usuniecia = "";
-        this.poprzedni_rekord_id = 0;
-        this.poprzedni_rekord_powod_usuniecia = "";
-        this.data_synchronizacji = 0;
-        this.data_utworzenia =0;
     }
 
     public void onCreate(){
@@ -229,12 +223,6 @@ public class daneZlecenia extends daneKlasaPodstawowa implements Serializable {
         this.setKalendarz_zadanie_id(0L);
         this.setSynchron(0);
         this.setChecked(false);
-        this.setId(0);
-        this.setPoprzedni_rekord_data_usuniecia("");
-        this.setPoprzedni_rekord_id(0);
-        this.setPoprzedni_rekord_powod_usuniecia("");
-        this.setData_synchronizacji(0);
-        this.setData_utworzenia(0);
 
     }
 
