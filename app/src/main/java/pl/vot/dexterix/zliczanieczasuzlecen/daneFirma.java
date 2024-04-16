@@ -17,6 +17,9 @@ public class daneFirma extends daneKlasaPodstawowa{
     //dane przypidsanego kalendarza do firmy
     private long kalendarz_id;
     private String kalendarz_nazwa;
+    private Integer zleceniodawca;
+    private Integer czyZleceniodawca; //czy firma jest zleceniodawcą
+    private String zleceniodawcaNazwa;
 
     //private Integer siec_id;
     //zewnętrzne
@@ -35,6 +38,8 @@ public class daneFirma extends daneKlasaPodstawowa{
 
         this.kalendarz_id = 0L;
         this.kalendarz_nazwa = null;
+        this.czyZleceniodawca = 0;
+        this.zleceniodawca = -1;
 
     }
 
@@ -60,6 +65,30 @@ public class daneFirma extends daneKlasaPodstawowa{
     /*public void setSiec_id(Integer siec_id) {
         this.siec_id = siec_id;
     }*/
+
+    public Integer getZleceniodawca() {
+        return zleceniodawca;
+    }
+
+    public void setZleceniodawca(Integer zleceniodawca) {
+        this.zleceniodawca = zleceniodawca;
+    }
+
+    public String getZleceniodawcaNazwa() {
+        return zleceniodawcaNazwa;
+    }
+
+    public void setZleceniodawcaNazwa(String zleceniodawcaNazwa) {
+        this.zleceniodawcaNazwa = zleceniodawcaNazwa;
+    }
+
+    public Integer getCzyZleceniodawca() {
+        return czyZleceniodawca;
+    }
+
+    public void setCzyZleceniodawca(Integer czyZleceniodawca) {
+        this.czyZleceniodawca = czyZleceniodawca;
+    }
 
     public String getUlica_nr() {
         return ulica_nr;
@@ -157,6 +186,8 @@ public class daneFirma extends daneKlasaPodstawowa{
         this.setNr_telefonu(Jasonobject.optInt("nr_telefonu", 0));
         this.setNumer(Jasonobject.optString("numer", ""));
         this.setNazwa(Jasonobject.optString("nazwa", ""));
+        this.setCzyZleceniodawca(Jasonobject.optInt("czyZleceniodawca", 0));
+        this.setZleceniodawca(Jasonobject.optInt("zleceniodawca",-1));
     }
 
     public Map<String, String> getMap() {
@@ -173,6 +204,8 @@ public class daneFirma extends daneKlasaPodstawowa{
         param.put("miasto", this.getMiasto());
         param.put("typ", this.getTyp());
         param.put("kalendarz_id", String.valueOf(this.getKalendarz_id()));
+        param.put("czyZleceniodawca", String.valueOf(this.getCzyZleceniodawca()));
+        param.put("zleceniodawca", String.valueOf(this.getZleceniodawca()));
 
         param.putAll(getMapW());
         return param;
@@ -211,6 +244,8 @@ public class daneFirma extends daneKlasaPodstawowa{
         wartosci.put("typ", this.getTyp());
         //Log.d("OSQLdaneFirma: Miasto: ", this.getMiasto());
         wartosci.put("kalendarz_id", this.getKalendarz_id_str());
+        wartosci.put("czyZleceniodawca", this.getCzyZleceniodawca());
+        wartosci.put("zleceniodawca", this.getZleceniodawca());
         //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(this.getKalendarz_id()));
         //wartosci.put("siec_id", this.getSiec_id());
         //wartosci.put("typ", this.getTyp());

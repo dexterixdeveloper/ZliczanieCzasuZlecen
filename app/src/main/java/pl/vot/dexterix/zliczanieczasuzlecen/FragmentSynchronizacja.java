@@ -118,6 +118,8 @@ public class FragmentSynchronizacja extends FragmentPodstawowy {
 
         //Tabele do synchronizacji
         List<String> tablice = daneOSQL.getTabliceDoSynchronizacji();
+        tablice.remove(2);
+        tablice.remove(1);
         if (getAktualnaTabela() < tablice.size() && !getCzyKoniec()) {
             String table = tablice.get(getAktualnaTabela());
 

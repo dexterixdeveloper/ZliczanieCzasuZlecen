@@ -20,7 +20,7 @@ import java.util.Map;
 public class ObslugaSQL extends SQLiteOpenHelper {
     //private static final String TAG = SqliteExporter.class.getSimpleName();
     //klasa odpowiedzialna za zarządzanie bazą danych
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
     //public static final String UI_SYNCHRONIZE_MESSAGE = "dexterix.vot.pl.synchronizemysqltosqlitedatabase.UI_SYNCHRONIZE_SQLITE";
     private static final String STALA_CZESC_ZAPYTANIA_WSZYSKIE =" ,_id, uwagi, poprzedni_rekord_id, poprzedni_rekord_data_usuniecia, poprzedni_rekord_powod_usuniecia, czy_widoczny";
     private static final String DATABASE_NAME = "BazaZliczanieCzasuZlecanByDex.db";
@@ -36,8 +36,8 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             {"Integer", "text", "integer", "text", "text", "integer", "integer", "text", "text"}};
 
     //ElektronicznaKsiazkaAutaByDexFirmy
-    private static final String[][] DICTIONARY_TABLE_1_ROWS = {{"nazwa", "numer", "nr_telefonu", "ulica_nr", "miasto", "typ", "kalendarz_id"},
-            {"text", "text", "text", "text", "text", "text", "Text"}};
+    private static final String[][] DICTIONARY_TABLE_1_ROWS = {{"nazwa", "numer", "nr_telefonu", "ulica_nr", "miasto", "typ", "kalendarz_id", "zleceniodawca", "czyZleceniodawca"},
+            {"text", "text", "text", "text", "text", "text", "Text", "integer", "integer"}};
     private static final String[][] DICTIONARY_TABLE_ROWS_1_FOREIGN = {{},
             {}};
 
@@ -226,6 +226,12 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             db.execSQL(tworzStringBazy(DICTIONARY_TABLE_5_ROWS, DICTIONARY_TABLE_ROWS_5_FOREIGN, DICTIONARY_TABLE_NAME_5));
             Log.d("DebugCSQL:", "tworzenie upgrade baz: " + DICTIONARY_TABLE_NAME_5);
         }
+        if (oldVersion < 13) {
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_1 + " ADD COLUMN zleceniodawca INTEGER");
+            db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_1 + " ADD COLUMN czyZleceniodawca INTEGER");
+            Log.d("DebugCSQL:", "tworzenie upgrade baz: " + DICTIONARY_TABLE_NAME_1);
+        }
+
         /*if (oldVersion < 5){
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_czas text");
             db.execSQL("ALTER TABLE " + DICTIONARY_TABLE_NAME_11 + " ADD COLUMN interwal_przebieg integer");
@@ -465,10 +471,11 @@ public class ObslugaSQL extends SQLiteOpenHelper {
             }
             idRekordu = db.update(nazwa_tabeli,  wartosci, "_id = ?", new String[] {String.valueOf(wartosci.get("_id"))});
             //Log.d("Wstawianie ", String.valueOf(idRekordu));
-            if (idRekordu < 0 ){
+            Log.d("id rekordu 1 =", String.valueOf(idRekordu));
+            if (idRekordu <= 0 ){
 
                 idRekordu = db.insertWithOnConflict(nazwa_tabeli, null, wartosci, SQLiteDatabase.CONFLICT_IGNORE);
-            }
+                Log.d("id rekordu 2 =", String.valueOf(idRekordu));}
         } catch(SQLException excepion){
             Log.d("Wywalilo", nazwa_tabeli);
             Log.d("wyjatek", excepion.toString());

@@ -46,10 +46,12 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
         return DICTIONARY_TABLE_NAME;
     }
 
+    private String select1 = "a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, a.miasto AS miasto, " +
+            "a.kalendarz_id AS kalendarz_id, a.zleceniodawca AS zleceniodawca, a.czyZleceniodawca AS czyZleceniodawca, a.uwagi AS uwagi ";
+
     @Override
     public List<daneFirma> dajWszystkie(){
-        String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.numer AS numer, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
-                "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
+        String zapytanie = "SELECT  " + select1 + ", " +
                 wspolnaCzescZapytania +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a ";
 
@@ -58,12 +60,14 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
 
     @Override
     public daneFirma dajOkreslonyRekord(Integer _id){
-        String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
-                "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
-                " a.uwagi AS uwagi, " +
+        String zapytanie = "SELECT " + select1 + ", " +
                 wspolnaCzescZapytania +
                 "FROM " + DICTIONARY_TABLE_NAME + " AS a  WHERE a._id = " + _id;
-
+        //Log.d("select1", select1);
+        //Log.d("wspolna", wspolnaCzescZapytania);
+        //Log.d("Tabela", DICTIONARY_TABLE_NAME);
+        //Log.d("id", String.valueOf(_id));
+        //Log.d("zapytanie", zapytanie);
         return dajDane1(zapytanie);
     }
 
@@ -84,9 +88,7 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
     }
 
     public List<daneFirma> dajWszystkieDoRecyclerViewBezKalendarzy(){
-        String zapytanie = "SELECT a._id AS _id, a.nazwa AS nazwa, a.nr_telefonu AS nr_telefonu, a.ulica_nr AS ulica_nr, " +
-                "a.miasto AS miasto, a.kalendarz_id AS kalendarz_id, " +
-                " a.uwagi AS uwagi FROM " + DICTIONARY_TABLE_NAME + " AS a";// INNER JOIN " +  DICTIONARY_TABLE_NAME_3 + " AS p ON a.kalendarz_id = p._id";
+        String zapytanie = "SELECT " + select1 + " FROM " + DICTIONARY_TABLE_NAME + " AS a";// INNER JOIN " +  DICTIONARY_TABLE_NAME_3 + " AS p ON a.kalendarz_id = p._id";
         return dajDane(zapytanie);
     }
 
@@ -114,6 +116,8 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
         wartosci.put("typ", dane_funkcji.getTyp());
         //Log.d("OSQLdaneFirma: Miasto: ", dane_funkcji.getMiasto());
         wartosci.put("kalendarz_id", dane_funkcji.getKalendarz_id_str());
+        wartosci.put("zleceniodawca", dane_funkcji.getZleceniodawca());
+        wartosci.put("czyZleceniodawca", dane_funkcji.getCzyZleceniodawca());
         //Log.d("OSQLdaneFirma: Kalendarz_id", String.valueOf(dane_funkcji.getKalendarz_id()));
         //wartosci.put("siec_id", dane_funkcji.getSiec_id());
         //wartosci.put("typ", dane_funkcji.getTyp());
@@ -150,6 +154,12 @@ public class OSQLdaneFirma extends ObslugaSQLPodstawowa implements InterfejsDost
         }
         if (kursor.getColumnIndex("calendarDisplayName") > -1) {
             dane_funkcji.setKalendarz_nazwa(kursor.getString(kursor.getColumnIndex("calendarDisplayName")));
+        }
+        if (kursor.getColumnIndex("zleceniodawca") > -1) {
+            dane_funkcji.setZleceniodawca(kursor.getInt(kursor.getColumnIndex("zleceniodawca")));
+        }
+        if (kursor.getColumnIndex("czyZleceniodawca") > -1) {
+            dane_funkcji.setCzyZleceniodawca(kursor.getInt(kursor.getColumnIndex("czyZleceniodawca")));
         }
 
         /*if (kursor.getColumnIndex("typ") > -1) {

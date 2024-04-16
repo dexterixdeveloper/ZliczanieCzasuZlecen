@@ -46,5 +46,7 @@
     <string name="kod_urz_dzenia">Kod urządzenia</string>
     <string name="zapisz">Zapisz</string>
     <string name="first_fragment_label">First Fragment</string>
+    <string name="wybierz_kalendarz">Wybierz Kalendarz</string>
+    <string name="wybierz_zleceniodawc">Wybierz Zleceniodawcę</string>
 
 </resources>

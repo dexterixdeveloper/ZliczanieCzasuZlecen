@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,9 +61,10 @@ public class FragmentFirma extends FragmentPodstawowy {
         List<daneKalendarza> kalendarze_w_bazie = osqlk.dajWszystkie();
         ukryjFloatingButton();
         dodajDoSpinnerWybierzKalendarz(R.string.wybierz, 0L);
-
+        dodajDoSpinnerZleceniodawca(R.string.wybierz, danaKlasy.getZleceniodawca());
         //Fragment z1 = getVisibleFragment();
         obsluzGuzikDodaj(R.id.buttonDodaj);
+        obsluzSwitch();
 
         //sprawdzamy czy przekazano id z poprzedniej klasy
         if (przeniesioneID > 0) {
@@ -82,8 +84,26 @@ public class FragmentFirma extends FragmentPodstawowy {
             textInputEditTextMiasto.setText(String.valueOf(danaKlasy.getMiasto()));
             textInputEditTextNrTelefonu.setText(String.valueOf(danaKlasy.getNr_telefonu()));
             dodajDoSpinnerWybierzKalendarz(R.string.wybierz, danaKlasy.getKalendarz_id());
+            dodajDoSpinnerZleceniodawca(R.string.wybierz, danaKlasy.getZleceniodawca());
             Log.d("danePojedyncze", danaKlasy.toStringDoRecyclerView());
         }
+
+    }
+
+    private void obsluzSwitch(){
+        // initiate a Switch
+        Switch simpleSwitch = (Switch) getActivity().findViewById(R.id.switchZleceniodawca);
+
+        // check current state of a Switch (true or false).
+
+        if (przeniesioneID > 0) {
+            Boolean zaznaczenie = Boolean.valueOf(String.valueOf(danaKlasy.getCzyZleceniodawca()));
+            simpleSwitch.setChecked(zaznaczenie);
+            Log.d("zaznaczenie", String.valueOf(zaznaczenie));
+        }
+        Boolean switchState = simpleSwitch.isChecked();
+        Integer switchStateInt = (switchState) ? 1 : 0;
+        danaKlasy.setCzyZleceniodawca(switchStateInt);
 
     }
 
@@ -111,6 +131,50 @@ public class FragmentFirma extends FragmentPodstawowy {
         fragmentDemo.setArguments(args);
         return fragmentDemo;
     }
+
+    public void dodajDoSpinnerZleceniodawca(final Integer wybierz, long wybor) {
+        Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinnerWybierzZlecniodawce);
+        Log.d("Spinner", "2)");
+        //pobieramy kalendarze z bazy
+        OSQLdaneFirma osql = new OSQLdaneFirma(getActivity());
+        ArrayList<String[]> danaSpinnera = osql.podajNazwa();
+        String[] staleSpinnera = {String.valueOf(0), getString(wybierz)};
+        danaSpinnera.add(0, staleSpinnera);
+        SpinnerCustomAdapter adapter = new SpinnerCustomAdapter(getActivity(), danaSpinnera);
+        spinner.setAdapter(adapter);
+        //Log.d("FragmentFirma: " + "wybor: ", String.valueOf(wybor));
+        if (wybor > 0L ) {
+            //Log.d("Firma wybor", String.valueOf(wybor));
+            for (int i = 1; i < danaSpinnera.size(); i++) {
+                //Log.d("FragmentFirma: " + "wybor: " + "dana: " , danaSpinnera.get(i)[0]);
+                if (danaSpinnera.get(i)[0].equals(String.valueOf(wybor))){
+                    Log.d("Firma wybor 2", String.valueOf(i));
+                    spinner.setSelection(i);
+                }
+            }
+        }
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String poszukiwanie = String.valueOf(adapterView.getSelectedItem());
+                Log.d("poszukiwanie: ", poszukiwanie);
+                if (!(poszukiwanie.equals(getString(wybierz)))){
+
+                    danaKlasy.setZleceniodawca(Integer.valueOf(danaSpinnera.get(i)[0]));
+                    Log.d("ID firmy ", String.valueOf(danaKlasy.getKalendarz_id()));
+
+                    danaKlasy.setZleceniodawcaNazwa(danaSpinnera.get(i)[1]);
+                    Log.d("nazwa firmy ", danaKlasy.getKalendarz_nazwa());
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }//public void dodajDoSpinnerZleceniodawca {
 
     public void dodajDoSpinnerWybierzKalendarz(final Integer wybierz, long wybor) {
         Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinnerWybierzKalendarz);

@@ -288,6 +288,10 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                     //Log.d("cos chyba", "nie bangla");
                     //pobieramy stawki
                     List<daneStawka> stawki;
+                    //TODO: gdy tylko 1 firma to poco wszystkie stawki?
+                    if (danaKlasy < 0){
+
+                    }
                     OSQLdaneStawka daneStawkiSQL = new OSQLdaneStawka(getActivity());
                     stawki = daneStawkiSQL.dajWszystkie();
                     //a co w przypadku gdy nie ma zdefinowanej stawki w danych godzinach, lub nie ma ich wcale?
@@ -306,7 +310,7 @@ public class FragmentRaportyDoWyslania extends FragmentPodstawowy {
                             daneStawkiSQL.dodajDane(daneStawkiSQL.contentValues(stawka), daneStawkiSQL.getTableName());
                         }
                         //w takim razie musimy jeszcze raz odpalić stawki
-                        stawki = daneStawkiSQL.dajWszystkie();
+                        //stawki = daneStawkiSQL.dajWszystkie();
                     }
 
                     //w takim razie musimy jeszcze raz odpalić stawki

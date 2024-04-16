@@ -70,13 +70,13 @@ public class FragmentPodstawowy extends Fragment {
     protected void zmianaFragmentu(Fragment fragmencik, String tagBackStack, Boolean addToBackStack){
         // Begin the transaction
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-// Replace the contents of the container with the new fragment
+        // Replace the contents of the container with the new fragment
 
         ft.replace(R.id.fragment_container_main, fragmencik, tagBackStack);
         Log.d("BackToStack", "Bez Add to back");
 
-// or ft.add(R.id.your_placeholder, new FooFragment());
-// Complete the changes added above
+        // or ft.add(R.id.your_placeholder, new FooFragment());
+        // Complete the changes added above
         ft.commit();
 
     }
@@ -92,12 +92,12 @@ public class FragmentPodstawowy extends Fragment {
         Log.d("Back2", "2");
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
 
-// Replace the contents of the container with the new fragment
+        // Replace the contents of the container with the new fragment
         ft.replace(R.id.fragment_container_main, fragmencik, tagBackStack);
         ft.addToBackStack(tagBackStack);
 
-// or ft.add(R.id.your_placeholder, new FooFragment());
-// Complete the changes added above
+        // or ft.add(R.id.your_placeholder, new FooFragment());
+        // Complete the changes added above
         ft.commit();
     }
 

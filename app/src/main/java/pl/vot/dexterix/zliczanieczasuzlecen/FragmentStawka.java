@@ -21,6 +21,7 @@ import java.util.ArrayList;
 public class FragmentStawka extends FragmentPodstawowy {
 
     daneStawka danaKlasy = new daneStawka();
+    daneStawka danaKlasyDodatkowa = new daneStawka();
     private int przeniesioneID = 0;
     private TextInputEditText textInputEditTextStawka;
     private TextInputEditText textInputEditTextPoczatek;
@@ -168,9 +169,17 @@ public class FragmentStawka extends FragmentPodstawowy {
     }
 
     private void zapiszDane(){
-
+        daneData dP = new daneData();
+        daneData dK = new daneData();
         Log.d("dana klasy: ", danaKlasy.toString());
         OSQLdaneStawka osql = new OSQLdaneStawka(getActivity());
+        dP.konwertujDateZeStringa(danaKlasy.getPoczatek());
+        dK.konwertujDateZeStringa(danaKlasy.getKoniec());
+
+        if (dP.getDataMilisekundy() > dK.getDataMilisekundy()){
+            Log.d("Stawki poczatek: ",String.valueOf(dP.getDataMilisekundy()));
+            Log.d("Stawki koniec: ",String.valueOf(dK.getDataMilisekundy()));
+        }
 
         daneData dataUtworzenia = new daneData();
         danaKlasy.setData_utworzenia(dataUtworzenia.getAktualnaData());

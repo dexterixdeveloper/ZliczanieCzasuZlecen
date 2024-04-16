@@ -57,11 +57,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //synchronizacja SQL
-
-        //Synchronizacja SQL END
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
@@ -71,58 +66,33 @@ public class MainActivity extends AppCompatActivity {
         if (FirstRun){
             poprosOUprawnienia();
         }
-        //toolbar.setTitle("456");
-        //sprobujmy zrobic backup na starcie
-        //ObslugaSQL osql = new ObslugaSQL(this);
-        //Log.d("Katalog: ", "yy");
         //TODO: Właczyć backup
-        //osql.zrobKopieBazy("bla", this);
-        //koniec prob
 
         //częćś do uruchomienia fragmentu z powiadomienia
-
         String fragmentDoZmiany = getIntent().getStringExtra("FragmentDoZmiany");
-
-        //FragmentManager fragmentManager = getSupportFragmentManager();
-        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        // If menuFragment is defined, then this activity was launched with a fragment selection
         if (fragmentDoZmiany != null) {
             Log.d(TAG, "null");
             Log.d("MAin", fragmentDoZmiany);
             // Here we can decide what do to -- perhaps load other parameters from the intent extras such as IDs, etc
             if (fragmentDoZmiany.equals("FragmentZadanie")) {
                 Log.d(TAG, "czyzby sie udalo?");
-                //FragmentZadanie favoritesFragment = new FragmentZadanie();
                 int name = getIntent().getIntExtra("id", 0);
                 Bundle bundleDane = new Bundle();
                 bundleDane.putInt("id", name);
                 bundleDane.putString("FragmentDoZmiany", fragmentDoZmiany);
                 Log.d("Main", fragmentDoZmiany);
-                //FragmentZadanie fragmentDoZamiany = FragmentZadanie.newInstance(name);
-                //fragmentDoZamiany.
                 //tutaj jakoś musimy wssadzić poczatkowy fragment
                 FragmentZadaniaDoZrobienia fragmentDoZamiany = FragmentZadaniaDoZrobienia.newInstance(name, fragmentDoZmiany);
-                //do tąd
                 String tagBackStack = "FragmentStart";
                 zmianaFragmentu(fragmentDoZamiany, tagBackStack, 0);
-                //fragmentTransaction.replace(android.R.id.content, favoritesFragment);
             }
         } else {
             // Activity was not launched with a menuFragment selected -- continue as if this activity was opened from a launcher (for example)
             String tagBackStack = "FragmentStart";
             Log.d(TAG, "chyba się nie udało");
             zmianaFragmentu(new FragmentZadaniaDoZrobienia(), tagBackStack, 0);
-            //StandardFragment standardFragment = new StandardFragment();
-            //fragmentTransaction.replace(android.R.id.content, standardFragment);
         }
-
-        //testowanie zapisu pliku
-        //createFile();
-        
-
     }
-
 
     //test na tworzenie pliku w lokalizacji wybranej przez usera
     private void createFile(Uri pickerInitialUri) {
@@ -130,11 +100,9 @@ public class MainActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_TITLE, "invoice.pdf");
-
         // Optionally, specify a URI for the directory that should be opened in
         // the system file picker when your app creates the document.
         intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
-
         startActivityForResult(intent, CREATE_FILE);
     }
 
@@ -144,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         List<daneUstawienia> ustawienia = osql.dajWszystkie();
         if (!ustawienia.isEmpty()) {
             for (daneUstawienia ustawienie : ustawienia) {
-
                 switch (ustawienie.getUstawienie()) {
                     case "FirstRun":
                         FirstRun = Boolean.valueOf(ustawienie.getWartosc());//czy 1 uruchomienie
@@ -155,9 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     case "AccessFiles":
                         AccessFiles = Boolean.valueOf(ustawienie.getWartosc());//czy dostęp do plików zewnętrznych
                         break;
-
                 }
-
             }
         }else{
             String[][] danePoczatkowe = {
@@ -189,42 +154,14 @@ public class MainActivity extends AppCompatActivity {
             ustawienie.setTypDanych(dana[2]);
             ustawienie.setWartosc(dana[1]);
             ustawienie.setUstawienie(dana[0]);
-
-
         }
-
     }
 
     private void poprosOUprawnienia() {
-        /*if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-        }*/
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED) {
-
             // Permission is not granted
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -249,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED) {
-
             // Permission is not granted
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -336,21 +272,12 @@ public class MainActivity extends AppCompatActivity {
         // Begin the transaction
         Log.d("Back2", "2");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        //sprawdzamy czy cos juz jest w backstack
-        /*FragmentManager fm = getSupportFragmentManager();
-        if ((fm.getBackStackEntryCount() < 1) && !(tagBackStack.equals("FragmentStart"))){
-            ft.replace(R.id.fragment_container_main, new FragmentZadaniaDoZrobienia(), "FragmentStart");
-        }*/
-
         // Replace the contents of the container with the new fragment
         ft.replace(R.id.fragment_container_main, fragmencik);
 
-        //Log.d(TAG + " zmianaFragmentu ",fragmencik.getTag());
         if (iCzyBackStack > 0) {
             ft.addToBackStack(tagBackStack);
         }
-// or ft.add(R.id.your_placeholder, new FooFragment());
-// Complete the changes added above
         ft.commit();
     }
 
@@ -373,31 +300,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        //FragmentManager fm = getSupportFragmentManager();
-
-        //fm.findFragmentByTag("FragmentZadanie");
-        //Log.d("MainActivity", getVisibleFragment(fm));
-
         if (fm.getBackStackEntryCount() > 0) {
             if (("FragmentZadanie").equals(getVisibleFragment(fm)) || ("FragmentFirma").equals(getVisibleFragment(fm))) {
-
                 Log.d("MaaiActivity", "chyba się udało");
                 //otwieramy okienko dialogowe
                 pokazOkienkoAlertuZeNieZapisalesDanych("Chcę wyjść", "Chcę zapisać","Uwaga", "Nie zapisałeś danych. Czy na pewno chcesz wyjść?", false);
-
-
             }else {
-
                 Log.i("MainActivity", "cofamy się do poprzedniego fragmentu");
-                //Log.d("MainActivity 3", String.valueOf(wynikGuzika));
                 fm.popBackStack();
             }
         } else {
             Log.i("MainActivity", "nic w backstack, calling super");
             pokazOkienkoAlertuZeNieZapisalesDanych("Chcę wyjść", "Zostaję", "Koniec programu?", "Czy chcesz zakończyć program?", true);
-
-                //super.onBackPressed();
-
         }
     }
 
@@ -406,12 +320,6 @@ public class MainActivity extends AppCompatActivity {
 
         alertDialog.setTitle(sTytul);
         alertDialog.setMessage(sWiadomowsc);
-        /*alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "nNeutralny",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });*/
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, sPositive,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -421,8 +329,6 @@ public class MainActivity extends AppCompatActivity {
                             finish();
                         }
                         dialog.dismiss();
-
-                        //onBackPressed()..super.onBackPressed();
                     }
                 });
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, sNegative,
@@ -432,10 +338,7 @@ public class MainActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
-
         alertDialog.show();
-
-
     }
 
     private void clickOnFloatingButton() {
@@ -476,13 +379,10 @@ public class MainActivity extends AppCompatActivity {
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
-        
-        //stackBuilder.add
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         //Kombinujemy jak z powiadomienia odpalić formatkę - tu na razie tyle
-
         //takie tam powiadominie sobie wrzucamy
         //TODO: wyjaśnić sprawę z powiedomieniami dlaczego 2 albo 3 linie wyświetlają się losowo 2 albo 3
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
@@ -510,6 +410,4 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(notificationId, builder.build());
         //to pokazaliśmy
     }
-    //to przerabiamy
-
 }
